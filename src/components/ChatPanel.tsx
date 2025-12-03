@@ -16,6 +16,12 @@ import {
   Zap,
   Moon,
   Sun,
+  X,
+  Upload,
+  File,
+  FileCode,
+  FileJson,
+  FileText,
 } from 'lucide-react';
 import {
   ChatMessage,
@@ -23,6 +29,7 @@ import {
   CloudLLMConfig,
   OllamaConfig,
 } from '../types';
+import { FileSystemAPI, FileNode } from '../utils/file-api';
 import type { ChatMode } from '../types/ide-types';
 import { format } from 'date-fns';
 import { useTheme } from './ThemeProvider';
@@ -43,24 +50,26 @@ interface ChatPanelProps {
   onCloudLLMConfigChange: (config: CloudLLMConfig | null) => void;
   ollamaConfig: OllamaConfig | null;
   onOllamaConfigChange: (config: OllamaConfig | null) => void;
-  onApplyCodeToFile?: (code: string) => void;
+  onApplyCodeToFile?: (code: string, path?: string) => void;
+  onFileSelect?: (node: FileNode) => void;
 }
 
 function ChatPanelInner(
-{
-  messages,
-  onSendMessage,
-  isLoading = false,
-  mode,
-  chatBackend,
-  onChatBackendChange,
-  cloudLLMConfig,
-  onCloudLLMConfigChange,
-  ollamaConfig,
-  onOllamaConfigChange,
-  onApplyCodeToFile,
-}: ChatPanelProps,
-ref: React.Ref<ChatPanelHandle>,
+  {
+    messages,
+    onSendMessage,
+    isLoading = false,
+    mode,
+    chatBackend,
+    onChatBackendChange,
+    cloudLLMConfig,
+    onCloudLLMConfigChange,
+    ollamaConfig,
+    onOllamaConfigChange,
+    onApplyCodeToFile,
+    onFileSelect,
+  }: ChatPanelProps,
+  ref: React.Ref<ChatPanelHandle>,
 ) {
   const [input, setInput] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -68,6 +77,21 @@ ref: React.Ref<ChatPanelHandle>,
   const [isLoadingOllamaModels, setIsLoadingOllamaModels] = useState(false);
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<Array<{
+    name: string;
+    path?: string;
+    size: number;
+    content: string;
+  }>>([]);
+
+  const getFileIcon = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    if (ext === 'json') return FileJson;
+    if (['st', 'scl', 'il', 'ld', 'fbd', 'js', 'ts', 'tsx', 'jsx', 'py', 'html', 'css', 'java', 'c', 'cpp', 'h', 'rs', 'go'].includes(ext || '')) return FileCode;
+    if (['txt', 'md', 'csv', 'log'].includes(ext || '')) return FileText;
+    return File;
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const activeCloudProvider = cloudLLMConfig?.provider || 'openai';
@@ -146,10 +170,14 @@ ref: React.Ref<ChatPanelHandle>,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !canSend) return;
+    if ((!input.trim() && attachedFiles.length === 0) || isLoading || !canSend) return;
 
-    onSendMessage(input.trim());
+    const fileText = buildFileAttachmentText();
+    const finalMessage = input.trim() + fileText;
+
+    onSendMessage(finalMessage);
     setInput('');
+    setAttachedFiles([]);
     if (inputRef.current) {
       inputRef.current.style.height = 'auto';
     }
@@ -203,6 +231,51 @@ ref: React.Ref<ChatPanelHandle>,
     event.stopPropagation();
     setIsDragOver(false);
 
+    // Check if this is a FileNode drop from FileExplorer
+    const fileNodeData = event.dataTransfer.getData('application/file-node');
+    if (fileNodeData) {
+      try {
+        const fileNode = JSON.parse(fileNodeData);
+
+        // Only handle file types, not directories
+        if (fileNode.type === 'file') {
+          try {
+            let content: string;
+            const draggedHandle = (window as any).__draggedFileHandle;
+
+            // Check if we have a matching handle from the drag source
+            if (draggedHandle && draggedHandle.name === fileNode.name) {
+              const file = await draggedHandle.getFile();
+              content = await file.text();
+              // Clear the handle
+              (window as any).__draggedFileHandle = null;
+            } else {
+              // Fallback to backend API
+              content = await FileSystemAPI.readFile(fileNode.path);
+            }
+
+            setAttachedFiles((prev) => [...prev, {
+              name: fileNode.name,
+              path: fileNode.path,
+              size: content.length,
+              content,
+            }]);
+
+            // Auto-open the file so "Apply" works on the correct file
+            if (onFileSelect) {
+              onFileSelect(fileNode);
+            }
+          } catch (error) {
+            console.error('Failed to read file from explorer:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to parse FileNode data:', error);
+      }
+      return;
+    }
+
+    // Handle OS file drops
     if (!event.dataTransfer || !event.dataTransfer.files?.length) {
       return;
     }
@@ -212,50 +285,24 @@ ref: React.Ref<ChatPanelHandle>,
     );
     if (files.length === 0) return;
 
-    const MAX_FILE_CHARS = 50000;
-    let appendedText = '';
+    const newAttachedFiles: Array<{ name: string; size: number; content: string }> = [];
 
     for (const file of files) {
       try {
-        const raw = await file.text();
-        const truncated =
-          raw.length > MAX_FILE_CHARS
-            ? `${raw.slice(
-              0,
-              MAX_FILE_CHARS,
-            )}\n\n[...truncated: file is large, only the first ${MAX_FILE_CHARS.toLocaleString()} characters are included...]`
-            : raw;
-
-        const extension =
-          file.name.includes('.') && file.name.split('.').pop()
-            ? file.name.split('.').pop()!.toLowerCase()
-            : '';
-        const langHint =
-          extension && /^[a-z0-9]+$/i.test(extension) ? extension : '';
-
-        appendedText += `\n\n---\nFile: ${file.name}\n\n\`\`\`${langHint}\n${truncated}\n\`\`\`\n`;
+        const content = await file.text();
+        newAttachedFiles.push({
+          name: file.name,
+          size: file.size,
+          content,
+        });
       } catch (error) {
         console.error('Failed to read dropped file:', error);
       }
     }
 
-    if (!appendedText) return;
-
-    setInput((prev) => {
-      const hasExisting = prev.trim().length > 0;
-      const prefix = hasExisting
-        ? '\n\nPlease also consider these file(s):\n'
-        : 'Please analyze the following file(s):\n';
-      return `${prev}${prefix}${appendedText}`;
-    });
-
-    // Adjust textarea height after content update
-    requestAnimationFrame(() => {
-      if (inputRef.current) {
-        inputRef.current.style.height = 'auto';
-        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-      }
-    });
+    if (newAttachedFiles.length > 0) {
+      setAttachedFiles((prev) => [...prev, ...newAttachedFiles]);
+    }
   };
 
   const handleDragOver = (
@@ -263,7 +310,8 @@ ref: React.Ref<ChatPanelHandle>,
   ) => {
     if (
       !event.dataTransfer ||
-      !Array.from(event.dataTransfer.types).includes('Files')
+      (!Array.from(event.dataTransfer.types).includes('Files') &&
+        !Array.from(event.dataTransfer.types).includes('application/file-node'))
     ) {
       return;
     }
@@ -277,7 +325,47 @@ ref: React.Ref<ChatPanelHandle>,
     event: React.DragEvent<HTMLDivElement>,
   ) => {
     event.preventDefault();
-    setIsDragOver(false);
+    // Only set isDragOver to false if we're leaving the main container
+    const relatedTarget = event.relatedTarget as Node;
+    const currentTarget = event.currentTarget as Node;
+    if (!currentTarget.contains(relatedTarget)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const buildFileAttachmentText = (): string => {
+    if (attachedFiles.length === 0) return '';
+
+    const MAX_FILE_CHARS = 50000;
+    let fileText = attachedFiles.length > 0
+      ? '\n\nPlease analyze the following file(s):\n'
+      : '';
+
+    for (const file of attachedFiles) {
+      const truncated =
+        file.content.length > MAX_FILE_CHARS
+          ? `${file.content.slice(
+            0,
+            MAX_FILE_CHARS,
+          )}\n\n[...truncated: file is large, only the first ${MAX_FILE_CHARS.toLocaleString()} characters are included...]`
+          : file.content;
+
+      const extension =
+        file.name.includes('.') && file.name.split('.').pop()
+          ? file.name.split('.').pop()!.toLowerCase()
+          : '';
+      const langHint =
+        extension && /^[a-z0-9]+$/i.test(extension) ? extension : '';
+
+      const pathInfo = file.path ? ` (Path: ${file.path})` : '';
+      fileText += `\n---\nFile: ${file.name}${pathInfo}\n\n\`\`\`${langHint}\n${truncated}\n\`\`\`\n`;
+    }
+
+    return fileText;
   };
 
   const handleApplyCodeToFileFromMessage = (message: ChatMessage) => {
@@ -296,7 +384,22 @@ ref: React.Ref<ChatPanelHandle>,
     block = block.replace(/^```[^\n]*\n/, '');
     block = block.replace(/```$/, '');
 
-    onApplyCodeToFile(block);
+    // Check for filename comment in the first line
+    const firstLine = block.split('\n')[0].trim();
+    let targetPath: string | undefined;
+
+    // Support formats: // filename.ext, // path/to/file.ext, /* filename.ext */
+    const filenameMatch = firstLine.match(/^\/\/\s*(.+)$/) || firstLine.match(/^\/\*\s*(.+?)\s*\*\/$/);
+
+    if (filenameMatch) {
+      const potentialPath = filenameMatch[1].trim();
+      // Basic validation to check if it looks like a file path
+      if (/^[\w\-. /]+\.[\w]+$/.test(potentialPath)) {
+        targetPath = potentialPath;
+      }
+    }
+
+    onApplyCodeToFile(block, targetPath);
   };
 
   useEffect(() => {
@@ -332,7 +435,24 @@ ref: React.Ref<ChatPanelHandle>,
       : 'Ask the local Ollama model anything... (Enter to send, Shift+Enter for new line)';
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background">
+    <div
+      className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background relative"
+      onDrop={handleFilesDropped}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      {/* Drop Overlay */}
+      {isDragOver && (
+        <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm z-50 flex items-center justify-center border-2 border-dashed border-primary rounded-lg pointer-events-none">
+          <div className="text-center">
+            <Upload className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">Drop files here</h3>
+            <p className="text-sm text-muted-foreground">
+              Files will be attached to your message
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="border-b border-border px-6 py-3.5 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
@@ -680,13 +800,42 @@ ref: React.Ref<ChatPanelHandle>,
       {/* Input */}
       <div
         className="border-t border-border px-6 py-4 bg-background/80 backdrop-blur-sm"
-        onDrop={handleFilesDropped}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
       >
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="relative">
+            <div className={`relative w-full border rounded-xl bg-input transition-all shadow-sm flex flex-col ${isDragOver
+              ? 'border-dashed border-primary bg-primary/5'
+              : 'border-border focus-within:ring-2 focus-within:ring-ring focus-within:border-transparent'
+              }`}>
+
+              {/* File Attachments (Inline) */}
+              {attachedFiles.length > 0 && (
+                <div className="px-3 pt-3 flex flex-wrap gap-2">
+                  {attachedFiles.map((file, index) => {
+                    const FileIcon = getFileIcon(file.name);
+                    return (
+                      <div
+                        key={index}
+                        className="group flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/20 rounded text-xs text-primary hover:bg-primary/20 transition-colors cursor-default"
+                      >
+                        <FileIcon className="icon-xs flex-shrink-0" />
+                        <span className="font-medium truncate max-w-[150px]">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="ml-0.5 p-0.5 rounded-full hover:bg-primary/20 text-primary/70 hover:text-primary transition-colors"
+                          title="Remove file"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               <textarea
                 ref={inputRef}
                 value={input}
@@ -694,25 +843,27 @@ ref: React.Ref<ChatPanelHandle>,
                 onKeyDown={handleKeyDown}
                 placeholder={inputPlaceholder}
                 disabled={isLoading || !canSend}
-                className={`w-full min-h-[56px] max-h-[200px] pl-4 pr-14 py-3 border rounded-xl bg-input resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all shadow-sm ${isDragOver
-                    ? 'border-dashed border-primary bg-primary/5'
-                    : 'border-border'
-                  }`}
+                className="w-full min-h-[56px] max-h-[200px] px-4 py-3 bg-transparent border-none resize-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 rows={1}
               />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading || !canSend}
-                className="absolute right-2 bottom-2 p-2.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg disabled:shadow-none"
-                title="Send message"
-              >
-                {isLoading ? (
-                  <Loader2 className="icon-md animate-spin" />
-                ) : (
-                  <ArrowUp className="icon-md" />
-                )}
-              </button>
+
+              <div className="flex justify-between items-center px-2 pb-2">
+                <div className="flex-1"></div>
+                <button
+                  type="submit"
+                  disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || !canSend}
+                  className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md disabled:shadow-none"
+                  title="Send message"
+                >
+                  {isLoading ? (
+                    <Loader2 className="icon-md animate-spin" />
+                  ) : (
+                    <ArrowUp className="icon-md" />
+                  )}
+                </button>
+              </div>
             </div>
+
             {chatBackend === 'cloud-llm' && !isCloudConfigured && (
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 {envCloudApiKey

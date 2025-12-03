@@ -81,6 +81,30 @@ export default function FileTree({
                                 }`}
                             style={{ paddingLeft: `${level * 12 + 8}px` }}
                             onClick={() => handleNodeClick(node)}
+                            draggable={true}
+                            onDragStart={(e) => {
+                                // Set the file node data to transfer
+                                e.dataTransfer.effectAllowed = 'copy';
+                                e.dataTransfer.setData('application/file-node', JSON.stringify({
+                                    name: node.name,
+                                    path: node.path,
+                                    type: node.type,
+                                }));
+
+                                // Store handle globally for retrieval on drop (since handles aren't serializable)
+                                if (node.handle) {
+                                    (window as any).__draggedFileHandle = node.handle;
+                                } else {
+                                    (window as any).__draggedFileHandle = null;
+                                }
+
+                                // Add visual feedback
+                                e.currentTarget.style.opacity = '0.5';
+                            }}
+                            onDragEnd={(e) => {
+                                // Reset visual feedback
+                                e.currentTarget.style.opacity = '1';
+                            }}
                         >
                             {isDirectory && (
                                 <span className="flex-shrink-0">

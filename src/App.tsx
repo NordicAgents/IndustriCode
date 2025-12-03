@@ -58,6 +58,7 @@ function AppContent() {
   const [editorTabs, setEditorTabs] = useState<EditorTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [fileSystemVersion, setFileSystemVersion] = useState(0);
   const chatPanelRef = useRef<ChatPanelHandle | null>(null);
 
   // Load data from localStorage on mount
@@ -204,6 +205,8 @@ function AppContent() {
       setEditorTabs((prev) =>
         prev.map((t) => (t.id === tabId ? { ...t, modified: false } : t))
       );
+      // Trigger explorer refresh
+      setFileSystemVersion(v => v + 1);
     } catch (error) {
       console.error('Failed to save file:', error);
       alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -215,9 +218,9 @@ function AppContent() {
     const truncated =
       content.length > MAX_FILE_CHARS
         ? `${content.slice(
-            0,
-            MAX_FILE_CHARS,
-          )}\n\n[...truncated: file is large, only the first ${MAX_FILE_CHARS.toLocaleString()} characters are included...]`
+          0,
+          MAX_FILE_CHARS,
+        )}\n\n[...truncated: file is large, only the first ${MAX_FILE_CHARS.toLocaleString()} characters are included...]`
         : content;
 
     const extension =
@@ -302,8 +305,7 @@ function AppContent() {
     } catch (error) {
       console.error('Failed to send file or folder to chat:', error);
       alert(
-        `Failed to send file or folder to chat: ${
-          error instanceof Error ? error.message : 'Unknown error'
+        `Failed to send file or folder to chat: ${error instanceof Error ? error.message : 'Unknown error'
         }`,
       );
     }
@@ -420,16 +422,74 @@ function AppContent() {
     }
   };
 
-  const handleApplyCodeToActiveFile = (code: string) => {
-    if (!activeTabId) {
-      alert('No file is currently open to apply changes.');
+  const handleApplyCode = async (code: string, targetPath?: string) => {
+    // Case 1: Target path provided (Create/Update specific file)
+    if (targetPath) {
+      try {
+        // Check if file is already open
+        const existingTab = editorTabs.find((t) => t.path === targetPath || t.name === targetPath);
+
+        if (existingTab) {
+          // Update existing tab
+          setEditorTabs((prev) =>
+            prev.map((tab) =>
+              tab.id === existingTab.id
+                ? { ...tab, content: code, modified: true }
+                : tab
+            )
+          );
+          setActiveTabId(existingTab.id);
+        } else {
+          // Create new file
+          // If path is absolute, use it. If relative, we might need a root.
+          // For now assume absolute or relative to root (which we don't track easily here except via existing tabs)
+          // But FileSystemAPI needs a path.
+
+          // If we have an active tab, we can try to resolve relative path against it?
+          // Or just try to write.
+
+          // Let's try to write using FileSystemAPI
+          // Note: This assumes backend API is available. For Native FS, we might need a handle?
+          // If Native FS, we can't easily create a file at arbitrary path without a handle.
+          // But we can try FileSystemAPI.createFile if backend is running.
+
+          await FileSystemAPI.writeFile(targetPath, code);
+
+          // Open the new file
+          const language = FileSystemAPI.getFileLanguage(targetPath);
+          const newTab: EditorTab = {
+            id: `tab-${Date.now()}`,
+            path: targetPath,
+            name: targetPath.split('/').pop() || targetPath,
+            content: code,
+            modified: false,
+            language,
+          };
+
+          setEditorTabs((prev) => [...prev, newTab]);
+          setActiveTabId(newTab.id);
+        }
+        // Trigger explorer refresh
+        setFileSystemVersion(v => v + 1);
+      } catch (error) {
+        console.error('Failed to apply code to file:', error);
+        alert(`Failed to apply code to ${targetPath}: ${error instanceof Error ? error.message : String(error)}`);
+      }
       return;
     }
 
+    // Case 2: No target path (Apply to active file)
+    if (!activeTabId) return;
+
+    const activeTab = editorTabs.find((t) => t.id === activeTabId);
+    if (!activeTab) return;
+
     setEditorTabs((prev) =>
       prev.map((tab) =>
-        tab.id === activeTabId ? { ...tab, content: code, modified: true } : tab,
-      ),
+        tab.id === activeTabId
+          ? { ...tab, content: code, modified: true }
+          : tab
+      )
     );
   };
 
@@ -445,6 +505,7 @@ function AppContent() {
                 onFileSelect={handleFileSelect}
                 selectedPath={editorTabs.find((t) => t.id === activeTabId)?.path}
                 onSendToChat={handleSendNodeToChat}
+                refreshTrigger={fileSystemVersion}
               />
             </div>
             <div className="h-64 min-h-[180px] border-t border-border overflow-y-auto">
@@ -486,7 +547,8 @@ function AppContent() {
                 onCloudLLMConfigChange={setCloudLLMConfig}
                 ollamaConfig={ollamaConfig}
                 onOllamaConfigChange={setOllamaConfig}
-                onApplyCodeToFile={handleApplyCodeToActiveFile}
+                onApplyCodeToFile={handleApplyCode}
+                onFileSelect={handleFileSelect}
               />
             </div>
           </div>

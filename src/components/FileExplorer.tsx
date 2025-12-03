@@ -12,9 +12,10 @@ interface FileExplorerProps {
     onFileSelect: (node: FileNode) => void;
     selectedPath?: string;
     onSendToChat?: (node: FileNode) => void;
+    refreshTrigger?: number;
 }
 
-export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat }: FileExplorerProps) {
+export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat, refreshTrigger = 0 }: FileExplorerProps) {
     const [rootPath, setRootPath] = useState<string>('');
     const [files, setFiles] = useState<FileNode[]>([]);
     const [loading, setLoading] = useState(false);
@@ -190,6 +191,13 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat 
         console.log('[FileExplorer] useEffect - Loading path via backend:', pathToLoad);
         loadDirectory(pathToLoad);
     }, []);
+
+    // Auto-refresh when trigger changes
+    useEffect(() => {
+        if (refreshTrigger > 0) {
+            handleRefresh();
+        }
+    }, [refreshTrigger]);
 
     const displayFiles = searchResults.length > 0 ? searchResults : files;
 

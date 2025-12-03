@@ -1,6 +1,7 @@
 import { ChatMessage, CloudLLMConfig, OllamaConfig } from '../types';
 import { MCPTool, MCPToolCall } from '../types/mcp-types';
 import { mcpClientManager } from './mcp-client';
+import { FileSystemAPI } from './file-api';
 import type { ChatMode } from '../types/ide-types';
 
 const buildPromptFromMessages = (messages: ChatMessage[]): string => {
@@ -110,31 +111,30 @@ const callOpenAIChat = async (
   const toolSystemMessage =
     mcpTools.length > 0
       ? {
-          role: 'system',
-          content:
-            'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.). ' +
-            'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, ' +
-            'instead of guessing.\n\n' +
-            'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2). ' +
-            'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID). ' +
-            'Never put non-numeric values after i=.\n\n' +
-            'Available tools:\n' +
-            mcpTools
-              .map(
-                (tool) =>
-                  `- ${tool.name}${
-                    tool.description ? `: ${tool.description}` : ''
-                  }`,
-              )
-              .join('\n'),
-        }
+        role: 'system',
+        content:
+          'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.). ' +
+          'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, ' +
+          'instead of guessing.\n\n' +
+          'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2). ' +
+          'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID). ' +
+          'Never put non-numeric values after i=.\n\n' +
+          'Available tools:\n' +
+          mcpTools
+            .map(
+              (tool) =>
+                `- ${tool.name}${tool.description ? `: ${tool.description}` : ''
+                }`,
+            )
+            .join('\n'),
+      }
       : null;
 
   const modeSystemMessage = modeSystemContent
     ? {
-        role: 'system' as const,
-        content: modeSystemContent,
-      }
+      role: 'system' as const,
+      content: modeSystemContent,
+    }
     : null;
 
   const openaiMessages = [
@@ -200,19 +200,33 @@ const callOpenAIChat = async (
         }
       }
 
-      if (!serverId || !serverName) {
-        console.error(`Tool ${functionName} not found in any connected MCP server`);
+      let result: any;
+
+      if (serverId && serverName) {
+        // Execute MCP tool
+        result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
+      } else if (LOCAL_TOOLS.some(t => t.name === functionName)) {
+        // Execute Local tool
+        try {
+          result = await executeLocalTool(functionName, functionArgs);
+          serverId = 'local';
+          serverName = 'Local System';
+        } catch (error) {
+          result = {
+            content: [{ type: 'text', text: `Error executing local tool: ${error instanceof Error ? error.message : String(error)}` }],
+            isError: true,
+          };
+        }
+      } else {
+        console.error(`Tool ${functionName} not found in any connected MCP server or local tools`);
         continue;
       }
-
-      // Execute the tool
-      const result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
 
       toolCalls.push({
         id: toolCall.id,
         toolName: functionName,
-        serverId,
-        serverName,
+        serverId: serverId || 'unknown',
+        serverName: serverName || 'Unknown',
         arguments: functionArgs,
         result,
         timestamp: new Date(),
@@ -245,9 +259,86 @@ const callOpenAIChat = async (
 
 
 /**
+ * Local tools definition
+ */
+const LOCAL_TOOLS: MCPTool[] = [
+  {
+    name: 'create_file',
+    description: 'Create a new file or overwrite an existing one with the given content.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'The path of the file to create' },
+        content: { type: 'string', description: 'The content to write to the file' },
+      },
+      required: ['path', 'content'],
+    },
+  },
+  {
+    name: 'read_file',
+    description: 'Read the content of a file.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'The path of the file to read' },
+      },
+      required: ['path'],
+    },
+  },
+  {
+    name: 'list_directory',
+    description: 'List files and directories in a given path.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'The directory path to list' },
+      },
+      required: ['path'],
+    },
+  },
+  {
+    name: 'replace_in_file',
+    description: 'Replace a string in a file with another string.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'The path of the file to modify' },
+        search: { type: 'string', description: 'The string to search for' },
+        replace: { type: 'string', description: 'The string to replace it with' },
+      },
+      required: ['path', 'search', 'replace'],
+    },
+  },
+];
+
+const executeLocalTool = async (name: string, args: any) => {
+  switch (name) {
+    case 'create_file':
+      await FileSystemAPI.writeFile(args.path, args.content);
+      return { content: [{ type: 'text', text: `File created successfully at ${args.path}` }] };
+    case 'read_file':
+      const content = await FileSystemAPI.readFile(args.path);
+      return { content: [{ type: 'text', text: content }] };
+    case 'list_directory':
+      const files = await FileSystemAPI.listDirectory(args.path);
+      return { content: [{ type: 'text', text: JSON.stringify(files, null, 2) }] };
+    case 'replace_in_file':
+      const originalContent = await FileSystemAPI.readFile(args.path);
+      if (!originalContent.includes(args.search)) {
+        throw new Error(`Search string not found in file: ${args.path}`);
+      }
+      const newContent = originalContent.replace(args.search, args.replace);
+      await FileSystemAPI.writeFile(args.path, newContent);
+      return { content: [{ type: 'text', text: `Successfully replaced content in ${args.path}` }] };
+    default:
+      throw new Error(`Unknown local tool: ${name}`);
+  }
+};
+
+/**
  * Get all available MCP tools from connected servers
  */
-const getAllMCPTools = (): MCPTool[] => {
+const getAllMCPTools = (mode: ChatMode): MCPTool[] => {
   const allTools: MCPTool[] = [];
   const servers = mcpClientManager.getServers();
 
@@ -255,6 +346,11 @@ const getAllMCPTools = (): MCPTool[] => {
     if (server.status === 'connected' && server.tools) {
       allTools.push(...server.tools);
     }
+  }
+
+  // Add local tools if in Agent mode
+  if (mode === 'agent') {
+    allTools.push(...LOCAL_TOOLS);
   }
 
   return allTools;
@@ -365,7 +461,7 @@ export const callCloudLLM = async (
   mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
   // Get available MCP tools
-  const mcpTools = getAllMCPTools();
+  const mcpTools = getAllMCPTools(mode);
 
   switch (config.provider) {
     case 'openai':
@@ -404,7 +500,7 @@ export const callOllama = async (
   );
 
   // Get available MCP tools
-  const mcpTools = getAllMCPTools();
+  const mcpTools = getAllMCPTools(mode);
 
   const modeSystemContent = getModeSystemPrompt(mode);
 
@@ -418,16 +514,15 @@ export const callOllama = async (
     const toolPart =
       mcpTools.length > 0
         ? 'You have access to external MCP tools for GraphDB and other systems. ' +
-          'Use these tools when the user asks questions that require querying data, executing SPARQL queries, or interacting with knowledge graphs. ' +
-          'Available tools:\n' +
-          mcpTools
-            .map(
-              (tool) =>
-                `- ${tool.name}${
-                  tool.description ? `: ${tool.description}` : ''
-                }`,
-            )
-            .join('\n')
+        'Use these tools when the user asks questions that require querying data, executing SPARQL queries, or interacting with knowledge graphs. ' +
+        'Available tools:\n' +
+        mcpTools
+          .map(
+            (tool) =>
+              `- ${tool.name}${tool.description ? `: ${tool.description}` : ''
+              }`,
+          )
+          .join('\n')
         : '';
 
     const combinedContent = [modeSystemContent, toolPart]
@@ -493,19 +588,33 @@ export const callOllama = async (
         }
       }
 
-      if (!serverId || !serverName) {
-        console.error(`Tool ${functionName} not found in any connected MCP server`);
+      let result: any;
+
+      if (serverId && serverName) {
+        // Execute MCP tool
+        result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
+      } else if (LOCAL_TOOLS.some(t => t.name === functionName)) {
+        // Execute Local tool
+        try {
+          result = await executeLocalTool(functionName, functionArgs);
+          serverId = 'local';
+          serverName = 'Local System';
+        } catch (error) {
+          result = {
+            content: [{ type: 'text', text: `Error executing local tool: ${error instanceof Error ? error.message : String(error)}` }],
+            isError: true,
+          };
+        }
+      } else {
+        console.error(`Tool ${functionName} not found in any connected MCP server or local tools`);
         continue;
       }
-
-      // Execute the tool
-      const result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
 
       toolCalls.push({
         id: toolCall.id || `tool-${Date.now()}`,
         toolName: functionName,
-        serverId,
-        serverName,
+        serverId: serverId || 'unknown',
+        serverName: serverName || 'Unknown',
         arguments: functionArgs,
         result,
         timestamp: new Date(),
