@@ -11,10 +11,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-resizable-panels": "^3.0.6"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

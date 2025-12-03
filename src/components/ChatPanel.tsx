@@ -1,4 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import {
   ArrowUp,
   Loader2,
@@ -8,6 +14,8 @@ import {
   CheckCheck,
   Sparkles,
   Zap,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import {
   ChatMessage,
@@ -15,36 +23,51 @@ import {
   CloudLLMConfig,
   OllamaConfig,
 } from '../types';
+import type { ChatMode } from '../types/ide-types';
 import { format } from 'date-fns';
+import { useTheme } from './ThemeProvider';
+import type React from 'react';
+
+export interface ChatPanelHandle {
+  appendToInput: (text: string) => void;
+}
 
 interface ChatPanelProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   isLoading?: boolean;
+  mode: ChatMode;
   chatBackend: ChatBackend;
   onChatBackendChange: (backend: ChatBackend) => void;
   cloudLLMConfig: CloudLLMConfig | null;
   onCloudLLMConfigChange: (config: CloudLLMConfig | null) => void;
   ollamaConfig: OllamaConfig | null;
   onOllamaConfigChange: (config: OllamaConfig | null) => void;
+  onApplyCodeToFile?: (code: string) => void;
 }
 
-export default function ChatPanel({
+function ChatPanelInner(
+{
   messages,
   onSendMessage,
   isLoading = false,
+  mode,
   chatBackend,
   onChatBackendChange,
   cloudLLMConfig,
   onCloudLLMConfigChange,
   ollamaConfig,
   onOllamaConfigChange,
-}: ChatPanelProps) {
+  onApplyCodeToFile,
+}: ChatPanelProps,
+ref: React.Ref<ChatPanelHandle>,
+) {
   const [input, setInput] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [ollamaModels, setOllamaModels] = useState<string[]>([]);
   const [isLoadingOllamaModels, setIsLoadingOllamaModels] = useState(false);
   const [ollamaError, setOllamaError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const activeCloudProvider = cloudLLMConfig?.provider || 'openai';
@@ -66,6 +89,7 @@ export default function ChatPanel({
 
   const effectiveOllamaBaseUrl =
     ollamaConfig?.baseUrl || 'http://localhost:11434';
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -149,6 +173,132 @@ export default function ChatPanel({
     inputRef.current?.focus();
   };
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      appendToInput: (text: string) => {
+        if (!text) return;
+
+        setInput((prev) => {
+          const hasExisting = prev.trim().length > 0;
+          const prefix = hasExisting ? '\n\n' : '';
+          return `${prev}${prefix}${text}`;
+        });
+
+        requestAnimationFrame(() => {
+          if (inputRef.current) {
+            inputRef.current.style.height = 'auto';
+            inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+          }
+        });
+      },
+    }),
+    [],
+  );
+
+  const handleFilesDropped = async (
+    event: React.DragEvent<HTMLFormElement | HTMLDivElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragOver(false);
+
+    if (!event.dataTransfer || !event.dataTransfer.files?.length) {
+      return;
+    }
+
+    const files = Array.from(event.dataTransfer.files).filter(
+      (file) => file && file.size > 0,
+    );
+    if (files.length === 0) return;
+
+    const MAX_FILE_CHARS = 50000;
+    let appendedText = '';
+
+    for (const file of files) {
+      try {
+        const raw = await file.text();
+        const truncated =
+          raw.length > MAX_FILE_CHARS
+            ? `${raw.slice(
+              0,
+              MAX_FILE_CHARS,
+            )}\n\n[...truncated: file is large, only the first ${MAX_FILE_CHARS.toLocaleString()} characters are included...]`
+            : raw;
+
+        const extension =
+          file.name.includes('.') && file.name.split('.').pop()
+            ? file.name.split('.').pop()!.toLowerCase()
+            : '';
+        const langHint =
+          extension && /^[a-z0-9]+$/i.test(extension) ? extension : '';
+
+        appendedText += `\n\n---\nFile: ${file.name}\n\n\`\`\`${langHint}\n${truncated}\n\`\`\`\n`;
+      } catch (error) {
+        console.error('Failed to read dropped file:', error);
+      }
+    }
+
+    if (!appendedText) return;
+
+    setInput((prev) => {
+      const hasExisting = prev.trim().length > 0;
+      const prefix = hasExisting
+        ? '\n\nPlease also consider these file(s):\n'
+        : 'Please analyze the following file(s):\n';
+      return `${prev}${prefix}${appendedText}`;
+    });
+
+    // Adjust textarea height after content update
+    requestAnimationFrame(() => {
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      }
+    });
+  };
+
+  const handleDragOver = (
+    event: React.DragEvent<HTMLFormElement | HTMLDivElement>,
+  ) => {
+    if (
+      !event.dataTransfer ||
+      !Array.from(event.dataTransfer.types).includes('Files')
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (
+    event: React.DragEvent<HTMLDivElement>,
+  ) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleApplyCodeToFileFromMessage = (message: ChatMessage) => {
+    if (!onApplyCodeToFile) return;
+
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    const matches = Array.from(message.content.matchAll(codeBlockRegex));
+    const lastMatch = matches[matches.length - 1];
+
+    if (!lastMatch) {
+      alert('No code block found in this message to apply.');
+      return;
+    }
+
+    let block = lastMatch[0];
+    block = block.replace(/^```[^\n]*\n/, '');
+    block = block.replace(/```$/, '');
+
+    onApplyCodeToFile(block);
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = 'auto';
@@ -182,25 +332,37 @@ export default function ChatPanel({
       : 'Ask the local Ollama model anything... (Enter to send, Shift+Enter for new line)';
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-gradient-to-b from-background to-background">
+    <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background">
       {/* Header */}
       <div className="border-b border-border px-6 py-3.5 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-              <div className="relative">
+            <div className="relative">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Sparkles className="icon-md text-primary" />
               </div>
             </div>
             <div>
               <h2 className="text-base font-semibold tracking-tight">
-                LLM Chat
+                Chat
               </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Chat with cloud or local LLMs
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {mode === 'ask' &&
+                  'Ask mode · Read-only exploration for learning and questions.'}
+                {mode === 'plan' &&
+                  'Plan mode · Propose a multi-step plan before making changes.'}
+                {mode === 'agent' &&
+                  'Agent mode · Autonomously run tools and fix errors.'}
               </p>
             </div>
           </div>
+          <button
+            onClick={toggleTheme}
+            className="btn-icon"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun className="icon-md" /> : <Moon className="icon-md" />}
+          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center gap-2">
@@ -463,17 +625,28 @@ export default function ChatPanel({
                             </span>
 
                             {!isUser && !isSystem && (
-                              <button
-                                onClick={() => handleCopy(message.content, message.id)}
-                                className="btn-icon-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Copy message"
-                              >
-                                {copiedId === message.id ? (
-                                  <CheckCheck className="icon-xs text-success" />
-                                ) : (
-                                  <Copy className="icon-xs" />
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {onApplyCodeToFile && (
+                                  <button
+                                    onClick={() => handleApplyCodeToFileFromMessage(message)}
+                                    className="btn-icon-sm"
+                                    title="Apply last code block to active file"
+                                  >
+                                    <Sparkle className="icon-xs" />
+                                  </button>
                                 )}
-                              </button>
+                                <button
+                                  onClick={() => handleCopy(message.content, message.id)}
+                                  className="btn-icon-sm"
+                                  title="Copy message"
+                                >
+                                  {copiedId === message.id ? (
+                                    <CheckCheck className="icon-xs text-success" />
+                                  ) : (
+                                    <Copy className="icon-xs" />
+                                  )}
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -505,7 +678,12 @@ export default function ChatPanel({
       </div>
 
       {/* Input */}
-      <div className="border-t border-border px-6 py-4 bg-background/80 backdrop-blur-sm">
+      <div
+        className="border-t border-border px-6 py-4 bg-background/80 backdrop-blur-sm"
+        onDrop={handleFilesDropped}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
@@ -516,7 +694,10 @@ export default function ChatPanel({
                 onKeyDown={handleKeyDown}
                 placeholder={inputPlaceholder}
                 disabled={isLoading || !canSend}
-                className="w-full min-h-[56px] max-h-[200px] pl-4 pr-14 py-3 border border-border rounded-xl bg-input resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all shadow-sm"
+                className={`w-full min-h-[56px] max-h-[200px] pl-4 pr-14 py-3 border rounded-xl bg-input resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all shadow-sm ${isDragOver
+                    ? 'border-dashed border-primary bg-primary/5'
+                    : 'border-border'
+                  }`}
                 rows={1}
               />
               <button
@@ -550,3 +731,7 @@ export default function ChatPanel({
     </div>
   );
 }
+
+const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(ChatPanelInner);
+
+export default ChatPanel;

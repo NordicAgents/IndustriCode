@@ -1,6 +1,7 @@
 import { ChatMessage, CloudLLMConfig, OllamaConfig } from '../types';
 import { MCPTool, MCPToolCall } from '../types/mcp-types';
 import { mcpClientManager } from './mcp-client';
+import type { ChatMode } from '../types/ide-types';
 
 const buildPromptFromMessages = (messages: ChatMessage[]): string => {
   const sorted = [...messages].sort(
@@ -18,6 +19,36 @@ const buildPromptFromMessages = (messages: ChatMessage[]): string => {
       return `${label}: ${message.content}`;
     })
     .join('\n\n');
+};
+
+const getModeSystemPrompt = (mode: ChatMode): string | null => {
+  if (mode === 'ask') {
+    return [
+      'You are in Ask mode.',
+      'Focus on learning, planning, and answering questions.',
+      'Treat this as read-only exploration: do not make edits or run commands that change state.',
+      'If you use tools, prefer search and read-only tools (e.g., read file, codebase search, grep) and avoid tools that write or mutate external systems.',
+    ].join(' ');
+  }
+
+  if (mode === 'plan') {
+    return [
+      'You are in Plan mode.',
+      'First, produce a concise, numbered plan (3–7 steps) for how you will solve the user’s request before executing any changes.',
+      'Ask the user to confirm or adjust the plan before you start editing files or running tools.',
+      'Do not make edits or run tools until the plan is confirmed.',
+    ].join(' ');
+  }
+
+  if (mode === 'agent') {
+    return [
+      'You are in Agent mode.',
+      'You may autonomously use tools, run commands, and edit files as needed to solve the task.',
+      'Keep the user informed of major steps, and fix errors you encounter when reasonable.',
+    ].join(' ');
+  }
+
+  return null;
 };
 
 const getCloudApiKey = (config: CloudLLMConfig): string => {
@@ -64,6 +95,7 @@ const callOpenAIChat = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
   mcpTools: MCPTool[] = [],
+  mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
   const baseUrl = (config.baseUrl || 'https://api.openai.com/v1').replace(
     /\/$/,
@@ -71,6 +103,8 @@ const callOpenAIChat = async (
   );
 
   const apiKey = getCloudApiKey(config);
+
+  const modeSystemContent = getModeSystemPrompt(mode);
 
   // Convert chat messages to OpenAI format
   const toolSystemMessage =
@@ -96,7 +130,15 @@ const callOpenAIChat = async (
         }
       : null;
 
+  const modeSystemMessage = modeSystemContent
+    ? {
+        role: 'system' as const,
+        content: modeSystemContent,
+      }
+    : null;
+
   const openaiMessages = [
+    ...(modeSystemMessage ? [modeSystemMessage] : []),
     ...(toolSystemMessage ? [toolSystemMessage] : []),
     ...messages.map((msg) => ({
       role: msg.role,
@@ -221,8 +263,11 @@ const getAllMCPTools = (): MCPTool[] => {
 const callGemini = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
+  mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const prompt = buildPromptFromMessages(messages);
+  const basePrompt = buildPromptFromMessages(messages);
+  const modePrompt = getModeSystemPrompt(mode);
+  const prompt = modePrompt ? `${modePrompt}\n\n${basePrompt}` : basePrompt;
   const apiKey = getCloudApiKey(config);
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
@@ -265,8 +310,11 @@ const callGemini = async (
 const callAnthropic = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
+  mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const prompt = buildPromptFromMessages(messages);
+  const basePrompt = buildPromptFromMessages(messages);
+  const modePrompt = getModeSystemPrompt(mode);
+  const prompt = modePrompt ? `${modePrompt}\n\n${basePrompt}` : basePrompt;
   const apiKey = getCloudApiKey(config);
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -314,17 +362,18 @@ const callAnthropic = async (
 export const callCloudLLM = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
+  mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
   // Get available MCP tools
   const mcpTools = getAllMCPTools();
 
   switch (config.provider) {
     case 'openai':
-      return callOpenAIChat(messages, config, mcpTools);
+      return callOpenAIChat(messages, config, mcpTools, mode);
     case 'gemini':
-      return callGemini(messages, config);
+      return callGemini(messages, config, mode);
     case 'anthropic':
-      return callAnthropic(messages, config);
+      return callAnthropic(messages, config, mode);
     default:
       throw new Error(`Unsupported cloud provider: ${config.provider}`);
   }
@@ -347,6 +396,7 @@ const convertMCPToolsToOllama = (mcpTools: MCPTool[]) => {
 export const callOllama = async (
   messages: ChatMessage[],
   config: OllamaConfig,
+  mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
   const baseUrl = (config.baseUrl || 'http://localhost:11434').replace(
     /\/$/,
@@ -356,28 +406,37 @@ export const callOllama = async (
   // Get available MCP tools
   const mcpTools = getAllMCPTools();
 
+  const modeSystemContent = getModeSystemPrompt(mode);
+
   // Add system message about tools if available
   const ollamaMessages = [...messages.map((message) => ({
     role: message.role,
     content: message.content,
   }))];
 
-  if (mcpTools.length > 0) {
-    // Add system message at the beginning
+  if (mcpTools.length > 0 || modeSystemContent) {
+    const toolPart =
+      mcpTools.length > 0
+        ? 'You have access to external MCP tools for GraphDB and other systems. ' +
+          'Use these tools when the user asks questions that require querying data, executing SPARQL queries, or interacting with knowledge graphs. ' +
+          'Available tools:\n' +
+          mcpTools
+            .map(
+              (tool) =>
+                `- ${tool.name}${
+                  tool.description ? `: ${tool.description}` : ''
+                }`,
+            )
+            .join('\n')
+        : '';
+
+    const combinedContent = [modeSystemContent, toolPart]
+      .filter(Boolean)
+      .join('\n\n');
+
     ollamaMessages.unshift({
       role: 'system',
-      content:
-        'You have access to external MCP tools for GraphDB and other systems. ' +
-        'Use these tools when the user asks questions that require querying data, executing SPARQL queries, or interacting with knowledge graphs. ' +
-        'Available tools:\n' +
-        mcpTools
-          .map(
-            (tool) =>
-              `- ${tool.name}${
-                tool.description ? `: ${tool.description}` : ''
-              }`,
-          )
-          .join('\n'),
+      content: combinedContent,
     });
   }
 
