@@ -1,11 +1,38 @@
 {
-    "mcpServers": {
-        "GraphDB": {
-            "command": "mcphub-gateway",
-            "args": [],
-            "env": {
-                "MCPHUB_SERVER_URL": "http://localhost:7200/mcp"
-            }
-        }
+  "mcpServers": {
+    "GraphDB": {
+      "command": "mcphub-gateway",
+      "args": [],
+      "env": {
+        "MCPHUB_SERVER_URL": "http://localhost:7200/mcp"
+      }
+    },
+    "MQTT MCP (Python)": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/your/project/MCPs/MQTT-Project/mqtt-python",
+        "run",
+        "mqtt-mcp"
+      ],
+      "env": {
+        "MQTT_BROKER_URL": "mqtt://127.0.0.1:1883",
+        "MQTT_CLIENT_ID": "mqtt-mcp-cursor",
+        "SPARKPLUG_GROUP_ID": "factory",
+        "SPARKPLUG_EDGE_NODE_ID": "edge-node-1"
+      }
+    },
+    "OPCUA MCP (Python)": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/your/project/MCPs/OPCUA-Project/opcua-mcp-server",
+        "run",
+        "opcua-mcp-server.py"
+      ],
+      "env": {
+        "OPCUA_SERVER_URL": "opc.tcp://localhost:4840"
+      }
     }
+  }
 }
