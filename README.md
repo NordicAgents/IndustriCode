@@ -7,7 +7,7 @@ A modern, intuitive chat interface for working with local and third‑party lang
 - 🎨 **Beautiful UI** – Modern interface inspired by Claude Code with clean design  
 - 🌓 **Dark/Light Mode** – Seamless theme switching with system preference detection  
 - 🔌 **MCP Server Integration** – Connect and manage Model Context Protocol servers (MQTT, OPC UA, GraphDB, etc.)
-- ☁️ **Cloud LLM Support** – Talk to OpenAI (ChatGPT), Google Gemini, and Anthropic Claude  
+- ☁️ **Cloud LLM Support** – Talk to OpenAI GPT-5 models, Google Gemini, and Anthropic Claude  
 - 💻 **Local LLM Support (Ollama)** – Chat with local models running via Ollama  
 - 💬 **Interactive Chat** – Streaming‑style conversational UI with copy‑to‑clipboard  
 - 📝 **Session Management** – Simple session list to keep track of conversations  
@@ -54,7 +54,7 @@ This will start:
 
 ## Features
 
-- **Chat Interface**: Interact with Cloud LLMs (OpenAI, Gemini, Anthropic) or local Ollama models.
+- **Chat Interface**: Interact with Cloud LLMs (OpenAI GPT-5, Gemini, Anthropic) or local Ollama models.
 - **MCP Server Integration**: Configure and connect to real MCP servers (MQTT, OPC UA, GraphDB, etc.).
 - **Tool Calling**: LLMs can automatically discover and use tools provided by connected MCP servers.
 - **Real-time Updates**: WebSocket connection ensures live status updates from MCP servers.
@@ -77,7 +77,7 @@ This will start:
 
 3. **Choose a Chat Backend**
    - In the top bar of the chat panel, select:
-     - `Cloud LLM (ChatGPT / Gemini / Claude)` or  
+     - `Cloud LLM (OpenAI GPT-5 / Gemini / Claude)` or  
      - `Local Ollama`
 
 4. **Configure Cloud LLMs**

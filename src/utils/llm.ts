@@ -89,9 +89,6 @@ const convertMCPToolsToOpenAI = (mcpTools: MCPTool[]) => {
   }));
 };
 
-/**
- * Call OpenAI with support for MCP tools
- */
 const callOpenAIChat = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
@@ -111,23 +108,24 @@ const callOpenAIChat = async (
   const toolSystemMessage =
     mcpTools.length > 0
       ? {
-        role: 'system',
-        content:
-          'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.). ' +
-          'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, ' +
-          'instead of guessing.\n\n' +
-          'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2). ' +
-          'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID). ' +
-          'Never put non-numeric values after i=.\n\n' +
-          'Available tools:\n' +
-          mcpTools
-            .map(
-              (tool) =>
-                `- ${tool.name}${tool.description ? `: ${tool.description}` : ''
-                }`,
-            )
-            .join('\n'),
-      }
+          role: 'system',
+          content:
+            'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.). ' +
+            'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, ' +
+            'instead of guessing.\n\n' +
+            'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2). ' +
+            'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID). ' +
+            'Never put non-numeric values after i=.\n\n' +
+            'Available tools:\n' +
+            mcpTools
+              .map(
+                (tool) =>
+                  `- ${tool.name}${
+                    tool.description ? `: ${tool.description}` : ''
+                  }`,
+              )
+              .join('\n'),
+        }
       : null;
 
   const modeSystemMessage = modeSystemContent
@@ -148,16 +146,15 @@ const callOpenAIChat = async (
 
   const requestBody: any = {
     model: config.model,
-    messages: openaiMessages,
+    input: openaiMessages,
   };
 
-  // Add tools if available
   if (mcpTools.length > 0) {
     requestBody.tools = convertMCPToolsToOpenAI(mcpTools);
     requestBody.tool_choice = 'auto';
   }
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/responses`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -172,28 +169,60 @@ const callOpenAIChat = async (
   }
 
   const data: any = await response.json();
-  const choice = data?.choices?.[0];
+  const output = Array.isArray(data?.output) ? data.output : [];
 
-  if (!choice) {
-    throw new Error('OpenAI returned no choices');
+  if (!output.length) {
+    throw new Error('OpenAI returned no output');
   }
 
-  // Check if the model wants to call tools
-  if (choice.message?.tool_calls && choice.message.tool_calls.length > 0) {
+  const assistantItem =
+    output.find((item: any) => item?.role === 'assistant') || output[0];
+
+  const contentParts = Array.isArray(assistantItem?.content)
+    ? assistantItem.content
+    : [];
+
+  const toolCallParts = contentParts.filter(
+    (part: any) => part?.type === 'tool_call' || part?.type === 'function_call',
+  );
+
+  if (toolCallParts.length > 0) {
     const toolCalls: MCPToolCall[] = [];
 
-    // Execute each tool call
-    for (const toolCall of choice.message.tool_calls) {
-      const functionName = toolCall.function.name;
-      const functionArgs = JSON.parse(toolCall.function.arguments);
+    for (const part of toolCallParts) {
+      const functionName =
+        part.tool_name ||
+        part.name ||
+        part.function?.name;
 
-      // Find which MCP server has this tool
+      if (!functionName) {
+        continue;
+      }
+
+      const rawArgs =
+        part.arguments ??
+        part.args ??
+        part.function?.arguments ??
+        {};
+
+      let functionArgs: any;
+
+      if (typeof rawArgs === 'string') {
+        try {
+          functionArgs = JSON.parse(rawArgs);
+        } catch {
+          functionArgs = {};
+        }
+      } else {
+        functionArgs = rawArgs || {};
+      }
+
       const servers = mcpClientManager.getServers();
       let serverId: string | undefined;
       let serverName: string | undefined;
 
       for (const server of servers) {
-        if (server.tools?.some(t => t.name === functionName)) {
+        if (server.tools?.some((t) => t.name === functionName)) {
           serverId = server.id;
           serverName = server.name;
           break;
@@ -203,27 +232,38 @@ const callOpenAIChat = async (
       let result: any;
 
       if (serverId && serverName) {
-        // Execute MCP tool
-        result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
-      } else if (LOCAL_TOOLS.some(t => t.name === functionName)) {
-        // Execute Local tool
+        result = await mcpClientManager.callTool(
+          serverId,
+          functionName,
+          functionArgs,
+        );
+      } else if (LOCAL_TOOLS.some((t) => t.name === functionName)) {
         try {
           result = await executeLocalTool(functionName, functionArgs);
           serverId = 'local';
           serverName = 'Local System';
         } catch (error) {
           result = {
-            content: [{ type: 'text', text: `Error executing local tool: ${error instanceof Error ? error.message : String(error)}` }],
+            content: [
+              {
+                type: 'text',
+                text: `Error executing local tool: ${
+                  error instanceof Error ? error.message : String(error)
+                }`,
+              },
+            ],
             isError: true,
           };
         }
       } else {
-        console.error(`Tool ${functionName} not found in any connected MCP server or local tools`);
+        console.error(
+          `Tool ${functionName} not found in any connected MCP server or local tools`,
+        );
         continue;
       }
 
       toolCalls.push({
-        id: toolCall.id,
+        id: part.id || `tool-${Date.now()}`,
         toolName: functionName,
         serverId: serverId || 'unknown',
         serverName: serverName || 'Unknown',
@@ -233,10 +273,10 @@ const callOpenAIChat = async (
       });
     }
 
-    // Format tool results as text for the response
     const toolResultsText = toolCalls
-      .map(tc => {
-        const resultText = tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
+      .map((tc) => {
+        const resultText =
+          tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
         return `Tool ${tc.toolName} result: ${resultText}`;
       })
       .join('\n\n');
@@ -247,8 +287,11 @@ const callOpenAIChat = async (
     };
   }
 
-  // No tool calls, return regular response
-  const content = choice.message?.content?.toString().trim() || '';
+  const textParts = contentParts
+    .filter((part: any) => typeof part?.text === 'string')
+    .map((part: any) => part.text as string);
+
+  const content = textParts.join(' ').trim();
 
   if (!content) {
     throw new Error('OpenAI returned an empty response');

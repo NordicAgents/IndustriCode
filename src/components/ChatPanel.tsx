@@ -413,8 +413,13 @@ function ChatPanelInner(
     CloudLLMConfig['provider'],
     string[]
   > = {
-    openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'gpt-4.1'],
-    gemini: ['gemini-1.5-flash', 'gemini-1.5-pro'],
+    openai: ['gpt-5-nano', 'gpt-5-mini', 'gpt-5', 'gpt-5.1'],
+    gemini: [
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
+      'gemini-3-pro-preview',
+    ],
     anthropic: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku'],
   };
 

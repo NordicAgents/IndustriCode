@@ -62,7 +62,17 @@ export const loadCloudLLMConfig = (): CloudLLMConfig | null => {
   try {
     const parsed = JSON.parse(stored);
     if (!parsed || typeof parsed !== 'object') return null;
-    return parsed as CloudLLMConfig;
+
+    const config = parsed as CloudLLMConfig;
+
+    if (config.provider === 'openai') {
+      const validModels = ['gpt-5-nano', 'gpt-5-mini', 'gpt-5', 'gpt-5.1'];
+      if (!validModels.includes(config.model)) {
+        config.model = 'gpt-5-nano';
+      }
+    }
+
+    return config;
   } catch {
     return null;
   }
