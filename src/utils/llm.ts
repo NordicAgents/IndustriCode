@@ -81,11 +81,9 @@ const getCloudApiKey = (config: CloudLLMConfig): string => {
 const convertMCPToolsToOpenAI = (mcpTools: MCPTool[]) => {
   return mcpTools.map(tool => ({
     type: 'function' as const,
-    function: {
-      name: tool.name,
-      description: tool.description || '',
-      parameters: tool.inputSchema,
-    },
+    name: tool.name,
+    description: tool.description || '',
+    parameters: tool.inputSchema,
   }));
 };
 
@@ -97,12 +95,32 @@ const convertMCPToolsToGemini = (mcpTools: MCPTool[]) => {
     return [];
   }
 
+  const sanitizeSchema = (schema: any): any => {
+    if (schema === null || schema === undefined) return schema;
+    if (Array.isArray(schema)) {
+      return schema.map((item) => sanitizeSchema(item));
+    }
+    if (typeof schema !== 'object') {
+      return schema;
+    }
+
+    const result: any = {};
+    for (const [key, value] of Object.entries(schema)) {
+      if (key === 'additionalProperties') {
+        // Gemini tools parameters schema does not support additionalProperties
+        continue;
+      }
+      result[key] = sanitizeSchema(value);
+    }
+    return result;
+  };
+
   return [
     {
       functionDeclarations: mcpTools.map(tool => ({
         name: tool.name,
         description: tool.description || '',
-        parameters: tool.inputSchema,
+        parameters: sanitizeSchema(tool.inputSchema),
       })),
     },
   ];
@@ -187,34 +205,28 @@ const callOpenAIChat = async (
     throw new Error('OpenAI returned no output');
   }
 
-  const assistantItem =
-    output.find((item: any) => item?.role === 'assistant') || output[0];
-
-  const contentParts = Array.isArray(assistantItem?.content)
-    ? assistantItem.content
-    : [];
-
-  const toolCallParts = contentParts.filter(
-    (part: any) => part?.type === 'tool_call' || part?.type === 'function_call',
+  // Handle function calls from the Responses API (output items with type === 'function_call')
+  const functionCallItems = output.filter(
+    (item: any) => item?.type === 'function_call',
   );
 
-  if (toolCallParts.length > 0) {
+  if (functionCallItems.length > 0 && mcpTools.length > 0) {
     const toolCalls: MCPToolCall[] = [];
 
-    for (const part of toolCallParts) {
+    for (const fc of functionCallItems) {
       const functionName =
-        part.tool_name ||
-        part.name ||
-        part.function?.name;
+        fc.tool_name ||
+        fc.name ||
+        fc.function?.name;
 
       if (!functionName) {
         continue;
       }
 
       const rawArgs =
-        part.arguments ??
-        part.args ??
-        part.function?.arguments ??
+        fc.arguments ??
+        fc.args ??
+        fc.function?.arguments ??
         {};
 
       let functionArgs: any;
@@ -275,7 +287,7 @@ const callOpenAIChat = async (
       }
 
       toolCalls.push({
-        id: part.id || `tool-${Date.now()}`,
+        id: fc.id || `tool-${Date.now()}`,
         toolName: functionName,
         serverId: serverId || 'unknown',
         serverName: serverName || 'Unknown',
@@ -299,9 +311,34 @@ const callOpenAIChat = async (
     };
   }
 
+  // Fallback: treat output as a normal assistant message
+  const assistantItem =
+    output.find(
+      (item: any) => item?.type === 'message' && item?.role === 'assistant',
+    ) ||
+    output.find((item: any) => item?.type === 'message') ||
+    output[0];
+
+  const contentParts = Array.isArray(assistantItem?.content)
+    ? assistantItem.content
+    : [];
+
   const textParts = contentParts
-    .filter((part: any) => typeof part?.text === 'string')
-    .map((part: any) => part.text as string);
+    .map((part: any) => {
+      if (!part) return '';
+      if (typeof part.text === 'string') {
+        return part.text;
+      }
+      if (
+        part.text &&
+        typeof part.text === 'object' &&
+        typeof part.text.value === 'string'
+      ) {
+        return part.text.value;
+      }
+      return '';
+    })
+    .filter((t: string) => t.trim().length > 0);
 
   const content = textParts.join(' ').trim();
 

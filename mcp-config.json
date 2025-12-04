@@ -11,7 +11,7 @@
       "command": "uv",
       "args": [
         "--directory",
-        "/absolute/path/to/your/project/MCPs/MQTT-Project/mqtt-python",
+        "/Users/mx/Documents/melwin-repos/phd_task_llm_chat-/MCPs/MQTT-Project/mqtt-python",
         "run",
         "mqtt-mcp"
       ],
@@ -26,7 +26,7 @@
       "command": "uv",
       "args": [
         "--directory",
-        "/absolute/path/to/your/project/MCPs/OPCUA-Project/opcua-mcp-server",
+        "/Users/mx/Documents/melwin-repos/phd_task_llm_chat-/MCPs/OPCUA-Project/opcua-mcp-server",
         "run",
         "opcua-mcp-server.py"
       ],
