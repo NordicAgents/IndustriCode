@@ -495,8 +495,8 @@ function ChatPanelInner(
               }
               className="px-2 py-1 border border-border rounded-md bg-background hover:bg-accent/30 focus:outline-none focus:ring-1 focus:ring-ring"
             >
-              <option value="cloud-llm">Cloud LLM (ChatGPT / Gemini / Claude)</option>
-              <option value="ollama">Local Ollama</option>
+              <option value="cloud-llm">Cloud</option>
+              <option value="ollama">Local</option>
             </select>
           </div>
 
@@ -525,9 +525,9 @@ function ChatPanelInner(
                       }}
                       className="px-2 py-1 border border-border rounded-md bg-background hover:bg-accent/30 focus:outline-none focus:ring-1 focus:ring-ring"
                     >
-                      <option value="openai">ChatGPT (OpenAI)</option>
-                      <option value="gemini">Gemini (Google)</option>
-                      <option value="anthropic">Claude (Anthropic)</option>
+                      <option value="openai">OpenAI</option>
+                      <option value="gemini">Google</option>
+                      <option value="anthropic">Anthropic</option>
                     </select>
                     <select
                       value={currentModel}
