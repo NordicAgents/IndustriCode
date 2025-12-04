@@ -1,0 +1,80 @@
+@prefix ex: <http://example.org/mps#> .
+
+ex:Recipe2_PrePositioned a ex:ProcessRecipe ;
+    ex:name "Recipe 2 – Pre-positioned Arm & Feed-on-Demand" ;
+    ex:hasStep ex:R2_S1_ArmAtMgz .
+
+#########################################################
+# Step 1 — Arm waits at mgz side
+#########################################################
+ex:R2_S1_ArmAtMgz a ex:ProcessStep ;
+    ex:performedBy ex:TransferArm_1 ;
+    ex:waitsForIO ex:at_mgz ;
+    ex:nextStep ex:R2_S2_CheckMagazine .
+
+#########################################################
+# Step 2 — Check magazine not empty
+#########################################################
+ex:R2_S2_CheckMagazine a ex:ProcessStep ;
+    ex:performedBy ex:Feeder_Unit ;
+    ex:requiresIO ex:empty ;              # should be FALSE
+    ex:nextStep ex:R2_S3_RetractFeeder .
+
+#########################################################
+# Step 3 — Retract feeder
+#########################################################
+ex:R2_S3_RetractFeeder a ex:ProcessStep ;
+    ex:performedBy ex:FeederPusher_1 ;
+    ex:sendsIO ex:retract ;
+    ex:waitsForIO ex:pos_e ;
+    ex:nextStep ex:R2_S4_MoveFeederToMgz .
+
+#########################################################
+# Step 4 — Move feeder to mgz
+#########################################################
+ex:R2_S4_MoveFeederToMgz a ex:ProcessStep ;
+    ex:performedBy ex:FeederPusher_1 ;
+    ex:sendsIO ex:to_mgz ;
+    ex:waitsForIO ex:pos_e ;
+    ex:nextStep ex:R2_S5_PushUnderArm .
+
+#########################################################
+# Step 5 — Push part under arm (to_next)
+#########################################################
+ex:R2_S5_PushUnderArm a ex:ProcessStep ;
+    ex:performedBy ex:FeederPusher_1 ;
+    ex:sendsIO ex:to_next ;
+    ex:waitsForIO ex:pos_r ;
+    ex:nextStep ex:R2_S6_VacuumPick .
+
+#########################################################
+# Step 6 — Vacuum ON (pick)
+#########################################################
+ex:R2_S6_VacuumPick a ex:ProcessStep ;
+    ex:performedBy ex:VacuumUnit_1 ;
+    ex:sendsIO ex:vcm_on ;
+    ex:waitsForIO ex:vmon ;
+    ex:nextStep ex:R2_S7_MoveArmToNext .
+
+#########################################################
+# Step 7 — Move arm right (wait at_next)
+#########################################################
+ex:R2_S7_MoveArmToNext a ex:ProcessStep ;
+    ex:performedBy ex:TransferArm_1 ;
+    ex:waitsForIO ex:at_next ;
+    ex:nextStep ex:R2_S8_VacuumOff .
+
+#########################################################
+# Step 8 — Vacuum OFF (drop)
+#########################################################
+ex:R2_S8_VacuumOff a ex:ProcessStep ;
+    ex:performedBy ex:VacuumUnit_1 ;
+    ex:sendsIO ex:vcm_off ;
+    ex:nextStep ex:R2_S9_ReturnToMgz .
+
+#########################################################
+# Step 9 — Return arm to mgz position
+#########################################################
+ex:R2_S9_ReturnToMgz a ex:ProcessStep ;
+    ex:performedBy ex:TransferArm_1 ;
+    ex:waitsForIO ex:at_mgz .

@@ -1,0 +1,120 @@
+@prefix : <http://example.org/mps#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+############################################################
+# Classes
+############################################################
+
+:DistributingStation rdf:type rdfs:Class .
+:MechatronicUnit rdf:type rdfs:Class .
+:MechanicalComponent rdf:type rdfs:Class .
+:Sensor rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+:Actuator rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+:Valve rdf:type rdfs:Class ; rdfs:subClassOf :Actuator .
+:Cylinder rdf:type rdfs:Class ; rdfs:subClassOf :Actuator .
+
+:Magazine rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+:FeederPusher rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+:TransferArm rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+:VacuumUnit rdf:type rdfs:Class ; rdfs:subClassOf :MechanicalComponent .
+
+############################################################
+# Object Properties
+############################################################
+
+:hasPart rdf:type rdf:Property .
+:creates rdf:type rdf:Property .
+:commandOf rdf:type rdf:Property .
+:feeds rdf:type rdf:Property .
+
+:drivenBy rdf:type rdf:Property .
+:senses rdf:type rdf:Property .
+
+
+############################################################
+# Top-level station structure
+############################################################
+
+:DistStation_1 rdf:type :DistributingStation ;
+  :hasPart :Feeder_Unit , :Transfer_Unit .
+
+:Feeder_Unit rdf:type :MechatronicUnit .
+:Transfer_Unit rdf:type :MechatronicUnit .
+
+
+############################################################
+# FEEDER UNIT (magazine + pusher)
+############################################################
+
+:Magazine_1 rdf:type :Magazine .
+:FeederPusher_1 rdf:type :FeederPusher .
+:FeederCylinder_1 rdf:type :Cylinder .
+
+:EmptySensor rdf:type :Sensor .
+:PusherRearSensor rdf:type :Sensor .
+:PusherFrontSensor rdf:type :Sensor .
+
+:Feeder_Unit
+    :hasPart :Magazine_1 ,
+             :FeederPusher_1 ,
+             :FeederCylinder_1 ,
+             :EmptySensor ,
+             :PusherFrontSensor ,
+             :PusherRearSensor .
+
+# Mechanical relations
+:FeederPusher_1 :drivenBy :FeederCylinder_1 .
+
+############################################################
+# FEEDER UNIT → datapoint relations
+############################################################
+
+# Sensors create datapoints
+:EmptySensor       :creates :empty .
+:PusherFrontSensor :creates :pos_e .
+:PusherRearSensor  :creates :pos_r .
+
+# Actuator commands
+:retract :commandOf :FeederCylinder_1 .
+:to_mgz  :commandOf :FeederCylinder_1 .
+:to_next :commandOf :FeederCylinder_1 .
+
+
+############################################################
+# TRANSFER UNIT (arm + vacuum)
+############################################################
+
+:TransferArm_1 rdf:type :TransferArm .
+:TransferArm_LeftSensor rdf:type :Sensor .
+:TransferArm_RightSensor rdf:type :Sensor .
+
+:VacuumUnit_1 rdf:type :VacuumUnit .
+:VacuumValve_1 rdf:type :Valve .
+:VacuumSensor_1 rdf:type :Sensor .
+
+:Transfer_Unit
+    :hasPart :TransferArm_1 ,
+             :TransferArm_LeftSensor ,
+             :TransferArm_RightSensor ,
+             :VacuumUnit_1 ,
+             :VacuumValve_1 ,
+             :VacuumSensor_1 .
+
+# Arm creates position datapoints
+:TransferArm_LeftSensor  :creates :at_mgz .
+:TransferArm_RightSensor :creates :at_next .
+
+# Vacuum sensor produces monitoring datapoint
+:VacuumSensor_1 :creates :vmon .
+
+# Commands to vacuum valve
+:vcm_on  :commandOf :VacuumValve_1 .
+:vcm_off :commandOf :VacuumValve_1 .
+
+
+############################################################
+# Functional relationship between units
+############################################################
+
+:Feeder_Unit :feeds :Transfer_Unit .

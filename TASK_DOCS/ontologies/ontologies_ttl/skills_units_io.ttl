@@ -1,0 +1,96 @@
+@prefix ex: <http://example.org/festo_ds#> .
+ex:Comp_Skill_App a ex:Application ;
+    ex:name "Comp_Skill_App" .
+ex:Comp_Skill_App_LoadingWP3 a ex:AtomicSkill, ex:Skill ;
+    ex:name "LoadingWP3" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_PushMag3 a ex:AtomicSkill, ex:Skill ;
+    ex:name "PushMag3" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans a ex:CompositeSkill, ex:Skill ;
+    ex:name "cmpTrans" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans_GTL2 a ex:AtomicSkill, ex:Skill ;
+    ex:name "GTL2" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans_GTR2 a ex:AtomicSkill, ex:Skill ;
+    ex:name "GTR2" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans_Pick2 a ex:AtomicSkill, ex:Skill ;
+    ex:name "Pick2" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans_Place2 a ex:AtomicSkill, ex:Skill ;
+    ex:name "Place2" ;
+    ex:partOf ex:Comp_Skill_App .
+ex:Comp_Skill_App_cmpTrans ex:hasSubSkill ex:Comp_Skill_App_cmpTrans_GTL2 .
+ex:Comp_Skill_App_cmpTrans ex:hasSubSkill ex:Comp_Skill_App_cmpTrans_GTR2 .
+ex:Comp_Skill_App_cmpTrans ex:hasSubSkill ex:Comp_Skill_App_cmpTrans_Pick2 .
+ex:Comp_Skill_App_cmpTrans ex:hasSubSkill ex:Comp_Skill_App_cmpTrans_Place2 .
+
+# IO signals
+ex:IO_PlantModel3_at_mgz a ex:IOSignal ;
+    ex:name "PlantModel3.at_mgz" .
+
+ex:IO_PlantModel3_at_next a ex:IOSignal ;
+    ex:name "PlantModel3.at_next" .
+
+ex:IO_PlantModel3_empty a ex:IOSignal ;
+    ex:name "PlantModel3.empty" .
+
+ex:IO_PlantModel3_pos_e a ex:IOSignal ;
+    ex:name "PlantModel3.pos_e" .
+
+ex:IO_PlantModel3_pos_r a ex:IOSignal ;
+    ex:name "PlantModel3.pos_r" .
+
+ex:IO_PlantModel3_retract a ex:IOSignal ;
+    ex:name "PlantModel3.retract" .
+
+ex:IO_PlantModel3_to_mgz a ex:IOSignal ;
+    ex:name "PlantModel3.to_mgz" .
+
+ex:IO_PlantModel3_to_next a ex:IOSignal ;
+    ex:name "PlantModel3.to_next" .
+
+ex:IO_PlantModel3_vcm_off a ex:IOSignal ;
+    ex:name "PlantModel3.vcm_off" .
+
+ex:IO_PlantModel3_vcm_on a ex:IOSignal ;
+    ex:name "PlantModel3.vcm_on" .
+
+ex:IO_PlantModel3_vmon a ex:IOSignal ;
+    ex:name "PlantModel3.vmon" .
+
+ex:Comp_Skill_App_PushMag3 ex:controlsIO ex:IO_PlantModel3_retract .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:controlsIO ex:IO_PlantModel3_to_mgz .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:controlsIO ex:IO_PlantModel3_to_next .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:controlsIO ex:IO_PlantModel3_vcm_off .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:controlsIO ex:IO_PlantModel3_vcm_on .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:controlsIO ex:IO_PlantModel3_to_mgz .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:controlsIO ex:IO_PlantModel3_to_next .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:controlsIO ex:IO_PlantModel3_vcm_off .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:controlsIO ex:IO_PlantModel3_vcm_on .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:controlsIO ex:IO_PlantModel3_to_mgz .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:controlsIO ex:IO_PlantModel3_to_next .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:controlsIO ex:IO_PlantModel3_vcm_off .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:controlsIO ex:IO_PlantModel3_vcm_on .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:controlsIO ex:IO_PlantModel3_to_mgz .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:controlsIO ex:IO_PlantModel3_to_next .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:controlsIO ex:IO_PlantModel3_vcm_off .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:controlsIO ex:IO_PlantModel3_vcm_on .
+ex:Comp_Skill_App_LoadingWP3 ex:receivesIO ex:IO_PlantModel3_empty .
+ex:Comp_Skill_App_PushMag3 ex:receivesIO ex:IO_PlantModel3_empty .
+ex:Comp_Skill_App_PushMag3 ex:receivesIO ex:IO_PlantModel3_pos_e .
+ex:Comp_Skill_App_PushMag3 ex:receivesIO ex:IO_PlantModel3_pos_r .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:receivesIO ex:IO_PlantModel3_at_mgz .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:receivesIO ex:IO_PlantModel3_at_next .
+ex:Comp_Skill_App_cmpTrans_GTL2 ex:receivesIO ex:IO_PlantModel3_vmon .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:receivesIO ex:IO_PlantModel3_at_mgz .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:receivesIO ex:IO_PlantModel3_at_next .
+ex:Comp_Skill_App_cmpTrans_GTR2 ex:receivesIO ex:IO_PlantModel3_vmon .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:receivesIO ex:IO_PlantModel3_at_mgz .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:receivesIO ex:IO_PlantModel3_at_next .
+ex:Comp_Skill_App_cmpTrans_Pick2 ex:receivesIO ex:IO_PlantModel3_vmon .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:receivesIO ex:IO_PlantModel3_at_mgz .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:receivesIO ex:IO_PlantModel3_at_next .
+ex:Comp_Skill_App_cmpTrans_Place2 ex:receivesIO ex:IO_PlantModel3_vmon .
