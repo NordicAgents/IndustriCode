@@ -5,7 +5,6 @@ import FileExplorer from './components/FileExplorer';
 import CodeEditor from './components/CodeEditor';
 import ChatPanel, { ChatPanelHandle } from './components/ChatPanel';
 import MCPServerConfigPanel from './components/MCPServerConfig';
-import ChatModeSelector from './components/ChatModeSelector';
 import Sidebar from './components/Sidebar';
 import {
   ChatMessage,
@@ -531,9 +530,6 @@ function AppContent() {
         }
         chatPanel={
           <div className="h-full flex flex-col">
-            <div className="p-3 border-b border-border">
-              <ChatModeSelector mode={chatMode} onModeChange={setChatMode} />
-            </div>
             <div className="flex-1 overflow-hidden">
               <ChatPanel
                 ref={chatPanelRef}
@@ -541,6 +537,7 @@ function AppContent() {
                 onSendMessage={handleSendMessage}
                 isLoading={isLoading}
                 mode={chatMode}
+                onModeChange={setChatMode}
                 chatBackend={chatBackend}
                 onChatBackendChange={setChatBackend}
                 cloudLLMConfig={cloudLLMConfig}

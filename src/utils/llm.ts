@@ -2,7 +2,12 @@ import { ChatMessage, CloudLLMConfig, OllamaConfig } from '../types';
 import { MCPTool, MCPToolCall } from '../types/mcp-types';
 import { mcpClientManager } from './mcp-client';
 import { FileSystemAPI } from './file-api';
-import type { ChatMode } from '../types/ide-types';
+import type {
+  ChatMode,
+  AgentConfig,
+  LLMCallResult,
+  ToolCall,
+} from '../types/ide-types';
 
 const buildPromptFromMessages = (messages: ChatMessage[]): string => {
   const sorted = [...messages].sort(
@@ -131,7 +136,7 @@ const callOpenAIChat = async (
   config: CloudLLMConfig,
   mcpTools: MCPTool[] = [],
   mode: ChatMode,
-): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+): Promise<LLMCallResult> => {
   const baseUrl = (config.baseUrl || 'https://api.openai.com/v1').replace(
     /\/$/,
     '',
@@ -205,13 +210,12 @@ const callOpenAIChat = async (
     throw new Error('OpenAI returned no output');
   }
 
-  // Handle function calls from the Responses API (output items with type === 'function_call')
   const functionCallItems = output.filter(
     (item: any) => item?.type === 'function_call',
   );
 
-  if (functionCallItems.length > 0 && mcpTools.length > 0) {
-    const toolCalls: MCPToolCall[] = [];
+  if (functionCallItems.length > 0) {
+    const toolCalls: ToolCall[] = [];
 
     for (const fc of functionCallItems) {
       const functionName =
@@ -241,77 +245,18 @@ const callOpenAIChat = async (
         functionArgs = rawArgs || {};
       }
 
-      const servers = mcpClientManager.getServers();
-      let serverId: string | undefined;
-      let serverName: string | undefined;
-
-      for (const server of servers) {
-        if (server.tools?.some((t) => t.name === functionName)) {
-          serverId = server.id;
-          serverName = server.name;
-          break;
-        }
-      }
-
-      let result: any;
-
-      if (serverId && serverName) {
-        result = await mcpClientManager.callTool(
-          serverId,
-          functionName,
-          functionArgs,
-        );
-      } else if (LOCAL_TOOLS.some((t) => t.name === functionName)) {
-        try {
-          result = await executeLocalTool(functionName, functionArgs);
-          serverId = 'local';
-          serverName = 'Local System';
-        } catch (error) {
-          result = {
-            content: [
-              {
-                type: 'text',
-                text: `Error executing local tool: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
-        }
-      } else {
-        console.error(
-          `Tool ${functionName} not found in any connected MCP server or local tools`,
-        );
-        continue;
-      }
-
       toolCalls.push({
         id: fc.id || `tool-${Date.now()}`,
-        toolName: functionName,
-        serverId: serverId || 'unknown',
-        serverName: serverName || 'Unknown',
+        name: functionName,
         arguments: functionArgs,
-        result,
-        timestamp: new Date(),
       });
     }
 
-    const toolResultsText = toolCalls
-      .map((tc) => {
-        const resultText =
-          tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
-        return `Tool ${tc.toolName} result: ${resultText}`;
-      })
-      .join('\n\n');
-
-    return {
-      content: toolResultsText || 'Tools executed successfully',
-      toolCalls,
-    };
+    if (toolCalls.length > 0) {
+      return { toolCalls };
+    }
   }
 
-  // Fallback: treat output as a normal assistant message
   const assistantItem =
     output.find(
       (item: any) => item?.type === 'message' && item?.role === 'assistant',
@@ -346,7 +291,7 @@ const callOpenAIChat = async (
     throw new Error('OpenAI returned an empty response');
   }
 
-  return { content };
+  return { finalText: content };
 };
 
 
@@ -453,7 +398,7 @@ const callGemini = async (
   config: CloudLLMConfig,
   mcpTools: MCPTool[] = [],
   mode: ChatMode,
-): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+): Promise<LLMCallResult> => {
   const apiKey = getCloudApiKey(config);
 
   const basePrompt = buildPromptFromMessages(messages);
@@ -518,8 +463,6 @@ const callGemini = async (
 
   const data: any = await response.json();
 
-  // Handle function calls for MCP/local tools if present.
-  // For REST, function calls are returned inside candidates[].content.parts[].functionCall.
   const functionCallParts: any[] = [];
 
   if (Array.isArray(data?.candidates)) {
@@ -534,8 +477,8 @@ const callGemini = async (
     }
   }
 
-  if (functionCallParts.length > 0 && mcpTools.length > 0) {
-    const toolCalls: MCPToolCall[] = [];
+  if (functionCallParts.length > 0) {
+    const toolCalls: ToolCall[] = [];
 
     for (const fnCall of functionCallParts) {
       const functionName = fnCall?.name;
@@ -556,77 +499,16 @@ const callGemini = async (
         functionArgs = rawArgs || {};
       }
 
-      const servers = mcpClientManager.getServers();
-      let serverId: string | undefined;
-      let serverName: string | undefined;
-
-      for (const server of servers) {
-        if (server.tools?.some((t) => t.name === functionName)) {
-          serverId = server.id;
-          serverName = server.name;
-          break;
-        }
-      }
-
-      let result: any;
-
-      if (serverId && serverName) {
-        result = await mcpClientManager.callTool(
-          serverId,
-          functionName,
-          functionArgs,
-        );
-      } else if (LOCAL_TOOLS.some((t) => t.name === functionName)) {
-        try {
-          result = await executeLocalTool(functionName, functionArgs);
-          serverId = 'local';
-          serverName = 'Local System';
-        } catch (error) {
-          result = {
-            content: [
-              {
-                type: 'text',
-                text: `Error executing local tool: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
-        }
-      } else {
-        console.error(
-          `Tool ${functionName} not found in any connected MCP server or local tools`,
-        );
-        continue;
-      }
-
       toolCalls.push({
         id: fnCall.id || `tool-${Date.now()}`,
-        toolName: functionName,
-        serverId: serverId || 'unknown',
-        serverName: serverName || 'Unknown',
+        name: functionName,
         arguments: functionArgs,
-        result,
-        timestamp: new Date(),
       });
     }
 
     if (toolCalls.length > 0) {
-      const toolResultsText = toolCalls
-        .map((tc) => {
-          const resultText =
-            tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
-          return `Tool ${tc.toolName} result: ${resultText}`;
-        })
-        .join('\n\n');
-
-      return {
-        content: toolResultsText || 'Tools executed successfully',
-        toolCalls,
-      };
+      return { toolCalls };
     }
-    // If there were functionCalls but no matching tools, fall through and try to return any text.
   }
 
   const textParts: string[] =
@@ -644,14 +526,14 @@ const callGemini = async (
     throw new Error('Gemini returned an empty response');
   }
 
-  return { content };
+  return { finalText: content };
 };
 
 const callAnthropic = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
   mode: ChatMode,
-): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+): Promise<LLMCallResult> => {
   const basePrompt = buildPromptFromMessages(messages);
   const modePrompt = getModeSystemPrompt(mode);
   const prompt = modePrompt ? `${modePrompt}\n\n${basePrompt}` : basePrompt;
@@ -696,31 +578,9 @@ const callAnthropic = async (
     throw new Error('Anthropic returned an empty response');
   }
 
-  return { content };
+  return { finalText: content };
 };
 
-export const callCloudLLM = async (
-  messages: ChatMessage[],
-  config: CloudLLMConfig,
-  mode: ChatMode,
-): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const mcpTools = getAllMCPTools(mode);
-
-  switch (config.provider) {
-    case 'openai':
-      return callOpenAIChat(messages, config, mcpTools, mode);
-    case 'gemini':
-      return callGemini(messages, config, mcpTools, mode);
-    case 'anthropic':
-      return callAnthropic(messages, config, mode);
-    default:
-      throw new Error(`Unsupported cloud provider: ${config.provider}`);
-  }
-};
-
-/**
- * Convert MCP tools to Ollama tool format
- */
 const convertMCPToolsToOllama = (mcpTools: MCPTool[]) => {
   return mcpTools.map(tool => ({
     type: 'function' as const,
@@ -732,22 +592,19 @@ const convertMCPToolsToOllama = (mcpTools: MCPTool[]) => {
   }));
 };
 
-export const callOllama = async (
+const callOllamaOnce = async (
   messages: ChatMessage[],
   config: OllamaConfig,
+  mcpTools: MCPTool[],
   mode: ChatMode,
-): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+): Promise<LLMCallResult> => {
   const baseUrl = (config.baseUrl || 'http://localhost:11434').replace(
     /\/$/,
     '',
   );
 
-  // Get available MCP tools
-  const mcpTools = getAllMCPTools(mode);
-
   const modeSystemContent = getModeSystemPrompt(mode);
 
-  // Add system message about tools if available
   const ollamaMessages = [...messages.map((message) => ({
     role: message.role,
     content: message.content,
@@ -784,7 +641,6 @@ export const callOllama = async (
     stream: false,
   };
 
-  // Add tools if available (Ollama supports tools in recent versions)
   if (mcpTools.length > 0) {
     requestBody.tools = convertMCPToolsToOllama(mcpTools);
   }
@@ -809,81 +665,260 @@ export const callOllama = async (
     throw new Error('Ollama returned no message');
   }
 
-  // Check if the model wants to call tools
   if (message.tool_calls && message.tool_calls.length > 0) {
-    const toolCalls: MCPToolCall[] = [];
+    const toolCalls: ToolCall[] = [];
 
-    // Execute each tool call
     for (const toolCall of message.tool_calls) {
       const functionName = toolCall.function.name;
       const functionArgs = toolCall.function.arguments;
 
-      // Find which MCP server has this tool
-      const servers = mcpClientManager.getServers();
-      let serverId: string | undefined;
-      let serverName: string | undefined;
-
-      for (const server of servers) {
-        if (server.tools?.some(t => t.name === functionName)) {
-          serverId = server.id;
-          serverName = server.name;
-          break;
-        }
-      }
-
-      let result: any;
-
-      if (serverId && serverName) {
-        // Execute MCP tool
-        result = await mcpClientManager.callTool(serverId, functionName, functionArgs);
-      } else if (LOCAL_TOOLS.some(t => t.name === functionName)) {
-        // Execute Local tool
-        try {
-          result = await executeLocalTool(functionName, functionArgs);
-          serverId = 'local';
-          serverName = 'Local System';
-        } catch (error) {
-          result = {
-            content: [{ type: 'text', text: `Error executing local tool: ${error instanceof Error ? error.message : String(error)}` }],
-            isError: true,
-          };
-        }
-      } else {
-        console.error(`Tool ${functionName} not found in any connected MCP server or local tools`);
-        continue;
-      }
-
       toolCalls.push({
         id: toolCall.id || `tool-${Date.now()}`,
-        toolName: functionName,
-        serverId: serverId || 'unknown',
-        serverName: serverName || 'Unknown',
+        name: functionName,
         arguments: functionArgs,
-        result,
-        timestamp: new Date(),
       });
     }
 
-    // Format tool results as text for the response
-    const toolResultsText = toolCalls
-      .map(tc => {
-        const resultText = tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
-        return `Tool ${tc.toolName} result: ${resultText}`;
-      })
-      .join('\n\n');
-
-    return {
-      content: toolResultsText || 'Tools executed successfully',
-      toolCalls,
-    };
+    if (toolCalls.length > 0) {
+      return { toolCalls };
+    }
   }
 
-  // No tool calls, return regular response
   const content = message.content?.toString().trim() || '';
 
   if (!content) {
     throw new Error('Ollama returned an empty response');
   }
 
-  return { content };
+  return { finalText: content };
+};
+
+const getAgentConfigForMode = (mode: ChatMode): AgentConfig => {
+  if (mode === 'agent') {
+    return {
+      maxIterations: 8,
+      maxToolCallsPerIteration: 8,
+      allowWrites: true,
+      allowLocalTools: true,
+    };
+  }
+
+  if (mode === 'plan') {
+    return {
+      maxIterations: 3,
+      maxToolCallsPerIteration: 4,
+      allowWrites: false,
+      allowLocalTools: false,
+    };
+  }
+
+  return {
+    maxIterations: 3,
+    maxToolCallsPerIteration: 4,
+    allowWrites: false,
+    allowLocalTools: false,
+  };
+};
+
+const isLocalMutatingTool = (name: string): boolean => {
+  return name === 'create_file' || name === 'replace_in_file';
+};
+
+const executeToolCall = async (
+  toolCall: ToolCall,
+  agentConfig: AgentConfig,
+): Promise<MCPToolCall | null> => {
+  const servers = mcpClientManager.getServers();
+  let serverId: string | undefined;
+  let serverName: string | undefined;
+
+  for (const server of servers) {
+    if (
+      server.status === 'connected' &&
+      server.tools?.some(t => t.name === toolCall.name)
+    ) {
+      serverId = server.id;
+      serverName = server.name;
+      break;
+    }
+  }
+
+  let result: any;
+
+  if (serverId && serverName) {
+    result = await mcpClientManager.callTool(
+      serverId,
+      toolCall.name,
+      toolCall.arguments,
+    );
+  } else if (
+    agentConfig.allowLocalTools &&
+    LOCAL_TOOLS.some(t => t.name === toolCall.name)
+  ) {
+    if (!agentConfig.allowWrites && isLocalMutatingTool(toolCall.name)) {
+      result = {
+        isError: true,
+        content: [
+          {
+            type: 'text',
+            text: `Tool ${toolCall.name} is not allowed in this mode`,
+          },
+        ],
+      };
+    } else {
+      try {
+        result = await executeLocalTool(toolCall.name, toolCall.arguments);
+        serverId = 'local';
+        serverName = 'Local System';
+      } catch (error) {
+        result = {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text:
+                error instanceof Error
+                  ? error.message
+                  : String(error),
+            },
+          ],
+        };
+      }
+    }
+  } else {
+    return null;
+  }
+
+  return {
+    id: toolCall.id,
+    toolName: toolCall.name,
+    serverId: serverId || 'unknown',
+    serverName: serverName || 'Unknown',
+    arguments: toolCall.arguments,
+    result,
+    timestamp: new Date(),
+  };
+};
+
+const runAgentLoop = async (
+  initialHistory: ChatMessage[],
+  mcpTools: MCPTool[],
+  mode: ChatMode,
+  callLLM: (history: ChatMessage[]) => Promise<LLMCallResult>,
+): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+  const agentConfig = getAgentConfigForMode(mode);
+  const history: ChatMessage[] = [...initialHistory];
+  const allToolCalls: MCPToolCall[] = [];
+  let finalText: string | undefined;
+
+  for (let iteration = 0; iteration < agentConfig.maxIterations; iteration += 1) {
+    const result = await callLLM(history);
+    const toolCalls = result.toolCalls || [];
+
+    if (toolCalls.length > 0 && mcpTools.length > 0) {
+      const limitedToolCalls = toolCalls.slice(
+        0,
+        agentConfig.maxToolCallsPerIteration,
+      );
+      const executedCalls: MCPToolCall[] = [];
+
+      for (const toolCall of limitedToolCalls) {
+        const executed = await executeToolCall(toolCall, agentConfig);
+        if (executed) {
+          executedCalls.push(executed);
+        }
+      }
+
+      if (executedCalls.length > 0) {
+        allToolCalls.push(...executedCalls);
+
+        const toolResultsText = executedCalls
+          .map(tc => {
+            const resultText =
+              tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
+            return `Tool ${tc.toolName} result: ${resultText}`;
+          })
+          .join('\n\n');
+
+        history.push({
+          id: `agent-tool-${Date.now()}-${iteration}`,
+          role: 'assistant',
+          content: toolResultsText || 'Tools executed',
+          timestamp: new Date(),
+        });
+
+        continue;
+      }
+
+      if (!result.finalText) {
+        break;
+      }
+    }
+
+    if (result.finalText) {
+      finalText = result.finalText.trim();
+      break;
+    }
+
+    break;
+  }
+
+  if (!finalText) {
+    if (allToolCalls.length > 0) {
+      const toolResultsText = allToolCalls
+        .map(tc => {
+          const resultText =
+            tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
+          return `Tool ${tc.toolName} result: ${resultText}`;
+        })
+        .join('\n\n');
+
+      finalText =
+        toolResultsText ||
+        'Tools executed but no final answer was generated within the configured limits.';
+    } else {
+      throw new Error('Model did not return a final answer');
+    }
+  }
+
+  return {
+    content: finalText,
+    toolCalls: allToolCalls.length ? allToolCalls : undefined,
+  };
+};
+
+export const callCloudLLM = async (
+  messages: ChatMessage[],
+  config: CloudLLMConfig,
+  mode: ChatMode,
+): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+  const mcpTools = getAllMCPTools(mode);
+
+  const callLLM = (history: ChatMessage[]): Promise<LLMCallResult> => {
+    switch (config.provider) {
+      case 'openai':
+        return callOpenAIChat(history, config, mcpTools, mode);
+      case 'gemini':
+        return callGemini(history, config, mcpTools, mode);
+      case 'anthropic':
+        return callAnthropic(history, config, mode);
+      default:
+        throw new Error(`Unsupported cloud provider: ${config.provider}`);
+    }
+  };
+
+  return runAgentLoop(messages, mcpTools, mode, callLLM);
+};
+
+export const callOllama = async (
+  messages: ChatMessage[],
+  config: OllamaConfig,
+  mode: ChatMode,
+): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+  const mcpTools = getAllMCPTools(mode);
+
+  const callLLM = (history: ChatMessage[]): Promise<LLMCallResult> =>
+    callOllamaOnce(history, config, mcpTools, mode);
+
+  return runAgentLoop(messages, mcpTools, mode, callLLM);
 };

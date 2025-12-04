@@ -44,6 +44,7 @@ interface ChatPanelProps {
   onSendMessage: (message: string) => void;
   isLoading?: boolean;
   mode: ChatMode;
+  onModeChange: (mode: ChatMode) => void;
   chatBackend: ChatBackend;
   onChatBackendChange: (backend: ChatBackend) => void;
   cloudLLMConfig: CloudLLMConfig | null;
@@ -60,6 +61,7 @@ function ChatPanelInner(
     onSendMessage,
     isLoading = false,
     mode,
+    onModeChange,
     chatBackend,
     onChatBackendChange,
     cloudLLMConfig,
@@ -491,8 +493,19 @@ function ChatPanelInner(
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <Zap className="icon-xs text-primary" />
-            <span className="font-medium text-muted-foreground">Chat backend</span>
+            <select
+              value={mode}
+              onChange={(e) =>
+                onModeChange(e.target.value as ChatMode)
+              }
+              className="px-2 py-1 border border-border rounded-md bg-background hover:bg-accent/30 focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="ask">Ask</option>
+              <option value="plan">Plan</option>
+              <option value="agent">Agent</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
             <select
               value={chatBackend}
               onChange={(e) =>

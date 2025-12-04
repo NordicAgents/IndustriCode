@@ -46,6 +46,40 @@ export interface AgentTask {
     result?: string;
 }
 
+export interface AgentConfig {
+    maxIterations: number;
+    maxToolCallsPerIteration: number;
+    allowWrites: boolean;
+    allowLocalTools: boolean;
+}
+
+export interface ToolCall {
+    id: string;
+    name: string;
+    arguments: Record<string, unknown>;
+}
+
+export interface LLMCallResult {
+    finalText?: string;
+    toolCalls?: ToolCall[];
+}
+
+export interface AgentStep {
+    index: number;
+    inputMessages: import('../types').ChatMessage[];
+    outputText?: string;
+    toolCalls?: import('./mcp-types').MCPToolCall[];
+}
+
+export interface AgentRun {
+    id: string;
+    goal: string;
+    mode: ChatMode;
+    steps: AgentStep[];
+    status: 'running' | 'completed' | 'failed';
+    resultText?: string;
+}
+
 export interface CodeAssistRequest {
     type: 'generate' | 'fix' | 'refactor' | 'explain';
     code?: string;
