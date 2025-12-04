@@ -89,6 +89,25 @@ const convertMCPToolsToOpenAI = (mcpTools: MCPTool[]) => {
   }));
 };
 
+/**
+ * Convert MCP tools to Gemini function declaration format
+ */
+const convertMCPToolsToGemini = (mcpTools: MCPTool[]) => {
+  if (!mcpTools.length) {
+    return [];
+  }
+
+  return [
+    {
+      functionDeclarations: mcpTools.map(tool => ({
+        name: tool.name,
+        description: tool.description || '',
+        parameters: tool.inputSchema,
+      })),
+    },
+  ];
+};
+
 const callOpenAIChat = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
@@ -110,13 +129,6 @@ const callOpenAIChat = async (
       ? {
           role: 'system',
           content:
-            'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.). ' +
-            'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, ' +
-            'instead of guessing.\n\n' +
-            'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2). ' +
-            'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID). ' +
-            'Never put non-numeric values after i=.\n\n' +
-            'Available tools:\n' +
             mcpTools
               .map(
                 (tool) =>
@@ -402,29 +414,64 @@ const getAllMCPTools = (mode: ChatMode): MCPTool[] => {
 const callGemini = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
+  mcpTools: MCPTool[] = [],
   mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
+  const apiKey = getCloudApiKey(config);
+
   const basePrompt = buildPromptFromMessages(messages);
   const modePrompt = getModeSystemPrompt(mode);
-  const prompt = modePrompt ? `${modePrompt}\n\n${basePrompt}` : basePrompt;
-  const apiKey = getCloudApiKey(config);
+
+  const promptSections: string[] = [];
+
+  if (modePrompt) {
+    promptSections.push(modePrompt);
+  }
+
+  if (mcpTools.length > 0) {
+    const toolDescription = [
+      'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.).',
+      'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, instead of guessing.',
+      'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2).',
+      'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID).',
+      'Never put non-numeric values after i=.',
+      'Available tools:',
+      ...mcpTools.map(
+        (tool) =>
+          `- ${tool.name}${tool.description ? `: ${tool.description}` : ''}`,
+      ),
+    ].join('\n');
+
+    promptSections.push(toolDescription);
+  }
+
+  promptSections.push(basePrompt);
+
+  const prompt = promptSections.join('\n\n');
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
     config.model,
-  )}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  )}:generateContent`;
+
+  const requestBody: any = {
+    contents: [
+      {
+        parts: [{ text: prompt }],
+      },
+    ],
+  };
+
+  if (mcpTools.length > 0) {
+    requestBody.tools = convertMCPToolsToGemini(mcpTools);
+  }
 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
     },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -433,6 +480,107 @@ const callGemini = async (
   }
 
   const data: any = await response.json();
+
+  // Handle function calls for MCP/local tools if present
+  const functionCalls = Array.isArray(data?.functionCalls)
+    ? data.functionCalls
+    : [];
+
+  if (functionCalls.length > 0 && mcpTools.length > 0) {
+    const toolCalls: MCPToolCall[] = [];
+
+    for (const fnCall of functionCalls) {
+      const functionName = fnCall?.name;
+      if (!functionName) {
+        continue;
+      }
+
+      const rawArgs = fnCall.args ?? {};
+
+      let functionArgs: any;
+      if (typeof rawArgs === 'string') {
+        try {
+          functionArgs = JSON.parse(rawArgs);
+        } catch {
+          functionArgs = {};
+        }
+      } else {
+        functionArgs = rawArgs || {};
+      }
+
+      const servers = mcpClientManager.getServers();
+      let serverId: string | undefined;
+      let serverName: string | undefined;
+
+      for (const server of servers) {
+        if (server.tools?.some((t) => t.name === functionName)) {
+          serverId = server.id;
+          serverName = server.name;
+          break;
+        }
+      }
+
+      let result: any;
+
+      if (serverId && serverName) {
+        result = await mcpClientManager.callTool(
+          serverId,
+          functionName,
+          functionArgs,
+        );
+      } else if (LOCAL_TOOLS.some((t) => t.name === functionName)) {
+        try {
+          result = await executeLocalTool(functionName, functionArgs);
+          serverId = 'local';
+          serverName = 'Local System';
+        } catch (error) {
+          result = {
+            content: [
+              {
+                type: 'text',
+                text: `Error executing local tool: ${
+                  error instanceof Error ? error.message : String(error)
+                }`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      } else {
+        console.error(
+          `Tool ${functionName} not found in any connected MCP server or local tools`,
+        );
+        continue;
+      }
+
+      toolCalls.push({
+        id: fnCall.id || `tool-${Date.now()}`,
+        toolName: functionName,
+        serverId: serverId || 'unknown',
+        serverName: serverName || 'Unknown',
+        arguments: functionArgs,
+        result,
+        timestamp: new Date(),
+      });
+    }
+
+    if (toolCalls.length > 0) {
+      const toolResultsText = toolCalls
+        .map((tc) => {
+          const resultText =
+            tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
+          return `Tool ${tc.toolName} result: ${resultText}`;
+        })
+        .join('\n\n');
+
+      return {
+        content: toolResultsText || 'Tools executed successfully',
+        toolCalls,
+      };
+    }
+    // If there were functionCalls but no matching tools, fall through and try to return any text.
+  }
+
   const parts: string[] =
     data?.candidates?.[0]?.content?.parts
       ?.map((part: any) => part?.text)
@@ -503,14 +651,13 @@ export const callCloudLLM = async (
   config: CloudLLMConfig,
   mode: ChatMode,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  // Get available MCP tools
   const mcpTools = getAllMCPTools(mode);
 
   switch (config.provider) {
     case 'openai':
       return callOpenAIChat(messages, config, mcpTools, mode);
     case 'gemini':
-      return callGemini(messages, config, mode);
+      return callGemini(messages, config, mcpTools, mode);
     case 'anthropic':
       return callAnthropic(messages, config, mode);
     default:

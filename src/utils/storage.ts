@@ -72,6 +72,26 @@ export const loadCloudLLMConfig = (): CloudLLMConfig | null => {
       }
     }
 
+    if (config.provider === 'gemini') {
+      const validGeminiModels = [
+        'gemini-2.5-flash-lite',
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-3-pro-preview',
+      ];
+
+      if (!validGeminiModels.includes(config.model)) {
+        if (
+          config.model === 'gemini-1.5-flash' ||
+          config.model === 'gemini-1.5-pro'
+        ) {
+          config.model = 'gemini-2.5-flash-lite';
+        } else {
+          config.model = 'gemini-2.5-flash-lite';
+        }
+      }
+    }
+
     return config;
   } catch {
     return null;
