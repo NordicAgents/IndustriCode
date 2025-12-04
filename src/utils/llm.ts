@@ -518,15 +518,26 @@ const callGemini = async (
 
   const data: any = await response.json();
 
-  // Handle function calls for MCP/local tools if present
-  const functionCalls = Array.isArray(data?.functionCalls)
-    ? data.functionCalls
-    : [];
+  // Handle function calls for MCP/local tools if present.
+  // For REST, function calls are returned inside candidates[].content.parts[].functionCall.
+  const functionCallParts: any[] = [];
 
-  if (functionCalls.length > 0 && mcpTools.length > 0) {
+  if (Array.isArray(data?.candidates)) {
+    for (const candidate of data.candidates) {
+      const parts = candidate?.content?.parts;
+      if (!Array.isArray(parts)) continue;
+      for (const part of parts) {
+        if (part?.functionCall) {
+          functionCallParts.push(part.functionCall);
+        }
+      }
+    }
+  }
+
+  if (functionCallParts.length > 0 && mcpTools.length > 0) {
     const toolCalls: MCPToolCall[] = [];
 
-    for (const fnCall of functionCalls) {
+    for (const fnCall of functionCallParts) {
       const functionName = fnCall?.name;
       if (!functionName) {
         continue;
@@ -618,11 +629,16 @@ const callGemini = async (
     // If there were functionCalls but no matching tools, fall through and try to return any text.
   }
 
-  const parts: string[] =
+  const textParts: string[] =
     data?.candidates?.[0]?.content?.parts
-      ?.map((part: any) => part?.text)
-      .filter(Boolean) || [];
-  const content = parts.join(' ').trim();
+      ?.map((part: any) => {
+        if (!part) return '';
+        if (typeof part.text === 'string') return part.text;
+        return '';
+      })
+      .filter((t: string) => t.trim().length > 0) || [];
+
+  const content = textParts.join(' ').trim();
 
   if (!content) {
     throw new Error('Gemini returned an empty response');
