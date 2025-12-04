@@ -30,6 +30,15 @@ A modern, intuitive chat interface for working with local and third‑party lang
    cd mcp-backend && npm install && cd ..
    ```
 
+### Configure API keys
+
+Copy the example env file and drop your provider keys in. The app will read these automatically, so you won't be prompted for a key in the UI.
+
+```bash
+cp .env.example .env
+# then set VITE_OPENAI_API_KEY / VITE_GEMINI_API_KEY / VITE_ANTHROPIC_API_KEY
+```
+
 ### Running the Application
 
 Start both the frontend UI and the backend service with a single command:
