@@ -8,126 +8,176 @@ export const PROJECT_DOC_FILES = {
   mcpInfo: 'MCP_Info.md',
 } as const;
 
+export type ProjectDocKind = keyof typeof PROJECT_DOC_FILES;
+
+export const PROJECT_DOC_ORDER: ProjectDocKind[] = [
+  'readme',
+  'structure',
+  'functionBlocks',
+  'skills',
+  'mcpInfo',
+];
+
 /**
- * Build the initialization prompt for generating project docs.
+ * Build the initialization prompt for generating a single project doc.
  *
  * The agent is expected to:
  * - Use filesystem tools (list_directory, read_file, create_file, apply_patch) inside the agent root.
  * - Use MCP tools (GraphDB, OPC UA, MQTT, etc.) when available.
- * - Create / overwrite markdown files under `<rootDir>/docs`.
+ * - Create / overwrite one markdown file under `<rootDir>/docs`.
  */
-export function buildProjectInitPrompt(rootDir: string): string {
+export function buildProjectInitPrompt(
+  rootDir: string,
+  kind: ProjectDocKind,
+): string {
   const docsRoot = `${rootDir.replace(/[/\\]$/, '')}/${DOCS_DIR}`;
-
-  return [
+  const header = [
     `You are an expert IEC 61499 / PLC and industrial connectivity assistant.`,
     ``,
-    `Your task is to **initialize project documentation** for the PLC skills project located at:`,
-    `- Project root (agent root): ${rootDir}`,
+    `Project root (agent root): ${rootDir}`,
+    `Docs directory: ${docsRoot}`,
     ``,
-    `Use the available tools to explore the filesystem and connected MCP servers. Then create or overwrite the following markdown files under:`,
-    `- ${docsRoot}/${PROJECT_DOC_FILES.readme}`,
-    `- ${docsRoot}/${PROJECT_DOC_FILES.structure}`,
-    `- ${docsRoot}/${PROJECT_DOC_FILES.functionBlocks}`,
-    `- ${docsRoot}/${PROJECT_DOC_FILES.skills}`,
-    `- ${docsRoot}/${PROJECT_DOC_FILES.mcpInfo}`,
+    `Your current task is to **create or overwrite exactly one markdown file** under the docs directory.`,
+    `Do not modify any other files beyond the specified target doc.`,
     ``,
-    `# Important constraints`,
+    `General constraints:`,
     `- Work **inside the agent root directory**; treat relative paths as rooted at ${rootDir}.`,
     `- Use filesystem tools instead of printing large file contents into the chat:`,
     `  - Use \`list_directory\` to inspect folder structures (especially \`IEC61499\`, \`HMI\`, \`HwConfiguration\`, \`AssetLinkData\`, \`Topology\`).`,
     `  - Use \`read_file\` only on representative and important files (\`.fbt\`, CAT/OPC UA XML, key HMI files, configs).`,
-    `  - Use \`create_file\` or \`apply_patch\` to write markdown files under \`${DOCS_DIR}/\`.`,
-    `- If any of the target docs already exist, **overwrite them completely** with improved content (do not append).`,
+    `  - Use \`create_file\` or \`apply_patch\` to write markdown under \`${DOCS_DIR}/\`.`,
+    `- If the target doc already exists, **overwrite it completely** with improved content (do not append).`,
     `- Keep docs concise but information‑dense; prefer tables and bullet lists over raw XML or long code dumps.`,
     ``,
-    `# Files to create and their content`,
+  ];
+
+  const fileName = PROJECT_DOC_FILES[kind];
+  const targetPath = `${docsRoot}/${fileName}`;
+
+  if (kind === 'readme') {
+    return [
+      ...header,
+      `# Target doc`,
+      `- File: ${targetPath}`,
+      `- Purpose: high‑level project overview for humans and LLM agents.`,
+      ``,
+      `# Content requirements`,
+      `- Describe the FESTO DS skills / IEC 61499 project at a high level:`,
+      `  - Main hardware/modules (e.g. feeder, pusher, transfer, etc.).`,
+      `  - How IEC 61499 skills control these modules.`,
+      `- Summarize key folders and their roles (based on \`list_directory\`):`,
+      `  - \`IEC61499/\` – function blocks, skills, system configuration.`,
+      `  - \`HMI/\` – HMI canvases and code‑behind for skills.`,
+      `  - \`HwConfiguration/\`, \`Topology/\`, \`AssetLinkData/\` – hardware and asset metadata.`,
+      `- Explain the concept of **BasicSKILL** and higher‑level skills (e.g. skGoToLeft, skTransfer, skPick, etc.).`,
+      `- Briefly mention that this \`${DOCS_DIR}/\` folder is the primary entry point for LLM agents to understand the project.`,
+      ``,
+      `When finished, write the complete markdown content to ${targetPath} using create_file or apply_patch.`,
+    ].join('\n');
+  }
+
+  if (kind === 'structure') {
+    return [
+      ...header,
+      `# Target doc`,
+      `- File: ${targetPath}`,
+      `- Purpose: concise overview of the project folder architecture.`,
+      ``,
+      `# Content requirements`,
+      `- Use \`list_directory\` to inspect the project tree under ${rootDir}.`,
+      `- Produce a compact tree or outline of the most important directories and files, for example:`,
+      `  - \`IEC61499/\` with subfolders like \`BasicSKILL\`, \`skGoToLeft\`, \`skTransfer\`, \`skPick\`, \`System\`, \`Model\`, \`Configuration\`, \`SnapshotCompiles\`, etc.`,
+      `  - \`HMI/\` with subfolders for skills, BasicSKILL HMI, configurations, etc.`,
+      `  - \`HwConfiguration/\`, \`AssetLinkData/\`, \`Topology/\`.`,
+      `- For each top‑level folder, add a one‑sentence description of its role and most important subfolders.`,
+      `- Use either a fenced \`text\` tree block or bullet lists; keep it readable.`,
+      ``,
+      `When finished, write the complete markdown content to ${targetPath} using create_file or apply_patch.`,
+    ].join('\n');
+  }
+
+  if (kind === 'functionBlocks') {
+    return [
+      ...header,
+      `# Target doc`,
+      `- File: ${targetPath}`,
+      `- Purpose: catalog of IEC 61499 function blocks and related assets (Basic FBs, composite FBs, CAT/OPC UA mappings, HMI FBs).`,
+      ``,
+      `# Content requirements`,
+      `- Focus on IEC 61499 function blocks under \`IEC61499/\`.`,
+      `- Use \`list_directory\` and \`read_file\` (on representative .fbt files) to identify:`,
+      `  - **Basic FBs** (with <BasicFB> ECC).`,
+      `  - **Composite FBs** (with <FBNetwork> only, often with comments like "Composite Function Block Type").`,
+      `  - HMI‑related FBs (e.g. \`*_HMI.fbt\`).`,
+      `  - CAT / OPC UA mapping files (\`*_CAT.offline.xml\`, \`*_CAT.opcua.xml\`, etc.).`,
+      `- Organize the doc into sections such as:`,
+      `  - Basic Function Blocks – table with columns: Name, category/role, key events/data, skills that use them (if known).`,
+      `  - Composite Function Blocks – table with Name, important internal FBs, external interface summary.`,
+      `  - CAT / OPC UA mapping – mapping from skills/FBs to CAT files and what they expose.`,
+      `  - HMI‑related FBs – how HMI FBs (e.g. BasicSKILL_HMI) relate to skills and HMI canvases.`,
+      `- Do **not** paste full XML; summarize structure and behavior in natural language tables or bullets.`,
+      ``,
+      `When finished, write the complete markdown content to ${targetPath} using create_file or apply_patch.`,
+    ].join('\n');
+  }
+
+  if (kind === 'skills') {
+    return [
+      ...header,
+      `# Target doc`,
+      `- File: ${targetPath}`,
+      `- Purpose: skills‑centric view of the project (atomic vs composite skills, how they relate to BasicSKILL and HMI).`,
+      ``,
+      `# Content requirements`,
+      `- Focus on skills built on top of BasicSKILL and templates under \`IEC61499/\`.`,
+      `- Detect skills and classify them as **atomic** or **composite** using heuristics:`,
+      `  - Names like \`skGoToLeft\`, \`skTransfer\`, \`skPick\`, \`skPlace\`, etc.`,
+      `  - FBs and folders under \`IEC61499/BasicSKILL\` and \`IEC61499/SKILL\`.`,
+      `  - FB networks that include \`BasicSKILL\`, \`SKILL_BFB\`, or similar.`,
+      `- Document:`,
+      `  - **Atomic skills** – table with Name, classification (atomic), key events/IO, short behavior summary (INIT/EXECUTE/RESET/etc.).`,
+      `  - **Composite skills** – table with Name, which atomic/basic skills they use, any internal orchestration FBs, relevant CAT/HMI artifacts.`,
+      `  - A brief **generic skill lifecycle** description as implemented by BasicSKILL/SKILL_BFB (INIT → STARTING → EXECUTE → COMPLETING / STOPPING / ABORTING, etc.).`,
+      `- If other docs (Readme/FunctionBlockInfo) already exist, you may treat them as additional context, but do not modify them in this run.`,
+      ``,
+      `When finished, write the complete markdown content to ${targetPath} using create_file or apply_patch.`,
+    ].join('\n');
+  }
+
+  // mcpInfo
+  return [
+    ...header,
+    `# Target doc`,
+    `- File: ${targetPath}`,
+    `- Purpose: rich reference for MCP servers (GraphDB, OPC UA, MQTT, etc.) and how they relate to PLC skills and IEC 61499 code.`,
     ``,
-    `## 1) ${PROJECT_DOC_FILES.readme} – Project overview`,
-    `Location: ${docsRoot}/${PROJECT_DOC_FILES.readme}`,
-    `- High‑level description of the FESTO DS skills / IEC 61499 project.`,
-    `- Explain the main hardware/modules (feeder, pusher, transfer, etc.) and how IEC 61499 skills control them.`,
-    `- Summarize key folders:`,
-    `  - \`IEC61499/\` – function blocks, skills, system configuration.`,
-    `  - \`HMI/\` – HMI canvases and code‑behind files for skills.`,
-    `  - \`HwConfiguration/\`, \`Topology/\`, \`AssetLinkData/\` – hardware and asset metadata.`,
-    `- Briefly describe the concept of **BasicSKILL** and higher‑level skills (e.g. skGoToLeft, skTransfer, skPick, etc.).`,
-    `- Explain that this \`${DOCS_DIR}/\` folder is the primary entry point for LLM agents to understand the project.`,
-    ``,
-    `## 2) ${PROJECT_DOC_FILES.structure} – Project folder architecture`,
-    `Location: ${docsRoot}/${PROJECT_DOC_FILES.structure}`,
-    `- Use \`list_directory\` to inspect the project tree under ${rootDir}.`,
-    `- Produce a concise tree or outline of the most important directories and files, for example:`,
-    `  - \`IEC61499/\` with subfolders like \`BasicSKILL\`, \`skGoToLeft\`, \`skTransfer\`, \`skPick\`, \`System\`, \`Model\`, \`Configuration\`, \`SnapshotCompiles\`, etc.`,
-    `  - \`HMI/\` with subfolders for skills, BasicSKILL HMI, configurations, etc.`,
-    `  - \`HwConfiguration/\`, \`AssetLinkData/\`, \`Topology/\`.`,
-    `- For each top‑level folder, add a one‑sentence description of its role.`,
-    ``,
-    `## 3) ${PROJECT_DOC_FILES.functionBlocks} – Function block information`,
-    `Location: ${docsRoot}/${PROJECT_DOC_FILES.functionBlocks}`,
-    `- Focus on IEC 61499 function blocks under \`IEC61499/\`.`,
-    `- Use \`list_directory\` and \`read_file\` (on representative .fbt files) to identify:`,
-    `  - **Basic FBs** (with <BasicFB> ECC).`,
-    `  - **Composite FBs** (with <FBNetwork> only, often with comments like "Composite Function Block Type").`,
-    `  - HMI‑related FBs (e.g. \`*_HMI.fbt\`).`,
-    `  - CAT / OPC UA mapping files (\`*_CAT.offline.xml\`, \`*_CAT.opcua.xml\`, etc.).`,
-    `- Organize the doc into sections such as:`,
-    `  - Basic Function Blocks – table with Name, role/category, key events/data, skills that use them.`,
-    `  - Composite Function Blocks – table with Name, internal important FBs, external interface.`,
-    `  - CAT / OPC UA mapping – which FB/skill each CAT file belongs to and what it exposes.`,
-    `  - HMI‑related FBs and how they relate to skills/HMI canvases.`,
-    `- Do **not** paste full XML; summarize structures and behavior.`,
-    ``,
-    `## 4) ${PROJECT_DOC_FILES.skills} – Skill information (atomic vs composite)`,
-    `Location: ${docsRoot}/${PROJECT_DOC_FILES.skills}`,
-    `- Focus on skills built on top of BasicSKILL and skill templates under \`IEC61499/\`.`,
-    `- Detect skills and classify them as **atomic** or **composite** using heuristics:`,
-    `  - Names like \`skGoToLeft\`, \`skTransfer\`, \`skPick\`, \`skPlace\`, etc.`,
-    `  - FBs and folders under \`IEC61499/BasicSKILL\` and \`IEC61499/SKILL\`.`,
-    `  - FB networks that include \`BasicSKILL\`, \`SKILL_BFB\`, or similar.`,
-    `- Document:`,
-    `  - **Atomic skills** – Name, classification, key events/IO, short behavior summary (INIT/EXECUTE/RESET/etc.).`,
-    `  - **Composite skills** – Name, which atomic/basic skills they use, any internal orchestration FBs, relevant CAT/HMI artifacts.`,
-    `  - A brief **generic skill lifecycle** description as implemented by BasicSKILL/SKILL_BFB (INIT → STARTING → EXECUTE → COMPLETING / STOPPING / ABORTING, etc.).`,
-    ``,
-    `## 5) ${PROJECT_DOC_FILES.mcpInfo} – MCP and PLC integration`,
-    `Location: ${docsRoot}/${PROJECT_DOC_FILES.mcpInfo}`,
-    `- This is the **key integration document** linking MCPs to PLC code.`,
-    `- First, read the repo‑root \`mcp-config.json\` (use \`read_file\`) to discover configured MCP servers:`,
+    `# Content requirements`,
+    `- First, read the repo‑root \`mcp-config.json\` (using \`read_file\`) to discover configured MCP servers:`,
     `  - GraphDB (Graph/ontology MCP).`,
     `  - OPC UA MCP (Python).`,
     `  - MQTT MCP (Python).`,
     `  - Any other MCP entries.`,
     `- For each MCP:`,
-    `  - Summarize configuration (command, env vars like \`MCPHUB_SERVER_URL\`, \`OPCUA_SERVER_URL\`, \`MQTT_BROKER_URL\`, Sparkplug IDs, etc.).`,
-    `  - When tools are available and the server is reachable, **call MCP tools** to fetch runtime details:`,
-    `    - **GraphDB MCP**:`,
-    `      - Use SPARQL / graph tools (e.g. a tool that runs SPARQL queries) to discover ontologies, classes, and relationships relevant to skills, devices and IO.`,
-    `      - List key ontologies / prefixes and how they represent skills and equipment.`,
-    `      - Include a few example SPARQL queries and **summaries** of their results (no huge tables).`,
-    `    - **OPC UA MCP**:`,
-    `      - Browse NodeIds (using OPC UA tools) to find nodes for skill states (CURRENT_STATE), commands (START, STOP, RESET, etc.) and relevant IO.`,
-    `      - Produce tables mapping: Skill/FB → variable/event → OPC UA NodeId → browse path / namespace.`,
-    `      - Relate NodeIds back to CAT/OPC UA files under \`IEC61499/\` where possible.`,
-    `    - **MQTT MCP**:`,
-    `      - Identify important topics and payload structures, especially those tied to skills/states/alarms.`,
-    `      - Summarize broker URL, client ID, Sparkplug identifiers, and any discovered topic patterns.`,
+    `  - Summarize configuration (command, args, env vars like \`MCPHUB_SERVER_URL\`, \`OPCUA_SERVER_URL\`, \`MQTT_BROKER_URL\`, Sparkplug IDs, etc.).`,
+    `- When MCP tools are available and servers are reachable, call them to fetch runtime details:`,
+    `  - **GraphDB MCP**:`,
+    `    - Use SPARQL / graph tools to discover ontologies, classes, and relationships relevant to skills, devices and IO.`,
+    `    - List key ontologies / prefixes and how they represent skills and equipment.`,
+    `    - Include a few example SPARQL queries and short natural‑language summaries of their results (no huge result dumps).`,
+    `  - **OPC UA MCP**:`,
+    `    - Browse NodeIds to find nodes for skill states (CURRENT_STATE), commands (START, STOP, RESET, etc.) and relevant IO.`,
+    `    - Produce tables mapping: Skill/FB → variable/event → OPC UA NodeId → browse path / namespace.`,
+    `    - Relate NodeIds back to CAT/OPC UA files under \`IEC61499/\` where possible.`,
+    `  - **MQTT MCP**:`,
+    `    - Identify important topics and payload structures, especially those tied to skills/states/alarms.`,
+    `    - Summarize broker URL, client ID, Sparkplug identifiers, and any discovered topic patterns.`,
     `- Add a dedicated **"PLC–MCP Mapping"** section that cross‑links:`,
-    `  - IEC 61499 skills / FBs (from FunctionBlockInfo.md / SkillInfo.md).`,
+    `  - IEC 61499 skills / FBs (you may reference FunctionBlockInfo/SkillInfo docs if already present).`,
     `  - GraphDB ontology entities (classes/instances).`,
     `  - OPC UA NodeIds / browse paths.`,
     `  - MQTT topics (where applicable).`,
     `- If a given MCP is configured but not reachable, state clearly that runtime queries failed and fall back to configuration‑only information.`,
     ``,
-    `# Tool usage strategy`,
-    `- Prefer small, targeted tool calls over dumping huge files.`,
-    `- For filesystem inspection, call \`list_directory\` on:`,
-    `  - \`IEC61499/\`, \`HMI/\`, \`HwConfiguration/\`, \`AssetLinkData/\`, \`Topology/\`.`,
-    `- For content understanding, call \`read_file\` only on key .fbt / .xml / .cs files (e.g., BasicSKILL, representative skills like skGoToLeft, skTransfer).`,
-    `- For documentation creation, use \`create_file\` or \`apply_patch\` to write each markdown file under \`${DOCS_DIR}/\`.`,
-    `- For MCPs, use the available MCP tools exposed to you by the system (GraphDB, OPC UA, MQTT, etc.) to gather live details where possible.`,
-    ``,
-    `When you are done, all five markdown files should exist under ${docsRoot} with high‑quality, concise, and cross‑linked content that future agents can rely on to understand the project and its MCP integrations.`,
+    `When finished, write the complete markdown content to ${targetPath} using create_file or apply_patch.`,
   ].join('\n');
 }
-

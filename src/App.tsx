@@ -40,7 +40,11 @@ import { mcpClientManager } from './utils/mcp-client';
 import { getTheme, setTheme as setAppTheme } from './utils/theme';
 import { format } from 'date-fns';
 import { callCloudLLM, callOllama } from './utils/llm';
-import { buildProjectInitPrompt } from './utils/project-init';
+import {
+  buildProjectInitPrompt,
+  PROJECT_DOC_ORDER,
+  PROJECT_DOC_FILES,
+} from './utils/project-init';
 
 function AppContent() {
   // Chat state
@@ -474,70 +478,17 @@ function AppContent() {
         return;
       }
 
-      const now = Date.now();
-      const initPrompt = buildProjectInitPrompt(rootDir);
-
-      const userMessage: ChatMessage = {
-        id: `init-msg-${now}`,
-        role: 'user',
-        content: initPrompt,
-        timestamp: new Date(),
-      };
-
-      // Use a small synthetic history for the agent run
-      const history: ChatMessage[] = [userMessage];
-
-      // Also surface the request in the visible chat
-      setMessages((prev) => [...prev, userMessage]);
-
-      if (selectedSessionId) {
-        setSessions((prev) =>
-          prev.map((s) =>
-            s.id === selectedSessionId ? { ...s, lastActivity: new Date() } : s,
-          ),
-        );
-      }
-
-      let assistantResponse: { content: string; toolCalls?: any[] } | null = null;
-
-      if (chatBackend === 'cloud-llm' && cloudLLMConfig) {
-        const isOpenAIGpt51 =
-          cloudLLMConfig.provider === 'openai' &&
-          cloudLLMConfig.model === 'gpt-5.1';
-
-        assistantResponse = await callCloudLLM(history, cloudLLMConfig, 'agent', {
-          webSearchEnabled,
-          applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51,
-          applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
-          applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
-        });
-      } else if (chatBackend === 'ollama' && ollamaConfig) {
-        assistantResponse = await callOllama(history, ollamaConfig, 'agent', {
-          webSearchEnabled,
-          applyPatchEnabled: false,
-        });
-      } else {
+      if (
+        (chatBackend === 'cloud-llm' && !cloudLLMConfig) ||
+        (chatBackend === 'ollama' && !ollamaConfig)
+      ) {
         throw new Error('Chat backend is not configured.');
       }
 
-      if (!assistantResponse || !assistantResponse.content) {
-        throw new Error('Model returned an empty response');
-      }
-
-      const response: ChatMessage = {
-        id: `init-msg-${now + 1}`,
-        role: 'assistant',
-        content: assistantResponse.content,
-        timestamp: new Date(),
-        toolCalls: assistantResponse.toolCalls,
-      };
-
-      setMessages((prev) => [...prev, response]);
-
-      // Ensure docs/ shows up in the file explorer
-      setFileSystemVersion((v) => v + 1);
-
-      if (!selectedSessionId) {
+      // Ensure there is a session to attach messages to
+      let sessionId = selectedSessionId;
+      if (!sessionId) {
+        const now = Date.now();
         const newSession: ChatSession = {
           id: `session-${now}`,
           name: `Chat ${format(new Date(), 'MMM d, HH:mm')}`,
@@ -545,8 +496,92 @@ function AppContent() {
           lastActivity: new Date(),
         };
         setSessions((prev) => [newSession, ...prev]);
+        sessionId = newSession.id;
         setSelectedSessionId(newSession.id);
       }
+
+      // Sequentially initialize each doc via its own agent run
+      for (const kind of PROJECT_DOC_ORDER) {
+        const now = Date.now();
+        const initPrompt = buildProjectInitPrompt(rootDir, kind);
+        const fileName = PROJECT_DOC_FILES[kind];
+
+        const userMessage: ChatMessage = {
+          id: `init-${kind}-msg-${now}`,
+          role: 'user',
+          content: initPrompt,
+          timestamp: new Date(),
+        };
+
+        // Synthetic history for this specific file
+        const history: ChatMessage[] = [userMessage];
+
+        // Surface request in visible chat
+        setMessages((prev) => [...prev, userMessage]);
+
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === sessionId
+              ? { ...s, lastActivity: new Date() }
+              : s,
+          ),
+        );
+
+        try {
+          let assistantResponse: { content: string; toolCalls?: any[] } | null = null;
+
+          if (chatBackend === 'cloud-llm' && cloudLLMConfig) {
+            const isOpenAIGpt51 =
+              cloudLLMConfig.provider === 'openai' &&
+              cloudLLMConfig.model === 'gpt-5.1';
+
+            assistantResponse = await callCloudLLM(history, cloudLLMConfig, 'agent', {
+              webSearchEnabled,
+              applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51,
+              applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
+              applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
+            });
+          } else if (chatBackend === 'ollama' && ollamaConfig) {
+            assistantResponse = await callOllama(history, ollamaConfig, 'agent', {
+              webSearchEnabled,
+              applyPatchEnabled: false,
+            });
+          }
+
+          if (!assistantResponse || !assistantResponse.content) {
+            throw new Error(`Model returned an empty response while initializing ${fileName}`);
+          }
+
+          const response: ChatMessage = {
+            id: `init-${kind}-msg-${now + 1}`,
+            role: 'assistant',
+            content: assistantResponse.content,
+            timestamp: new Date(),
+            toolCalls: assistantResponse.toolCalls,
+          };
+
+          setMessages((prev) => [...prev, response]);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : `Unknown error while initializing ${fileName}`;
+
+          const errorMsg: ChatMessage = {
+            id: `init-${kind}-error-${Date.now()}`,
+            role: 'assistant',
+            content: `Error during initialization of ${fileName}: ${errorMessage}`,
+            timestamp: new Date(),
+            error: true,
+          };
+
+          setMessages((prev) => [...prev, errorMsg]);
+          // Continue with next doc instead of aborting the whole sequence
+        }
+      }
+
+      // Ensure docs/ shows up in the file explorer after all runs
+      setFileSystemVersion((v) => v + 1);
     } catch (error) {
       const errorMessage =
         error instanceof Error
