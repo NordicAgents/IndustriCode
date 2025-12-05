@@ -421,6 +421,12 @@ function AppContent() {
     }
   };
 
+  const handleNewChat = () => {
+    if (isLoading) return;
+    setMessages([]);
+    setSelectedSessionId(null);
+  };
+
   const handleApplyCode = async (code: string, targetPath?: string) => {
     // Case 1: Target path provided (Create/Update specific file)
     if (targetPath) {
@@ -546,6 +552,7 @@ function AppContent() {
                 onOllamaConfigChange={setOllamaConfig}
                 onApplyCodeToFile={handleApplyCode}
                 onFileSelect={handleFileSelect}
+                onNewChat={handleNewChat}
               />
             </div>
           </div>

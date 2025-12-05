@@ -17,6 +17,7 @@ import {
   Moon,
   Sun,
   X,
+  Plus,
   Upload,
   File,
   FileCode,
@@ -53,6 +54,7 @@ interface ChatPanelProps {
   onOllamaConfigChange: (config: OllamaConfig | null) => void;
   onApplyCodeToFile?: (code: string, path?: string) => void;
   onFileSelect?: (node: FileNode) => void;
+  onNewChat?: () => void;
 }
 
 function ChatPanelInner(
@@ -70,6 +72,7 @@ function ChatPanelInner(
     onOllamaConfigChange,
     onApplyCodeToFile,
     onFileSelect,
+    onNewChat,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -441,6 +444,15 @@ function ChatPanelInner(
           : 'Select provider, model and API key above to start chatting...'
       : 'Ask the local Ollama model anything... (Enter to send, Shift+Enter for new line)';
 
+  const handleNewChatClick = () => {
+    if (isLoading) return;
+    setInput('');
+    setAttachedFiles([]);
+    setCopiedId(null);
+    setIsDragOver(false);
+    onNewChat?.();
+  };
+
   return (
     <div
       className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background relative"
@@ -483,13 +495,27 @@ function ChatPanelInner(
               </p>
             </div>
           </div>
-          <button
-            onClick={toggleTheme}
-            className="btn-icon"
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'dark' ? <Sun className="icon-md" /> : <Moon className="icon-md" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {onNewChat && (
+              <button
+                type="button"
+                onClick={handleNewChatClick}
+                disabled={isLoading}
+                className="btn btn-xs btn-outline"
+                title="Start a new chat"
+              >
+                <Plus className="icon-xs" />
+                <span className="hidden sm:inline">New chat</span>
+              </button>
+            )}
+            <button
+              onClick={toggleTheme}
+              className="btn-icon"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun className="icon-md" /> : <Moon className="icon-md" />}
+            </button>
+          </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center gap-2">
