@@ -87,8 +87,14 @@ const getAgentRootPrompt = async (): Promise<string | null> => {
     if (!root) {
       return null;
     }
+
+    const docsDir = `${root.replace(/[/\\]$/, '')}/docs`;
+
     return [
       `You are working inside the project root directory: ${root}.`,
+      `The primary documentation/knowledge base for this project is the docs folder under the agent root: ${docsDir} (if it exists).`,
+      'In any mode (Ask, Plan, or Agent), when you need to understand the project, first look for and read relevant markdown files under this docs/ folder before deeply exploring raw IEC 61499, HMI, or configuration files.',
+      'Use these docs as your starting point for project structure, function blocks, skills, and MCP integrations, and only open additional source/config files when the docs are missing or insufficient.',
       'When using filesystem tools (read_file, list_directory, create_file, replace_in_file), interpret relative paths as rooted at this directory unless the user explicitly provides an absolute path.',
       'Do not attempt to read or write files outside this project root.',
     ].join(' ');
