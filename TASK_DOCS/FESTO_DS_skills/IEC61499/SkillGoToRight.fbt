@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="978e24e6-d1c9-4ad5-8649-4a85c8e5843b" Name="SkillGoToRight" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="TRIGGER">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+      </Event>
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,GoToMag,GoToNext,DONE,ERROR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1824.941" y="345.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1823.53" y="777.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="GoToNext" x="1808" y="2076">
+        <ECAction Algorithm="GoToNext" Output="CNF" />
+      </ECState>
+      <ECState Name="DONE" x="792" y="1532">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+      <ECState Name="TRIGGER" x="1820" y="1196" />
+      <ECState Name="ERROR" x="2780" y="1436">
+        <ECAction Algorithm="ERROR" Output="DONE" />
+      </ECState>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1828.354" y="563.5939">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="457.8623,126.0953,456.727,156.0849" />
+      </ECTransition>
+      <ECTransition Source="TRIGGER" Destination="GoToNext" Condition="TRIGGER[NOT at_next]" x="1816.72" y="1646.301">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="455.1035,379.7609,453.61,445.1064" />
+      </ECTransition>
+      <ECTransition Source="GoToNext" Destination="DONE" Condition="REQ[at_next]" x="1134.517" y="1994.631">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="308.2874,531.793,243.2074,491.7773" />
+      </ECTransition>
+      <ECTransition Source="DONE" Destination="TRIGGER" Condition="1" x="1280.852" y="1379.326">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="290.0313,356.5149,349.4259,334.2685" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="TRIGGER" Condition="1" x="1819.013" y="988.2529">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="454.724,234.0993,454.5059,260.3046" />
+      </ECTransition>
+      <ECTransition Source="TRIGGER" Destination="ERROR" Condition="TRIGGER AND at_next" x="2336.403" y="1239.012">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="556.7856,298.6769,611.6368,312.3897" />
+      </ECTransition>
+      <ECTransition Source="ERROR" Destination="TRIGGER" Condition="1" x="2304.916" y="1400.395">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="605.5734,361.6433,550.7222,347.9306" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[to_mgz :=FALSE;
+to_next :=FALSE;
+response:='INITIALISED';]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToMag">
+      <ST><![CDATA[to_mgz := TRUE;
+to_next := FALSE;
+response:='MOVED TO STORAGE';]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToNext">
+      <ST><![CDATA[to_mgz := FALSE;
+to_next := TRUE;
+response:='MOVING TO RIGHT';]]></ST>
+    </Algorithm>
+    <Algorithm Name="DONE">
+      <ST><![CDATA[response:='MOVED TO RIGHT';]]></ST>
+    </Algorithm>
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response:='ALREADY AT RIGHT SIDE';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

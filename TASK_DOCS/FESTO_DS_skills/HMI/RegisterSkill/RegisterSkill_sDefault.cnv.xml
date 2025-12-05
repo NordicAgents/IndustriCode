@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mapping>
+  <EventInputs>
+    <Event Name="REQ">RepoName;SkillName;Endpoint;In1;SkillCmd;Out1;CurrentState</Event>
+  </EventInputs>
+  <EventOutputs>
+    <Event Name="CNF" />
+  </EventOutputs>
+  <Inputs>
+    <Input Name="RepoName" Type="STRING" />
+    <Input Name="SkillName" Type="STRING" />
+    <Input Name="Endpoint" Type="STRING" />
+    <Input Name="In1" Type="STRING" />
+    <Input Name="SkillCmd" Type="STRING" />
+    <Input Name="Out1" Type="STRING" />
+    <Input Name="CurrentState" Type="STRING" />
+  </Inputs>
+  <Outputs />
+</Mapping>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="6af4e582-4f3f-4aef-a960-dd4589b17f78" Name="E_MERGE4" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="vv263" Date="11/14/2025" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="EI1" Comment="Initialization Request" />
+      <Event Name="EI2" Comment="Normal Execution Request" />
+      <Event Name="EI3" />
+      <Event Name="EI4" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="EO" Comment="Initialization Confirm" />
+    </EventOutputs>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,REQ" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="556.9412" y="453.4117" />
+      <ECState Name="REQ" Comment="Normal execution" x="569.647" y="1340.941">
+        <ECAction Output="EO" />
+      </ECState>
+      <ECTransition Source="START" Destination="REQ" Condition="EI1" x="642.4517" y="896.1029">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="165.3538,191.3044,166.2881,256.5681" />
+      </ECTransition>
+      <ECTransition Source="REQ" Destination="START" Condition="1" x="563.2278" y="972.1764">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="141.2907,281.926,140.3564,216.6622" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI2" x="760.7663" y="901.4884">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="202.7175,193.0996,203.6518,258.3633" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI3" x="896.5543" y="912.9067">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="245.578,196.9056,246.5123,262.1695" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI4" x="1028.334" y="905.5227">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="287.2425,194.4249,288.1768,259.6887" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="REQ" Comment="Normally executed algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

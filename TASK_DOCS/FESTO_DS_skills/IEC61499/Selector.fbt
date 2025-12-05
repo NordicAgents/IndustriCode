@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="2c34f408-c4a5-4166-84c6-8cd2c5f4b986" Name="Selector" Comment="Extracted Composite Function Block Type" Namespace="Main">
+  <Attribute Name="Configuration.FB.IDCounter" Value="20" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Author="midxav" Date="2/18/2024" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="SELECT" />
+        <With Var="retract1" />
+        <With Var="retract2" />
+        <With Var="to_mgz1" />
+        <With Var="to_mgz2" />
+        <With Var="to_next1" />
+        <With Var="to_next2" />
+        <With Var="vcmon1" />
+        <With Var="vcmon2" />
+        <With Var="vcmoff1" />
+        <With Var="vcmoff2" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="retract" />
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="vcmon" />
+        <With Var="vcmoff" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SELECT" Type="USINT" Comment="Selector" />
+      <VarDeclaration Name="retract1" Type="BOOL" />
+      <VarDeclaration Name="retract2" Type="BOOL" />
+      <VarDeclaration Name="to_mgz1" Type="BOOL" />
+      <VarDeclaration Name="to_mgz2" Type="BOOL" />
+      <VarDeclaration Name="to_next1" Type="BOOL" />
+      <VarDeclaration Name="to_next2" Type="BOOL" />
+      <VarDeclaration Name="vcmon1" Type="BOOL" />
+      <VarDeclaration Name="vcmon2" Type="BOOL" />
+      <VarDeclaration Name="vcmoff1" Type="BOOL" />
+      <VarDeclaration Name="vcmoff2" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="retract" Type="BOOL" />
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="vcmon" Type="BOOL" />
+      <VarDeclaration Name="vcmoff" Type="BOOL" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="7" UID="1" Name="FB1" Type="SELECT_783952938E11160B" x="700" y="720" Namespace="Main">
+      <Attribute Name="Configuration.GenericFBType.InterfaceParams" Value="Runtime.Standard#CNT:=2;IN${CNT}:BOOL" />
+    </FB>
+    <FB ID="8" UID="2" Name="FB2" Type="SELECT_783952938E11160B" x="1360" y="700" Namespace="Main">
+      <Attribute Name="Configuration.GenericFBType.InterfaceParams" Value="Runtime.Standard#CNT:=2;IN${CNT}:BOOL" />
+    </FB>
+    <FB ID="9" UID="3" Name="FB3" Type="SELECT_783952938E11160B" x="2120" y="720" Namespace="Main">
+      <Attribute Name="Configuration.GenericFBType.InterfaceParams" Value="Runtime.Standard#CNT:=2;IN${CNT}:BOOL" />
+    </FB>
+    <FB ID="10" UID="4" Name="FB4" Type="SELECT_783952938E11160B" x="2940" y="720" Namespace="Main">
+      <Attribute Name="Configuration.GenericFBType.InterfaceParams" Value="Runtime.Standard#CNT:=2;IN${CNT}:BOOL" />
+    </FB>
+    <FB ID="11" UID="5" Name="FB5" Type="SELECT_783952938E11160B" x="3780" y="720" Namespace="Main">
+      <Attribute Name="Configuration.GenericFBType.InterfaceParams" Value="Runtime.Standard#CNT:=2;IN${CNT}:BOOL" />
+    </FB>
+    <FB ID="16" Name="FB6" Type="E_MERGE" x="1840" y="1800" Namespace="IEC61499.Standard" />
+    <FB ID="17" Name="FB7" Type="E_MERGE" x="2720" y="1600" Namespace="IEC61499.Standard" />
+    <FB ID="18" Name="FB8" Type="E_MERGE" x="3820" y="2000" Namespace="IEC61499.Standard" />
+    <FB ID="19" Name="FB9" Type="E_MERGE" x="3200" y="2160" Namespace="IEC61499.Standard" />
+    <Input Name="REQ" x="149.7708" y="132" Type="Event" />
+    <Input Name="SELECT" x="97.41669" y="252" Type="Data" />
+    <Input Name="retract1" x="12" y="12" Type="Data" />
+    <Input Name="retract2" x="12" y="72" Type="Data" />
+    <Input Name="to_mgz1" x="12" y="192" Type="Data" />
+    <Input Name="to_mgz2" x="12" y="312" Type="Data" />
+    <Input Name="to_next1" x="12" y="372" Type="Data" />
+    <Input Name="to_next2" x="12" y="432" Type="Data" />
+    <Input Name="vcmon1" x="12" y="492" Type="Data" />
+    <Input Name="vcmon2" x="12" y="552" Type="Data" />
+    <Input Name="vcmoff1" x="12" y="612" Type="Data" />
+    <Input Name="vcmoff2" x="12" y="672" Type="Data" />
+    <Output Name="CNF" x="4660" y="1952" Type="Event" />
+    <Output Name="retract" x="4047.01" y="12" Type="Data" />
+    <Output Name="to_mgz" x="4028.198" y="72" Type="Data" />
+    <Output Name="to_next" x="4028.156" y="132" Type="Data" />
+    <Output Name="vcmon" x="4042.26" y="192" Type="Data" />
+    <Output Name="vcmoff" x="4042.281" y="252" Type="Data" />
+    <EventConnections>
+      <Connection Source="REQ" Destination="FB1.REQ" dx1="40" />
+      <Connection Source="REQ" Destination="FB2.REQ" dx1="719.7709" />
+      <Connection Source="REQ" Destination="FB3.REQ" dx1="1379.771" />
+      <Connection Source="REQ" Destination="FB4.REQ" dx1="2139.771" />
+      <Connection Source="REQ" Destination="FB5.REQ" dx1="2959.771" />
+      <Connection Source="FB1.CNF" Destination="FB6.EI1" dx1="60" />
+      <Connection Source="FB2.CNF" Destination="FB6.EI2" dx1="60" dx2="70" dy="410" />
+      <Connection Source="FB3.CNF" Destination="FB7.EI1" dx1="60" />
+      <Connection Source="FB4.CNF" Destination="FB7.EI2" dx1="60" dx2="70" dy="410" />
+      <Connection Source="FB5.CNF" Destination="FB8.EI1" dx1="60" dx2="30" dy="410" />
+      <Connection Source="FB6.EO" Destination="FB9.EI2" dx1="41.54175" />
+      <Connection Source="FB7.EO" Destination="FB9.EI1" dx1="41.54175" />
+      <Connection Source="FB9.EO" Destination="FB8.EI2" dx1="41.54199" />
+      <Connection Source="FB8.EO" Destination="CNF" dx1="41.54175" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SELECT" Destination="FB1.SELECT" dx1="27.41669" />
+      <Connection Source="SELECT" Destination="FB2.SELECT" dx1="547.4167" />
+      <Connection Source="SELECT" Destination="FB3.SELECT" dx1="1207.417" />
+      <Connection Source="SELECT" Destination="FB4.SELECT" dx1="1967.417" />
+      <Connection Source="SELECT" Destination="FB5.SELECT" dx1="2787.417" />
+      <Connection Source="FB1.OUT" Destination="retract" dx1="40" />
+      <Connection Source="FB2.OUT" Destination="to_mgz" dx1="40" />
+      <Connection Source="FB3.OUT" Destination="to_next" dx1="40" />
+      <Connection Source="FB4.OUT" Destination="vcmon" dx1="40" />
+      <Connection Source="FB5.OUT" Destination="vcmoff" dx1="40" dx2="32.28125" dy="-310" />
+      <Connection Source="retract1" Destination="FB1.IN1" dx1="103.6042" />
+      <Connection Source="retract2" Destination="FB1.IN2" dx1="103.6042" />
+      <Connection Source="to_mgz1" Destination="FB2.IN1" dx1="644.7917" />
+      <Connection Source="to_mgz2" Destination="FB2.IN2" dx1="644.7917" />
+      <Connection Source="to_next1" Destination="FB3.IN1" dx1="1304.75" />
+      <Connection Source="to_next2" Destination="FB3.IN2" dx1="1304.75" />
+      <Connection Source="vcmon1" Destination="FB4.IN1" dx1="2078.854" />
+      <Connection Source="vcmon2" Destination="FB4.IN2" dx1="2078.854" />
+      <Connection Source="vcmoff1" Destination="FB5.IN1">
+        <Points>
+          <Points>
+            <X>117.781235</X>
+            <Y>160</Y>
+          </Points>
+          <Points>
+            <X>127.781235</X>
+            <Y>160</Y>
+          </Points>
+          <Points>
+            <X>127.781235</X>
+            <Y>157.5</Y>
+          </Points>
+          <Points>
+            <X>842.5</X>
+            <Y>157.5</Y>
+          </Points>
+          <Points>
+            <X>842.5</X>
+            <Y>255</Y>
+          </Points>
+          <Points>
+            <X>940</X>
+            <Y>255</Y>
+          </Points>
+        </Points>
+      </Connection>
+      <Connection Source="vcmoff2" Destination="FB5.IN2">
+        <Points>
+          <Points>
+            <X>117.781235</X>
+            <Y>175</Y>
+          </Points>
+          <Points>
+            <X>127.781235</X>
+            <Y>175</Y>
+          </Points>
+          <Points>
+            <X>127.781235</X>
+            <Y>157.5</Y>
+          </Points>
+          <Points>
+            <X>842.5</X>
+            <Y>157.5</Y>
+          </Points>
+          <Points>
+            <X>842.5</X>
+            <Y>270</Y>
+          </Points>
+          <Points>
+            <X>940</X>
+            <Y>270</Y>
+          </Points>
+        </Points>
+      </Connection>
+    </DataConnections>
+  </FBNetwork>
+</FBType>

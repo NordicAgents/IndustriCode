@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="c622da24-2220-4328-af9f-b201a3ccd581" Name="RegisterSkill_HMI" Comment="Service Interface Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/13/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event ID="9910428744659319" Name="INIT">
+        <With Var="QI" />
+      </Event>
+      <Event ID="99FD3A000545D054" Name="REQ">
+        <With Var="RepoName" />
+        <With Var="SkillName" />
+        <With Var="Endpoint" />
+        <With Var="In1" />
+        <With Var="SkillCmd" />
+        <With Var="Out1" />
+        <With Var="CurrentState" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event ID="99ADA7F1A50318CC" Name="INITO">
+        <With Var="QO" />
+        <With Var="STATUS" />
+      </Event>
+      <Event ID="F7B8A4CC0EBEED8A" Name="CNF" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration ID="7D80F684B5ADF8B9" Name="QI" Type="BOOL" />
+      <VarDeclaration ID="D117C34B45CBF4BD" Name="RepoName" Type="STRING" />
+      <VarDeclaration ID="B45579F9388337D3" Name="SkillName" Type="STRING" />
+      <VarDeclaration ID="B45B9DF7D6553D78" Name="Endpoint" Type="STRING" />
+      <VarDeclaration ID="E1B9B5F9EC832DCE" Name="In1" Type="STRING" />
+      <VarDeclaration ID="2FBF147739C59E38" Name="SkillCmd" Type="STRING" />
+      <VarDeclaration ID="2678570E67B1DB0" Name="Out1" Type="STRING" />
+      <VarDeclaration ID="44EAFABB921EA5D3" Name="CurrentState" Type="STRING" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration ID="43443D182683C748" Name="QO" Type="BOOL" Comment="Event Output Qualifier" />
+      <VarDeclaration ID="15C8D52ED413B23F" Name="STATUS" Type="STRING" Comment="Service Status" />
+    </OutputVars>
+  </InterfaceList>
+  <Service RightInterface="" LeftInterface="">
+    <ServiceSequence Name="" />
+  </Service>
+</FBType>

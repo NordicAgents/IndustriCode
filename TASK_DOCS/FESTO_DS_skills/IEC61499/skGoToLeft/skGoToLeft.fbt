@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="3544c963-e008-46c4-a163-2130a54260d0" Name="skGoToLeft" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="6" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="vv263" Date="11/8/2025" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="START">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="RESET">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+      </Event>
+      <Event Name="stUPD">
+        <With Var="CURRENT_STATE" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SkillName" Type="STRING" />
+      <VarDeclaration Name="FilePath" Type="STRING" />
+      <VarDeclaration Name="Endpoint" Type="STRING" />
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="CURRENT_STATE" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="Skill_Commands" Type="BasicSKILL" x="1500" y="280" Namespace="Main" />
+    <FB ID="2" Name="REG" Type="RegisterSkill" x="4300" y="860" Namespace="Main" />
+    <FB ID="3" Name="Logic" Type="SkillGoToLeft" x="2440" y="1920" Namespace="Main" />
+    <FB ID="4" Name="FB1" Type="E_MERGE13" x="3160" y="400" Namespace="Main" />
+    <FB ID="5" Name="FB2" Type="E_MERGE" x="3640" y="180" Namespace="IEC61499.Standard" />
+    <FB ID="6" Name="FB3" Type="E_MERGE" x="4780" y="180" Namespace="IEC61499.Standard" />
+    <Input Name="INIT" x="880" y="292" Type="Event" />
+    <Input Name="REQ" x="1720" y="1992" Type="Event" />
+    <Input Name="SkillName" x="680" y="1752" Type="Data" />
+    <Input Name="FilePath" x="3720" y="1192" Type="Data" />
+    <Input Name="Endpoint" x="3700" y="1252" Type="Data" />
+    <Input Name="at_mgz" x="1640" y="2252" Type="Data" />
+    <Input Name="at_next" x="1640" y="2312" Type="Data" />
+    <Input Name="START" x="866.0729" y="472" Type="Event" />
+    <Input Name="RESET" x="884.875" y="772" Type="Event" />
+    <Output Name="stUPD" x="5090.958" y="1432" Type="Event" />
+    <Output Name="CURRENT_STATE" x="4220" y="1512" Type="Data" />
+    <Output Name="INITO" x="4820" y="772" Type="Event" />
+    <Output Name="CNF" x="5180" y="192" Type="Event" />
+    <Output Name="to_mgz" x="3280" y="2252" Type="Data" />
+    <Output Name="to_next" x="3280" y="2312" Type="Data" />
+    <EventConnections>
+      <Connection Source="Skill_Commands.STARTING" Destination="FB1.EI1">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.EXECUTE" Destination="Logic.TRIGGER" dx1="40" />
+      <Connection Source="Skill_Commands.HOLDING" Destination="FB1.EI3">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="INIT" Destination="Skill_Commands.INIT" />
+      <Connection Source="Skill_Commands.INITO" Destination="Logic.INIT" dx1="40" />
+      <Connection Source="Logic.INITO" Destination="REG.INIT" dx1="590.104">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="REG.INITO" Destination="REG.REQ" dx1="43.4375" dx2="70" dy="-110" />
+      <Connection Source="REQ" Destination="Logic.REQ" />
+      <Connection Source="REG.INITO" Destination="INITO" dx1="43.4375" />
+      <Connection Source="FB1.EO" Destination="FB2.EI1" dx1="40" />
+      <Connection Source="Skill_Commands.UNHOLDING" Destination="FB1.EI4">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.SUSPENDING" Destination="FB1.EI5">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.UNSUSPENDING" Destination="FB1.EI6">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.RESETTING" Destination="FB1.EI8">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.STOPPING" Destination="FB1.EI9">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.ABORTING" Destination="FB1.EI10">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.CLEARING" Destination="FB1.EI11">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.DONE" Destination="Skill_Commands.OUTPUT" dx1="90" dx2="160" dy="-230">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="START" Destination="Skill_Commands.START" />
+      <Connection Source="RESET" Destination="Skill_Commands.RESET" />
+      <Connection Source="Skill_Commands.COMPLETING" Destination="FB1.EI7" />
+      <Connection Source="Logic.CNF" Destination="FB3.EI2">
+        <Points>
+          <Points>
+            <X>737.474</X>
+            <Y>505</Y>
+          </Points>
+          <Points>
+            <X>900</X>
+            <Y>505</Y>
+          </Points>
+          <Points>
+            <X>900</X>
+            <Y>197.5</Y>
+          </Points>
+          <Points>
+            <X>1045</X>
+            <Y>197.5</Y>
+          </Points>
+          <Points>
+            <X>1045</X>
+            <Y>70</Y>
+          </Points>
+          <Points>
+            <X>1190</X>
+            <Y>70</Y>
+          </Points>
+        </Points>
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FB1.EO" Destination="Skill_Commands.SC" dx1="40" dx2="30" dy="-230" />
+      <Connection Source="Skill_Commands.EXECUTE" Destination="FB1.EI2" />
+      <Connection Source="FB3.EO" Destination="CNF" />
+      <Connection Source="FB2.EO" Destination="FB3.EI1" />
+      <Connection Source="Logic.DONE" Destination="Skill_Commands.DONE" dx1="90" dx2="160" dy="-230">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.UPD" Destination="stUPD" dx1="40" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SkillName" Destination="REG.SkillName" dx1="2284.833" />
+      <Connection Source="FilePath" Destination="REG.FilePath">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Endpoint" Destination="REG.Endpoint" />
+      <Connection Source="at_mgz" Destination="Logic.at_mgz" />
+      <Connection Source="at_next" Destination="Logic.at_next" />
+      <Connection Source="Logic.to_mgz" Destination="to_mgz" />
+      <Connection Source="Logic.to_next" Destination="to_next" />
+      <Connection Source="Logic.response" Destination="Skill_Commands.RESPONSE" dx1="70.10425" dx2="100" dy="120">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="SkillName" Destination="Skill_Commands.NAME" dx1="44.83325" />
+      <Connection Source="Skill_Commands.CURRENT_STATE" Destination="CURRENT_STATE" dx1="40" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>

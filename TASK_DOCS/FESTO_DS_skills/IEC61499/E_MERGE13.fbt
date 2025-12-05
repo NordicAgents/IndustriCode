@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="c558b8a9-1453-4bec-9b32-940c02f9d963" Name="E_MERGE13" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="vv263" Date="11/14/2025" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="EI1" Comment="Initialization Request" />
+      <Event Name="EI2" Comment="Normal Execution Request" />
+      <Event Name="EI3" />
+      <Event Name="EI4" />
+      <Event Name="EI5" />
+      <Event Name="EI6" />
+      <Event Name="EI7" />
+      <Event Name="EI8" />
+      <Event Name="EI9" />
+      <Event Name="EI10" />
+      <Event Name="EI11" />
+      <Event Name="EI12" />
+      <Event Name="EI13" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="EO" Comment="Initialization Confirm" />
+    </EventOutputs>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,REQ" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="556.9412" y="453.4117" />
+      <ECState Name="REQ" Comment="Normal execution" x="569.647" y="1340.941">
+        <ECAction Output="EO" />
+      </ECState>
+      <ECTransition Source="START" Destination="REQ" Condition="EI1" x="642.4517" y="896.1029">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="165.3538,191.3044,166.2881,256.5681" />
+      </ECTransition>
+      <ECTransition Source="REQ" Destination="START" Condition="1" x="563.2278" y="972.1764">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="141.2907,281.926,140.3564,216.6622" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI2" x="760.7663" y="901.4884">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="202.7175,193.0996,203.6518,258.3633" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI3" x="896.5543" y="912.9067">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="245.578,196.9056,246.5123,262.1695" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI4" x="1028.334" y="905.5227">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="287.2425,194.4249,288.1768,259.6887" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI5" x="1156.516" y="909.656">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="328.907,195.3042,329.8413,260.5679" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI6" x="1282.589" y="913.0667">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="370.5715,196.3602,371.5058,261.6239" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI7" x="1407.583" y="916.0768">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="412.2361,197.4162,413.1704,262.6799" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI8" x="1532.576" y="919.1274">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="453.9006,198.4722,454.8349,263.7359" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI9" x="1657.57" y="922.2048">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="495.5651,199.5282,496.4994,264.7919" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI10" x="1782.563" y="925.3007">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="537.2296,200.5842,538.1639,265.8479" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI11" x="1907.557" y="928.41">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="578.8941,201.6402,579.8284,266.9039" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI12" x="2032.55" y="931.5293">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="620.5586,202.6962,621.4929,267.9599" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="EI13" x="2203.98" y="933.5017">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="677.7018,203.3854,678.6362,268.6491" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="REQ" Comment="Normally executed algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

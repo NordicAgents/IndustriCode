@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mapping>
+  <EventInputs>
+    <Event Name="OUTPUT">OUT1;RESPONSE;NAME</Event>
+    <Event Name="SKILL_OUTPUT">CURRENT_STATE;NAME</Event>
+  </EventInputs>
+  <EventOutputs>
+    <Event Name="INPUT">IN1</Event>
+    <Event Name="SKILL_INPUT">SKILL_CMD</Event>
+  </EventOutputs>
+  <Inputs>
+    <Input Name="OUT1" Type="INT" />
+    <Input Name="RESPONSE" Type="STRING" />
+    <Input Name="CURRENT_STATE" Type="INT" />
+    <Input Name="NAME" Type="STRING" />
+  </Inputs>
+  <Outputs>
+    <Output Name="IN1" Type="INT" />
+    <Output Name="SKILL_CMD" Type="INT" />
+  </Outputs>
+</Mapping>

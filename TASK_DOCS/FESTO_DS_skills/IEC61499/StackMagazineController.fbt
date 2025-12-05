@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="f814141a-09f9-49ec-a321-419c0fbc47cd" Name="StackMagazineController" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="pos_e" />
+        <With Var="pos_r" />
+        <With Var="empty" />
+      </Event>
+      <Event Name="TRANSFERRED" />
+      <Event Name="START" />
+      <Event Name="STOP" />
+      <Event Name="RESET" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="retract" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="retract" />
+      </Event>
+      <Event Name="PUSHED" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="pos_e" Type="BOOL" Comment="Input event qualifier" />
+      <VarDeclaration Name="pos_r" Type="BOOL" />
+      <VarDeclaration Name="empty" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="retract" Type="BOOL" Comment="Output event qualifier" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,PushWp,RetractBack" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1700.941" y="117.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1751.53" y="541.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="PushWP" x="1772" y="1088">
+        <ECAction Algorithm="PushWp" Output="CNF" />
+      </ECState>
+      <ECState Name="RetractBack" x="1424" y="2320">
+        <ECAction Algorithm="RetractBack" Output="CNF" />
+      </ECState>
+      <ECState Name="TransferWP" x="824.0001" y="1612">
+        <ECAction Output="PUSHED" />
+      </ECState>
+      <ECState Name="Empty" x="844" y="616" />
+      <ECState Name="RESET" x="3624" y="1076" />
+      <ECState Name="STOP" x="3608.138" y="1784" />
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1723.991" y="331.5381">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="429.5017,69.74646,432.4045,96.39658" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="PushWP" Condition="REQ AND pos_e AND (NOT empty)&#xD;&#xA;" x="1766.649" y="805.5272">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="441.1362,183.1154,442.7286,218.138" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="RetractBack" Condition="REQ AND pos_r" x="2038.459" y="1754.089">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="556.4312,395.2125,524.1914,490.1799" />
+      </ECTransition>
+      <ECTransition Source="RetractBack" Destination="TransferWP" Condition="REQ AND pos_e " x="1063.787" y="1898.141">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="283.2973,493.6371,239.1554,444.1239" />
+      </ECTransition>
+      <ECTransition Source="TransferWP" Destination="PushWP" Condition="TRANSFERRED AND (NOT empty)" x="1308.565" y="1344.229">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="296.4775,353.0701,359.5597,318.0827" />
+      </ECTransition>
+      <ECTransition Source="TransferWP" Destination="Empty" Condition="TRANSFERRED AND empty" x="714.5117" y="1071.427">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="168.0463,299.8511,173.0992,228.7671" />
+      </ECTransition>
+      <ECTransition Source="Empty" Destination="INIT" Condition="INIT" x="1310.369" y="494.7976">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="298.5259,121.7837,356.6586,116.9908" />
+      </ECTransition>
+      <ECTransition Source="Empty" Destination="RESET" Condition="RESET" x="2403.201" y="816.3953">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="512.4763,185.0697,718.4355,220.1323" />
+      </ECTransition>
+      <ECTransition Source="TransferWP" Destination="RESET" Condition="RESET" x="2346.831" y="1274.418">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="491.0765,333.8062,698.3662,294.3175" />
+      </ECTransition>
+      <ECTransition Source="RetractBack" Destination="RESET" Condition="RESET" x="2583.254" y="1647.67">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="567.2806,455.1974,735.1656,360.249" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="RESET" Condition="RESET" x="2564.155" y="1263.713">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="563.6899,327.858,697.4932,326.952" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="RESET" Condition="RESET" x="2883.855" y="756.4408">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="675.6382,169.5221,798.2606,203.2796" />
+      </ECTransition>
+      <ECTransition Source="RESET" Destination="INIT" Condition="START" x="2764.483" y="30.55727">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="765.2555,-33.22092,627.8223,-72.47523" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="STOP" Condition="STOP" x="2725.634" y="1099.486">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="613.0028,222.4363,754.728,317.3079" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="STOP" Condition="STOP" x="2731.769" y="1366.751">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="618.2663,311.7,750.2554,361.7314" />
+      </ECTransition>
+      <ECTransition Source="RetractBack" Destination="STOP" Condition="STOP" x="2546.697" y="1965.378">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="559.6669,505.019,716.5251,466.5251" />
+      </ECTransition>
+      <ECTransition Source="TransferWP" Destination="STOP" Condition="STOP" x="2255.511" y="1621.497">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="460.7093,393.6877,667.8171,406.4832" />
+      </ECTransition>
+      <ECTransition Source="Empty" Destination="STOP" Condition="STOP" x="2259.005" y="1129.478">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="461.1208,232.5495,672.1175,321.7071" />
+      </ECTransition>
+      <ECTransition Source="STOP" Destination="RESET" Condition="RESET" x="3615.932" y="1355">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="903.4537,357.6515,904.5807,307.3485" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[retract := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="PushWp">
+      <ST><![CDATA[retract := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="RetractBack">
+      <ST><![CDATA[retract := FALSE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DeviceProperties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DefaultProfile />
+  <Profile Name="(Local Test)">
+    <Device Name="PLC1">
+      <ComplexProperty Name="DeployPlugin" Expanded="true">
+        <Property Name="ClearBeforeDeploy" Value="True" IsPassword="false" />
+      </ComplexProperty>
+      <GroupProperty Name="Configuration" Expanded="true" Enabled="true">
+        <GroupProperty Name="Deploy" Expanded="true" Enabled="true">
+          <Property Name="AutoStart" Value="True" IsPassword="false" />
+        </GroupProperty>
+      </GroupProperty>
+    </Device>
+  </Profile>
+</DeviceProperties>

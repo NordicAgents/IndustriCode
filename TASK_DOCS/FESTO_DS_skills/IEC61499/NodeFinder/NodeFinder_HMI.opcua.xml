@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OPCUAObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OPCUAVariable UID="9DE61EF374C4D83B" Enabled="false">
+    <OPCUAAttribute Name="AccessLevel" Value="1" Locked="true" AttributeMask="CurrentRead;True" />
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath}</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="CB7A419DA4D3722C" Enabled="false">
+    <OPCUAAttribute Name="AccessLevel" Value="1" Locked="true" AttributeMask="CurrentRead;True" />
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath}</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="F737EDA048C02ABC" Enabled="false">
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath};Trigger=CNF</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="25C223FBB37E76BF" Enabled="false">
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath};Trigger=CNF</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="8DC3D2A9645F6131" Enabled="false">
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath};Trigger=CNF</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="23C2CB6E694D35C0" Enabled="false">
+    <Extensions>
+      <Extension>
+        <RTAddress>V1;${VariableFullPath};Trigger=CNF</RTAddress>
+      </Extension>
+    </Extensions>
+  </OPCUAVariable>
+  <OPCUAVariable UID="C48748110B79EC6A" Enabled="false">
+    <Extensions />
+  </OPCUAVariable>
+</OPCUAObject>

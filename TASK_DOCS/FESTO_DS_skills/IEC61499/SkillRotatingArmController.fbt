@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="d574f670-524a-420e-8910-8709a84b7740" Name="SkillRotatingArmController" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+        <With Var="vmon" />
+      </Event>
+      <Event Name="TRANSFER" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="TRANSFFERED" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+      <VarDeclaration Name="vmon" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="vcm_on" Type="BOOL" />
+      <VarDeclaration Name="vcm_off" Type="BOOL" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,GoToMag,GoToNext,TranswerWp" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1664.941" y="153.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1751.53" y="541.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="GoToMAG" x="2752" y="1612">
+        <ECAction Algorithm="GoToMag" Output="CNF" />
+      </ECState>
+      <ECState Name="GoToNext" x="1840" y="2268">
+        <ECAction Algorithm="GoToNext" Output="CNF" />
+      </ECState>
+      <ECState Name="TransferWp" x="908" y="1592">
+        <ECAction Algorithm="TranswerWp" Output="CNF" />
+        <ECAction Output="TRANSFFERED" />
+      </ECState>
+      <ECState Name="TRANSFER" x="1816" y="1036" />
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1479.784" y="474.0761">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="353.5218,112.9539,359.6478,140.3669" />
+      </ECTransition>
+      <ECTransition Source="TRANSFER" Destination="GoToMAG" Condition="TRANSFER" x="2274.776" y="1299.889">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="534.5214,302.8686,598.4728,343.0575" />
+      </ECTransition>
+      <ECTransition Source="GoToMAG" Destination="GoToNext" Condition="REQ AND at_mgz AND vmon" x="2290.714" y="1937.334">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="605.114,460.9889,539.7734,507.2341" />
+      </ECTransition>
+      <ECTransition Source="GoToNext" Destination="TransferWp" Condition="REQ AND at_next" x="1380.786" y="1933.895">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="377.9331,507.507,313.5293,460.0896" />
+      </ECTransition>
+      <ECTransition Source="TransferWp" Destination="TRANSFER" Condition="1" x="1310.79" y="1257.176">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="300.6288,328.2606,357.0621,290.8569" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="TRANSFER" Condition="1" x="1865.388" y="778.8985">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="468.6121,177.648,472.8514,210.1863" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[to_mgz :=FALSE;
+to_next :=TRUE;
+vcm_on := FALSE;
+vcm_off := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToMag">
+      <ST><![CDATA[to_mgz := TRUE;
+to_next := FALSE;
+vcm_on := TRUE;
+vcm_off := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToNext">
+      <ST><![CDATA[to_mgz := FALSE;
+to_next := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="TranswerWp">
+      <ST><![CDATA[vcm_on := FALSE;
+vcm_off := TRUE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

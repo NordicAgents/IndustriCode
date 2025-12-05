@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="b115bdf9-6aed-48e7-8e2d-eb786aea4c8e" Name="DataSelector" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="9/17/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="LeftSkill" Comment="Normal Execution Request">
+        <With Var="left_skill_in1" />
+        <With Var="left_skill_in2" />
+      </Event>
+      <Event Name="RightSkill">
+        <With Var="right_skill_in1" />
+        <With Var="right_skill_in2" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="out1" />
+        <With Var="out2" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="left_skill_in1" Type="BOOL" Comment="Input event qualifier" />
+      <VarDeclaration Name="left_skill_in2" Type="BOOL" />
+      <VarDeclaration Name="right_skill_in1" Type="BOOL" />
+      <VarDeclaration Name="right_skill_in2" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="out1" Type="BOOL" Comment="Output event qualifier" />
+      <VarDeclaration Name="out2" Type="BOOL" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,REQ,LeftSkill,RightSkill" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1988.941" y="733.4117" />
+      <ECState Name="MAG" x="2884" y="704">
+        <ECAction Algorithm="LeftSkill" Output="CNF" />
+      </ECState>
+      <ECState Name="NEXT" x="1112" y="700.0001">
+        <ECAction Algorithm="RightSkill" Output="CNF" />
+      </ECState>
+      <ECTransition Source="START" Destination="MAG" Condition="LeftSkill" x="2449.804" y="634.6837">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="584.8298,155.4746,640.0721,153.6593" />
+      </ECTransition>
+      <ECTransition Source="MAG" Destination="START" Condition="1" x="2452.267" y="801.8121">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="640.8932,203.6453,585.6509,205.4606" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="NEXT" Condition="RightSkill" x="1541.031" y="803.0732">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="411.5913,205.8184,358.7084,203.9076" />
+      </ECTransition>
+      <ECTransition Source="NEXT" Destination="START" Condition="1" x="1544.838" y="634.1554">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="359.9918,153.6969,412.846,155.6161" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="REQ" Comment="Normally executed algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="LeftSkill">
+      <ST><![CDATA[out1:=left_skill_in1;
+out2:=left_skill_in2;]]></ST>
+    </Algorithm>
+    <Algorithm Name="RightSkill">
+      <ST><![CDATA[out1:=right_skill_in1;
+out2:=right_skill_in2;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

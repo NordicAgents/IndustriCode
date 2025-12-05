@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="454b219f-4a4b-4d5e-9b7c-70472ca593f9" Name="SkillToLoad" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="9/24/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ">
+        <With Var="empty" />
+      </Event>
+      <Event Name="LOAD" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm" />
+      <Event Name="CNF" Comment="Execution Confirmation" />
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="empty" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,DONE,ERROR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="552.9412" y="429.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="923.5294" y="141.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="LOAD" Comment="Normal execution" x="2025.647" y="1484.941">
+        <ECAction Output="CNF" />
+      </ECState>
+      <ECState Name="DONE" x="624" y="1456">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+      <ECState Name="ERROR" x="2076" y="636">
+        <ECAction Algorithm="ERROR" Output="DONE" />
+      </ECState>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="731.1476" y="204.8375" />
+      <ECTransition Source="INIT" Destination="START" Condition="1" x="797.5924" y="348.3232" />
+      <ECTransition Source="START" Destination="LOAD" Condition="LOAD AND empty" x="1339.359" y="896.2169">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="281.5918,179.3424,392.1829,258.6061" />
+      </ECTransition>
+      <ECTransition Source="LOAD" Destination="DONE" Condition="NOT empty" x="1327.037" y="1551.286">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="380.4253,393.6339,283.0932,391.6242" />
+      </ECTransition>
+      <ECTransition Source="DONE" Destination="START" Condition="1" x="588.1984" y="1017.706">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="149.7774,299.1024,144.4579,222.2505" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="ERROR" Condition="LOAD AND (NOT empty)" x="1320.105" y="451.6638">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="278.5601,101.1577,383.1724,115.3473" />
+      </ECTransition>
+      <ECTransition Source="ERROR" Destination="START" Condition="1" x="1310.024" y="613.1603">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="379.8122,165.1205,275.1999,150.9308" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="DONE" Comment="Normally executed algorithm">
+      <ST><![CDATA[response:='LOADED WP';]]></ST>
+    </Algorithm>
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response:='MAG NOT EMPTY';]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

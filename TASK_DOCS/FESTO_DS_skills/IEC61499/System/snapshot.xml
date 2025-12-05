@@ -1,0 +1,646 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseline xmlns:xsd="http://www.nxtControl.com/Snapshot" xmlns="http://tempuri.org/XMLSchema1.xsd">
+  <snapshot guid="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" compiler="Default" created="2025-11-14T11:38:57" base="{00000000-0000-0000-0000-000000000000}">
+    <DeployInformation Type="Working">
+      <FileGroup Name="FileList" xmlns="http://tempuri.org/DeploySnapshot.xsd">
+        <FileItem Name="Main#ADDER.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>524A2A2BF4D542C3</Hash>
+        </FileItem>
+        <FileItem Name="Main#ArmControl.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>17638D3DF8221CE32</Hash>
+        </FileItem>
+        <FileItem Name="Main#BasicSKILL_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>921E9AC24F7C0A7A</Hash>
+        </FileItem>
+        <FileItem Name="Main#SKILL_BFB.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>661F5925D6B13BD6</Hash>
+        </FileItem>
+        <FileItem Name="Main#BasicSKILL.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>152EA7AB58B145206</Hash>
+        </FileItem>
+        <FileItem Name="Main#BigDemux.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>61E9F0421BDDB753</Hash>
+        </FileItem>
+        <FileItem Name="Main#Bool2Real.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>17DB521105EA79F5</Hash>
+        </FileItem>
+        <FileItem Name="Main#ButtonsPanel_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>3C876C04FD1ACD3</Hash>
+        </FileItem>
+        <FileItem Name="Main#ButtonsPanel.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>15082BE6746F98735</Hash>
+        </FileItem>
+        <FileItem Name="Main#CentralizedController.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>114E3221E31B13E24</Hash>
+        </FileItem>
+        <FileItem Name="Main#ChangeDetect.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>209B78D6B227CF7AD</Hash>
+        </FileItem>
+        <FileItem Name="Main#Controller.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>12AA36C5E4040907</Hash>
+        </FileItem>
+        <FileItem Name="Main#CylControl.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>85D243FEDE1E09A6</Hash>
+        </FileItem>
+        <FileItem Name="Main#DataSelector.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>24017EF88C1F8AFBC</Hash>
+        </FileItem>
+        <FileItem Name="Main#Demux.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>526E9C64EDE2DC3D</Hash>
+        </FileItem>
+        <FileItem Name="Main#FeederControl.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>106E66557DECF145F</Hash>
+        </FileItem>
+        <FileItem Name="Main#FeederModel.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>3304AC1D6F157D7</Hash>
+        </FileItem>
+        <FileItem Name="Main#InRange.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>205CE70A82C3A73F6</Hash>
+        </FileItem>
+        <FileItem Name="Main#integEC.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>169764E62BF4E6D0C</Hash>
+        </FileItem>
+        <FileItem Name="Main#Real2Bool.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>83E7EA0A08C6DD63</Hash>
+        </FileItem>
+        <FileItem Name="Main#TransferUnit.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>713DE1476B47226</Hash>
+        </FileItem>
+        <FileItem Name="Main#PhysicsRulesWorkPieces.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>73884BEDE970F041</Hash>
+        </FileItem>
+        <FileItem Name="Main#WorkPieces.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>1077E0FFFADF77CA1</Hash>
+        </FileItem>
+        <FileItem Name="Main#Model_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>669558746F7F831E</Hash>
+        </FileItem>
+        <FileItem Name="Main#Pusher.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>438C0A1E18D35E7C</Hash>
+        </FileItem>
+        <FileItem Name="Main#Model.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>153B9D95080550B82</Hash>
+        </FileItem>
+        <FileItem Name="Main#Muxer.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>9C71003AA26B8ED</Hash>
+        </FileItem>
+        <FileItem Name="Main#NodeFinder_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>533F798F928D7F24</Hash>
+        </FileItem>
+        <FileItem Name="Main#NodeFinder.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>0B0C6D27F7CFBAB</Hash>
+        </FileItem>
+        <FileItem Name="Main#Real2Int.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>93505E3C40758499</Hash>
+        </FileItem>
+        <FileItem Name="Main#RegisterSkill_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:49</Modified>
+          <Hash>76F95A93EC7B5355</Hash>
+        </FileItem>
+        <FileItem Name="Main#RegisterSkill.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>8846A558F14C9CC1</Hash>
+        </FileItem>
+        <FileItem Name="Main#RotatingArmController.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>361C3E644E59D968</Hash>
+        </FileItem>
+        <FileItem Name="Main#SelectMode.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1385DB95CE26705A</Hash>
+        </FileItem>
+        <FileItem Name="Main#SELECT_783952938E11160B.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>783952938E11160B</Hash>
+        </FileItem>
+        <FileItem Name="Main#Selector.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1043E4F85B0B2A0E1</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillGoToLeft.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>11031446C6AEB5FCD</Hash>
+        </FileItem>
+        <FileItem Name="Main#skGoToLeft.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1594F96FCCE3C236D</Hash>
+        </FileItem>
+        <FileItem Name="Main#skGoToLeft_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>186BD9AD679AD0DE8</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillGoToRight.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>2235E0FAB4FF2F49E</Hash>
+        </FileItem>
+        <FileItem Name="Main#skGoToRight.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>179834868676ABC44</Hash>
+        </FileItem>
+        <FileItem Name="Main#skGoToRight_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1812DE8376A27593C</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillMagazineController.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>209C659821686A40E</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillRotatingArmController.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>880D56811AC2BDD4</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillToLoad.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>203D4416A589CBF80</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillVcmOff.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>79EA688547A49648</Hash>
+        </FileItem>
+        <FileItem Name="Main#SkillVcmOn.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>60C2A98C3E18591C</Hash>
+        </FileItem>
+        <FileItem Name="Main#SKILL_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1967BC31C5C84A262</Hash>
+        </FileItem>
+        <FileItem Name="Main#SKILL.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>116CA77623570C1C9</Hash>
+        </FileItem>
+        <FileItem Name="Main#skLoad.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>183FF2E9D99150997</Hash>
+        </FileItem>
+        <FileItem Name="Main#skPick.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>72E27CDDC11EC233</Hash>
+        </FileItem>
+        <FileItem Name="Main#skPlace.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1978F040AB9DFF28C</Hash>
+        </FileItem>
+        <FileItem Name="Main#skPush.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>136DE314C06A72398</Hash>
+        </FileItem>
+        <FileItem Name="Main#StackMagazineController.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>52FE6E88482A00D2</Hash>
+        </FileItem>
+        <FileItem Name="Main#Test_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>832083795661A81C</Hash>
+        </FileItem>
+        <FileItem Name="Main#Test.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1188F0A898B2E6B59</Hash>
+        </FileItem>
+        <FileItem Name="Main#NOT_42C76073DCEB1A7A.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>42C76073DCEB1A7A</Hash>
+        </FileItem>
+        <FileItem Name="Main#ADD_1990CFD1468AAE4A6.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>1990CFD1468AAE4A6</Hash>
+        </FileItem>
+        <FileItem Name="Main#Wp.bin" Library="IEC61499.dll" BuildSnapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" BaseSnapshot="{00000000-0000-0000-0000-000000000000}">
+          <Modified>2025-11-14T11:38:50</Modified>
+          <Hash>67C77FBE806C0A5C</Hash>
+        </FileItem>
+        <LibraryItem Name="IEC61131.Standard" Version="23.0.0.1" />
+        <LibraryItem Name="nxtControl.Standard" Version="23.0.0.5" />
+        <LibraryItem Name="Runtime.Base" Version="23.0.0.15" />
+        <LibraryItem Name="SE.DPAC" Version="23.0.0.57" />
+        <LibraryItem Name="SE.HwCommon" Version="23.0.0.25" />
+        <LibraryItem Name="SE.IoTMx" Version="23.0.0.22" />
+        <LibraryItem Name="SE.IoX80" Version="23.0.0.25" />
+        <LibraryItem Name="SE.Standard" Version="23.0.0.14" />
+        <LibraryItem Name="Standard.HMIExtensions" Version="23.0.0.5" />
+        <DeviceItem ID="a67d2fed-21a2-493b-a539-13816b98d4a4" Hash="240FADEB4B59BAA65" />
+      </FileGroup>
+      <Device Name="PLC" ID="a67d2fed-21a2-493b-a539-13816b98d4a4" xmlns="http://tempuri.org/DeploySnapshot.xsd">
+        <FileItem Name="Basics/Main#integEC.bin">
+          <Hash>4974ED3062717A1DD2205B4E221DACE76B8E24918B5098E6878814FABD96EEDD</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ChangeDetect.bin">
+          <Hash>4B1E822A2B00BFBAA97E46E32185EF51A13CF6393B7EF03176E3FE71B7AE171E</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#InRange.bin">
+          <Hash>CD7C60B690B41F0CFFA55CFE64F896AD9DD9F9B49A3F95FB621A861F42936EF7</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ArmControl.bin">
+          <Hash>C843D0F176BB8A53CD46E2E937FF811DD47E5AC86867C000638041FE03EB6ACE</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Bool2Real.bin">
+          <Hash>AE14A5DC2715C969C0AD43B40E0D782F8266F1811CAB18D6E54481A679E4C1D1</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Real2Bool.bin">
+          <Hash>5A883C13E600411CC90CE450C2CAF83F478F1CE91E0C29958CE96C44C64972CE</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#TransferUnit.bin">
+          <Hash>86BE3B6B8F52E69317F9D3D71DE85F4559004614223DC888312763B85EF5C8B7</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#BigDemux.bin">
+          <Hash>9E040F0FF61BF6E343215124B543066057EAC814CF2108E473A25B9F3D9A75B7</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#PhysicsRulesWorkPieces.bin">
+          <Hash>502ED976EBDC43E856741161ED44074B88CAF434D0867E0F6E0E90AC2C091CCB</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#WorkPieces.bin">
+          <Hash>4A36832C9C7A8E055E1FBDA9D5531FE1936C3F4A7FD98D52C9FC0063C8907B70</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model_HMI.bin">
+          <Hash>9C21E16AA1E8645A57C3E54792E23856B6AFA626D72CB2A52AE86DE74294893F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#CylControl.bin">
+          <Hash>05F459DE7C9A4269EBAF925C4C4C5B12202950C89A68CAC125DC223F8A344533</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Pusher.bin">
+          <Hash>129576B31CCF9511ACB1CB26A5927CC2E569FEFD8FCCBF1187930D4923BE5765</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model.bin">
+          <Hash>961217BA8A91C2291EE2FF2AFE07A50CBB81FEAB339C47A98275668FA7D223C8</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#DataSelector.bin">
+          <Hash>F4136FAE4ED6282B398D4B9930C7B32ACF49AD7B4E346505ED839DE69ECEED09</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#BasicSKILL_HMI.bin">
+          <Hash>8883AAA20DEA4F176F3DA72BA7F75761BC29327AB393FCBDEE92AC66BE17580D</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SKILL_BFB.bin">
+          <Hash>0003B3103551BF64CE64E4A0A0BA04E910707F7FCE52E628D86A7FCB407CDB62</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#BasicSKILL.bin">
+          <Hash>D9C67DD36783A739D371E726974DEAE5A1F0572B6F884CF772CBB32956FE47F3</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder_HMI.bin">
+          <Hash>5F591BEC438806BFE62383E0794B4DE89D9A83E4495BA8327F4D0C7EA96C3934</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder.bin">
+          <Hash>4BFB4027C37030C9A136E4C7E0A4A8BA5A2C6BAB98E3BF066236784C6F82D054</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill_HMI.bin">
+          <Hash>D829951AA908015A87B685516E08A3EFBB9DB9B822938F2D13803409A7A0C8AC</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill.bin">
+          <Hash>CAEC3B79BA694105534927162CD01A9EC3AF5A4D439D3697B2F2BCD4D19DCBB0</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToLeft.bin">
+          <Hash>99A91CC77E63C006D98A05C8709F6D1476AA2E10CD90FD7215068AAE44DDB869</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToLeft.bin">
+          <Hash>16B9FDB7260E443FDEFB6F7388308510AD106F81953DAACAF8B52B1AEC754FEC</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToRight.bin">
+          <Hash>185F384D84E5512BE6BF1D395DF26A31EB2AA26D18EB576AFB68198D5FCC4834</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToRight.bin">
+          <Hash>0A49307C5BC3887A174D0EADAC5D401F81597A3983E10C1C64A0C3635CA370A1</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOn.bin">
+          <Hash>AD4754AE32E8C943C9C0E1F31269993CB3B6A06FAE1988E3BA53B093A29A9E54</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPick.bin">
+          <Hash>96E135436FEBDF6171161A44EF23F5CE4988B4FB72DF149DE573FBC2CE316BC4</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOff.bin">
+          <Hash>7FE24D61E7E6D95985A767B0D0870E95C2F724DE0DB0275762D7540E3D7C2A01</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPlace.bin">
+          <Hash>4E5430E3BF3978D916D58BF2143FD5A5978D2825C38408F72440216E807E3E8F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillMagazineController.bin">
+          <Hash>162A9B8C3BFC2D6F6932DEF7652E6054A9064AFB95E0E2297E6A8A2018F0B7B6</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPush.bin">
+          <Hash>C18CA65671797B539303EC8DD9C6471B9D21176888AA80863CBE3E271D669DCA</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillToLoad.bin">
+          <Hash>A04FB65A73B2B4F8DB88A091EEE66BEC2F075F5A692E10D93456CF6CD9BE5A82</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skLoad.bin">
+          <Hash>61ACC1E571054BD5FA907E26B73C06610E97AC0DC012E45FBDF45F32698D6B4A</Hash>
+        </FileItem>
+      </Device>
+    </DeployInformation>
+  </snapshot>
+  <snapshot guid="{2DE88517-CE0A-4004-BECC-51D7936D2AFE}" compiler="Default" created="2025-11-17T12:22:43" base="{00000000-0000-0000-0000-000000000000}">
+    <DeployInformation Type="Working">
+      <FileGroup Name="FileList" xmlns="http://tempuri.org/DeploySnapshot.xsd">
+        <FileItem Name="Composites/Main#BasicSKILL_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>921E9AC24F7C0A7A</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SKILL_BFB.bin" Library="IEC61499.dll" BuildSnapshot="{28A64EB7-1314-4523-A9B5-C2720387B729}">
+          <Modified>2025-11-17T12:16:54</Modified>
+          <Hash>329B263ECCA0E1BF</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#BasicSKILL.bin" Library="IEC61499.dll" BuildSnapshot="{28A64EB7-1314-4523-A9B5-C2720387B729}">
+          <Modified>2025-11-17T12:16:54</Modified>
+          <Hash>46DC88742CC314CE</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>533F798F928D7F24</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>0B0C6D27F7CFBAB</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>76F95A93EC7B5355</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>8846A558F14C9CC1</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#DataSelector.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>151D22B434E25C5EA</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToLeft.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>103AC4AAA40650178</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#E_MERGE13.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>135DF14C0C2050B3A</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToLeft.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>16B987C0A56E340D</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToRight.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>1224AD1C6FBED5928</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToRight.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>128B2D5B0BB2E5190</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOn.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>60C2A98C3E18591C</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPick.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>175C248D09D23BDAA</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOff.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>79EA688547A49648</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPlace.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>109A3391A63ABA6A8</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SeqTransfer.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T12:22:36</Modified>
+          <Hash>12FE3D9807007138</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#E_MERGE4.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>4947ADC9A0855767</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skTransfer.bin" Library="IEC61499.dll" BuildSnapshot="{28A64EB7-1314-4523-A9B5-C2720387B729}">
+          <Modified>2025-11-17T12:22:36</Modified>
+          <Hash>1660EEA8D4BBDDC0B</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#integEC.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>169764E62BF4E6D0C</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ChangeDetect.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>209B78D6B227CF7AD</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#InRange.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>205CE70A82C3A73F6</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ArmControl.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>17638D3DF8221CE32</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Bool2Real.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>17DB521105EA79F5</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Real2Bool.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>83E7EA0A08C6DD63</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#TransferUnit.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>713DE1476B47226</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#BigDemux.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>61E9F0421BDDB753</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#PhysicsRulesWorkPieces.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>73884BEDE970F041</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#WorkPieces.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>1077E0FFFADF77CA1</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model_HMI.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>669558746F7F831E</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#CylControl.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>85D243FEDE1E09A6</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Pusher.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>438C0A1E18D35E7C</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>153B9D95080550B82</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillMagazineController.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>2102661A902E92C35</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPush.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>18361AEFA263DD49F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillToLoad.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>229F195F0A2EFFA28</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skLoad.bin" Library="IEC61499.dll" BuildSnapshot="{FB633C47-229F-4579-B867-F0728BD064FD}">
+          <Modified>2025-11-17T11:19:28</Modified>
+          <Hash>134F46125235B9C44</Hash>
+        </FileItem>
+        <DeviceItem ID="c5a482a2-a301-4207-8f90-4d2b0a88a0bc" Hash="1616E333789575EE5" />
+      </FileGroup>
+      <Device Name="PLC1" ID="c5a482a2-a301-4207-8f90-4d2b0a88a0bc" xmlns="http://tempuri.org/DeploySnapshot.xsd">
+        <FileItem Name="Composites/Main#BasicSKILL_HMI.bin">
+          <Hash>EA2638A21F850AEDA83819D8061D7CB3B1402AF5D656B1B2A5FA0235819A64CC</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SKILL_BFB.bin">
+          <Hash>EDCDC134237C2280374C0EFBE7AA3912662B4A7222CB74837D2EA66281132499</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#BasicSKILL.bin">
+          <Hash>3557343E06C124B901A439015E40FF29CEC47C86A1DFC54D93537DD8379051C2</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder_HMI.bin">
+          <Hash>93C856569FBCBAA3EDC063AC199A9C3BC4BE80399DB13EA7CC4ECC8638BB50EB</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#NodeFinder.bin">
+          <Hash>D9C47A7E27FEABA6317FB2D9DDA1B93796CDE7D7594CA1A2E8457F9D69086EAF</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill_HMI.bin">
+          <Hash>9FCA2FDA384BBCEF7946D2B674DCE624709E0436E3D97ED0026A0A88481E29FB</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#RegisterSkill.bin">
+          <Hash>4D07115994A03868E9A6F35F517885B7EF0A28D6427A9FDB9B6F0E18BE0EC9F5</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#DataSelector.bin">
+          <Hash>0544E21549044F002701B3FBBAECF0FBD54EE6C59BEA9EF59C2A2B09126EA56F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToLeft.bin">
+          <Hash>47A5B798AE3D39279672B112FC4FF3476EA52533E1E1590883BCA34EFB484A78</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#E_MERGE13.bin">
+          <Hash>D2C4FC408CD0F9186FF75A4EC7868212831E16B7714AD30779E0013BC131D842</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToLeft.bin">
+          <Hash>8D7E490B8809CE49671A3441E012F9C0DEF431137DA00073C9CD576C1FFD735D</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillGoToRight.bin">
+          <Hash>F906D36E3C9B5D106AA53FB12B512507B9B519745971BB34C5A29EAAF0D78D1C</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skGoToRight.bin">
+          <Hash>9FAB43D8C4ACEB84BD8D20AD7C3CF1556636A529B6992AD2876FDE65F0472577</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOn.bin">
+          <Hash>006AEE6D3D5EFA09E6666FC4D7DE8B560051C1DB9E31E0AC5BCBEECACEA7D06A</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPick.bin">
+          <Hash>07A83FB6BDF2EBA794AC178C5275F6BF5E834B355458A6F562BCC1EFC8E28A64</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillVcmOff.bin">
+          <Hash>50D6704B02A2DAE774B5A536F1931C7ABEF7082F0CB02AD45DA621907356D495</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPlace.bin">
+          <Hash>C821A5D6CA73D3E556CAF4C03338DDC1D4E5E6BF48199C38735E1E0EFC6E84B5</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SeqTransfer.bin">
+          <Hash>71B092062A6B238AEF4B88A2A9CE28DB53287BE179265E30D9AF408173E98B2F</Hash>
+          <Changed>true</Changed>
+        </FileItem>
+        <FileItem Name="Basics/Main#E_MERGE4.bin">
+          <Hash>DA66E2680447B97D70421054E240AD786E844274BAC4180C11F810940B6EE257</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skTransfer.bin">
+          <Hash>87D16F6BEB98156313C591F6042EC2EA595F7D208BA45CE4DFD6E690E36B2246</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#integEC.bin">
+          <Hash>50C08B74597BF56E8CF00B90A8BF419D86423B35AD54B869D9D57D1296CD8125</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ChangeDetect.bin">
+          <Hash>54C15361AEDB23D9B39D8A5532E4A1E5CD906E67376E1608F0ADD9CBFE3F4C0D</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#InRange.bin">
+          <Hash>EB78E3AF3CF6A057892244E17AFC6BFB88FCFC3973CEB3C8551F92C8BC2DF3CE</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#ArmControl.bin">
+          <Hash>6149CEA27705F692049107CAE31E0D7DC230DDE434CA052034C25D4CAD0A552F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Bool2Real.bin">
+          <Hash>89018CAE9FB24146D6A5F30C257566C01AFD2CB823465A365ABF11C27FB4145A</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#Real2Bool.bin">
+          <Hash>455A18258D214B27F16B3AB4CE03272831F5156C3DEB6ED02BBC0C888F67C263</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#TransferUnit.bin">
+          <Hash>5A395E0713EF6F00E94AF14BC7C1E0EFA712ACD68EA3046B8DDA7FBDDBF6444C</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#BigDemux.bin">
+          <Hash>A70AFED3D0BCA93C7461EFD8A3EADE9AA43562E309E0906B488B1B25738C577B</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#PhysicsRulesWorkPieces.bin">
+          <Hash>A8A5A01C675FD3249D564AE48D4B6541EB76281A5CCB16ECE1D60DE179AA6FF8</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#WorkPieces.bin">
+          <Hash>4720A226D03D615CE28BD6030C5A4253780AE2461C33F7B7E19B9A16BB9AFF71</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model_HMI.bin">
+          <Hash>B35DA6FDA429D9AFCB6E6BC415216965D949A3321E79D637B345183790F8EBDC</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#CylControl.bin">
+          <Hash>2EF26247341C9E2E9A14DF7C7350DCE32A1ABFFD52027A35F41F2F5CC16CCC6C</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Pusher.bin">
+          <Hash>000221E41DFFCC5E8F3D4AB1A124A7B5D26C7EBD62B2DE0C6A4D39B72E403145</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#Model.bin">
+          <Hash>81AEF2BB5B205DEFDF94879E13C8DE27F5A01E7844F35608643CEC9B4651CC1F</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillMagazineController.bin">
+          <Hash>57C70886CBF6F3BFAC468B8E8E79565B06FB7800479E7FF35722F7FD89C829A7</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skPush.bin">
+          <Hash>48DB4387CE12AFD40A317B9B153D746BFCDA3A6733B0EE2CE89F4265F853ECCD</Hash>
+        </FileItem>
+        <FileItem Name="Basics/Main#SkillToLoad.bin">
+          <Hash>EC89003A7C0BF27C2061028C7FBE26DEC11F479ED622E8E693C10C69E6D4724D</Hash>
+        </FileItem>
+        <FileItem Name="Composites/Main#skLoad.bin">
+          <Hash>FD33B8D7B8DF496C631950EC1BC9706C8D7755B53D35DF529DE9DE790FFD6CFA</Hash>
+        </FileItem>
+      </Device>
+    </DeployInformation>
+  </snapshot>
+  <deployment>
+    <network_profile name="(Local Test)">
+      <device id="a67d2fed-21a2-493b-a539-13816b98d4a4" CompileTime="2025-11-14 10:38:55Z">
+        <sref snapshot="{F02E8977-909C-4C7F-9A57-4F06E76AB2D4}" state="INVALID" />
+      </device>
+      <device id="c5a482a2-a301-4207-8f90-4d2b0a88a0bc" CompileTime="2025-11-17 11:22:38Z">
+        <sref snapshot="{2DE88517-CE0A-4004-BECC-51D7936D2AFE}" state="ACTIVE_MODIFIED" />
+      </device>
+    </network_profile>
+    <network_profile name="(Default)" />
+  </deployment>
+</baseline>

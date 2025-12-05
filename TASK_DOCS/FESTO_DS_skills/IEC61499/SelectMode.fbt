@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="5285728f-f897-4c30-a955-ac5fb79ce12c" Name="SelectMode" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/18/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="Start" />
+        <With Var="Mode" />
+        <With Var="Reset" />
+        <With Var="Stop" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="select" />
+      </Event>
+      <Event Name="START" />
+      <Event Name="RESET" />
+      <Event Name="STOP">
+        <With Var="select" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="Start" Type="BOOL" />
+      <VarDeclaration Name="Mode" Type="BOOL" Comment="Input event qualifier" />
+      <VarDeclaration Name="Reset" Type="BOOL" />
+      <VarDeclaration Name="Stop" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="select" Type="USINT" Comment="Output event qualifier" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,Manual,Automatic" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="552.9412" y="429.4117" />
+      <ECState Name="Manual" Comment="Normal execution" x="393.647" y="1428.941">
+        <ECAction Algorithm="Manual" Output="CNF" />
+      </ECState>
+      <ECState Name="Automatic" x="1456" y="2176">
+        <ECAction Algorithm="Automatic" Output="CNF" />
+      </ECState>
+      <ECState Name="Reset" x="2876" y="1476">
+        <ECAction Output="RESET" />
+      </ECState>
+      <ECState Name="StopState" x="2956" y="844">
+        <ECAction Output="STOP" />
+      </ECState>
+      <ECState Name="Wait" x="1696" y="1188" />
+      <ECState Name="StartState" x="1668" y="616">
+        <ECAction Output="START" />
+      </ECState>
+      <ECTransition Source="Wait" Destination="Manual" Condition="REQ[Mode]" x="1045.775" y="1224.17">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="305.3568,293.2159,215.1791,309.4515" />
+      </ECTransition>
+      <ECTransition Source="Manual" Destination="Wait" Condition="1" x="1216.181" y="1281.912">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="271.9322,326.8457,361.8737,309.977" />
+      </ECTransition>
+      <ECTransition Source="Wait" Destination="Automatic" Condition="REQ[NOT Mode]" x="1642.364" y="1681.02">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="423.2987,385.4887,406.8866,454.8582" />
+      </ECTransition>
+      <ECTransition Source="Automatic" Destination="Wait" Condition="1" x="1510.002" y="1697.043">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="364.7408,460.9453,381.2205,390.0831" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="StartState" Condition="REQ[Start]" x="1118.905" y="455.4468">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="248.2429,104.5366,315.2132,116.1572" />
+      </ECTransition>
+      <ECTransition Source="Wait" Destination="StopState" Condition="REQ[Stop]" x="2294.184" y="942.8903">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="531.6547,242.6086,615.4371,219.7346" />
+      </ECTransition>
+      <ECTransition Source="StopState" Destination="Reset" Condition="REQ[Reset]" x="2996.19" y="1169.418">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="756.585,271.1547,751.0192,315.1243" />
+      </ECTransition>
+      <ECTransition Source="StopState" Destination="StartState" Condition="REQ[Start]" x="2372.936" y="362.4593">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="638.7792,71.91439,554.8154,56.75552" />
+      </ECTransition>
+      <ECTransition Source="Reset" Destination="StartState" Condition="REQ[Start]" x="3507.563" y="577.0272">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="1013.954,139.7355,926.7783,76.98615" />
+      </ECTransition>
+      <ECTransition Source="StartState" Destination="Wait" Condition="1" x="1763.191" y="898.333">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="444.5163,204.7929,446.4239,243.7625" />
+      </ECTransition>
+      <ECTransition Source="Wait" Destination="StartState" Condition="REQ[Start]" x="1477.609" y="896.7332">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="358.5786,243.2292,356.671,204.2596" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="Manual" Comment="Normally executed algorithm">
+      <ST><![CDATA[select := 0;]]></ST>
+    </Algorithm>
+    <Algorithm Name="Automatic">
+      <ST><![CDATA[select := 1;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

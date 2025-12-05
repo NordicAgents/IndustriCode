@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="42bfa441-3aa8-4c17-be28-d1f3e53e9a43" Name="BasicSKILL_HMI" Comment="Service Interface Function Block Type" Namespace="Main">
+  <Attribute Name="Configuration.FB.IDCounter" Value="0" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="1/31/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event ID="9B233F1670E5F9BD" Name="INIT">
+        <With Var="QI" />
+      </Event>
+      <Event ID="E6923DD3C3B25DE2" Name="OUTPUT">
+        <With Var="OUT1" />
+        <With Var="RESPONSE" />
+        <With Var="NAME" />
+      </Event>
+      <Event ID="94F0C57FA802AA6B" Name="SKILL_OUTPUT">
+        <With Var="CURRENT_STATE" />
+        <With Var="NAME" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event ID="A15251BA5E62713F" Name="INITO">
+        <With Var="QO" />
+        <With Var="STATUS" />
+      </Event>
+      <Event ID="2E61EDC0EB5556F6" Name="INPUT">
+        <With Var="IN1" />
+      </Event>
+      <Event ID="D44D0494C3EC9FDB" Name="SKILL_INPUT">
+        <With Var="SKILL_CMD" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration ID="C10E76A726686862" Name="QI" Type="BOOL" />
+      <VarDeclaration ID="111681ED5955E763" Name="OUT1" Type="INT" />
+      <VarDeclaration ID="AC69A3C05E49A6E2" Name="RESPONSE" Type="STRING" />
+      <VarDeclaration ID="C6D36DA331EE162" Name="CURRENT_STATE" Type="INT" />
+      <VarDeclaration ID="21AE2BCD49755015" Name="NAME" Type="STRING" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration ID="D90FE3664C9CA323" Name="QO" Type="BOOL" Comment="Event Output Qualifier" />
+      <VarDeclaration ID="6025D4F2377615AE" Name="STATUS" Type="STRING" Comment="Service Status" />
+      <VarDeclaration ID="D6E0920FBEDDFF2A" Name="IN1" Type="INT" />
+      <VarDeclaration ID="2F98611FAEF4D3AC" Name="SKILL_CMD" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <Service RightInterface="" LeftInterface="">
+    <ServiceSequence Name="" />
+  </Service>
+</FBType>

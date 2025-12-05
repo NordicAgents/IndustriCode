@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="323a6ff9-916f-4a01-a6db-2ca5752c819d" Name="NodeFinder_HMI" Comment="Service Interface Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/5/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event ID="2316D689564D80BE" Name="INIT">
+        <With Var="QI" />
+      </Event>
+      <Event ID="CCAF99CC12ED6605" Name="REQ">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event ID="F0C481B295AEACF0" Name="INITO">
+        <With Var="QO" />
+        <With Var="STATUS" />
+      </Event>
+      <Event ID="6DC5A7F8A6185BBA" Name="CNF">
+        <With Var="NodeIN1" />
+        <With Var="NodeSkillCMD" />
+        <With Var="NodeOUT1" />
+        <With Var="NodeCurrentState" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration ID="79903887132C62BC" Name="QI" Type="BOOL" />
+      <VarDeclaration ID="9DE61EF374C4D83B" Name="SkillName" Type="STRING" />
+      <VarDeclaration ID="CB7A419DA4D3722C" Name="FilePath" Type="STRING" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration ID="860507FC54970466" Name="QO" Type="BOOL" Comment="Event Output Qualifier" />
+      <VarDeclaration ID="23E5AB80B292BE6A" Name="STATUS" Type="STRING" Comment="Service Status" />
+      <VarDeclaration ID="F737EDA048C02ABC" Name="NodeIN1" Type="STRING" />
+      <VarDeclaration ID="25C223FBB37E76BF" Name="NodeSkillCMD" Type="STRING" />
+      <VarDeclaration ID="8DC3D2A9645F6131" Name="NodeOUT1" Type="STRING" />
+      <VarDeclaration ID="23C2CB6E694D35C0" Name="NodeCurrentState" Type="STRING" />
+    </OutputVars>
+  </InterfaceList>
+  <Service RightInterface="" LeftInterface="">
+    <ServiceSequence Name="" />
+  </Service>
+</FBType>

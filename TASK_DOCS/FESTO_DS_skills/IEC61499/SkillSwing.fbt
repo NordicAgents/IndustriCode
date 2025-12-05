@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="a5c1d8b2-0000-4f6a-9c1e-000000000001" Name="SkillSwing" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="autogen" Date="12/05/2025" Remarks="Swing skill: arm moves left and right twice" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+      <Event Name="TRIGGER">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+      </Event>
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,GoToMag,GoToNext,DONE,ERROR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="200" y="80" />
+      <ECState Name="INIT" Comment="Initialization" x="200" y="240">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+
+      <ECState Name="TRIGGER" x="200" y="420" />
+
+      <ECState Name="GoToMAG1" x="200" y="620">
+        <ECAction Algorithm="GoToMag" Output="CNF" />
+      </ECState>
+      <ECState Name="WaitMAG1" x="200" y="800" />
+
+      <ECState Name="GoToNEXT1" x="600" y="620">
+        <ECAction Algorithm="GoToNext" Output="CNF" />
+      </ECState>
+      <ECState Name="WaitNEXT1" x="600" y="800" />
+
+      <ECState Name="GoToMAG2" x="200" y="1000">
+        <ECAction Algorithm="GoToMag" Output="CNF" />
+      </ECState>
+      <ECState Name="WaitMAG2" x="200" y="1180" />
+
+      <ECState Name="GoToNEXT2" x="600" y="1000">
+        <ECAction Algorithm="GoToNext" Output="CNF" />
+      </ECState>
+      <ECState Name="WaitNEXT2" x="600" y="1180" />
+
+      <ECState Name="DONE" x="400" y="1400">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+
+      <ECState Name="ERROR" x="1000" y="800">
+        <ECAction Algorithm="ERROR" Output="DONE" />
+      </ECState>
+
+      <!-- Transitions -->
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" />
+      <ECTransition Source="INIT" Destination="TRIGGER" Condition="1" />
+
+      <!-- Sequence: TRIGGER -> GoToMAG1 (if not at_mgz) or ERROR if already -->
+      <ECTransition Source="TRIGGER" Destination="GoToMAG1" Condition="TRIGGER AND NOT at_mgz" />
+      <ECTransition Source="TRIGGER" Destination="ERROR" Condition="TRIGGER AND at_mgz AND at_next" />
+
+      <!-- After commanding, wait for confirmation: REQ and at_mgz -->
+      <ECTransition Source="GoToMAG1" Destination="WaitMAG1" Condition="1" />
+      <ECTransition Source="WaitMAG1" Destination="GoToNEXT1" Condition="REQ AND at_mgz" />
+
+      <ECTransition Source="GoToNEXT1" Destination="WaitNEXT1" Condition="1" />
+      <ECTransition Source="WaitNEXT1" Destination="GoToMAG2" Condition="REQ AND at_next" />
+
+      <ECTransition Source="GoToMAG2" Destination="WaitMAG2" Condition="1" />
+      <ECTransition Source="WaitMAG2" Destination="GoToNEXT2" Condition="REQ AND at_mgz" />
+
+      <ECTransition Source="GoToNEXT2" Destination="WaitNEXT2" Condition="1" />
+      <ECTransition Source="WaitNEXT2" Destination="DONE" Condition="REQ AND at_next" />
+
+      <ECTransition Source="ERROR" Destination="TRIGGER" Condition="1" />
+    </ECC>
+
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[to_mgz := FALSE;
+to_next := FALSE;
+response := 'INITIALISED';]]></ST>
+    </Algorithm>
+
+    <Algorithm Name="GoToMag">
+      <ST><![CDATA[to_mgz := TRUE;
+to_next := FALSE;]]></ST>
+    </Algorithm>
+
+    <Algorithm Name="GoToNext">
+      <ST><![CDATA[to_mgz := FALSE;
+to_next := TRUE;]]></ST>
+    </Algorithm>
+
+    <Algorithm Name="DONE">
+      <ST><![CDATA[response := 'SWING COMPLETED';
+TRIGGER := FALSE;]]></ST>
+    </Algorithm>
+
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response := 'ERROR: ALREADY AT POSITION';
+TRIGGER := FALSE;]]></ST>
+    </Algorithm>
+
+  </BasicFB>
+</FBType>

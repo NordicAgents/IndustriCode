@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE System SYSTEM "../LibraryElement.dtd">
+<System Name="System" Comment="System Configuration">
+  <Attribute Name="System.Device.FolderPath" Value="PLC1" />
+  <Identification Standard="61499-1" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" />
+  <Application ID="D28DC496C43E0EC" Name="Comp_Skill_App">
+    <SubAppNetwork>
+      <FB ID="B7B367FECFC622DB" Name="PlantModel3" Type="Model" x="2000" y="1140" Namespace="Main" />
+      <FB ID="E6616CB74F4983D5" Name="PushMag3" Type="skPush" x="3320" y="1140" Namespace="Main">
+        <Parameter Name="SkillName" Value="'SkillMagPush'" />
+        <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+        <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4845'" />
+      </FB>
+      <FB ID="213905721C2F63A7" Name="LoadingWP3" Type="skLoad" x="1980" y="2400" Namespace="Main">
+        <Parameter Name="SkillName" Value="'SkillToLoad'" />
+        <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+        <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4846'" />
+      </FB>
+      <FB ID="CE446650E413E340" Name="cmpTrans" Type="skTransfer" x="820" y="1260" Namespace="Main">
+        <Parameter Name="SkillName" Value="'SkillTransfer'" />
+        <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+        <Parameter Name="Endpoint" Value="Comp_Skill_App.tcp://localhost:4847" />
+      </FB>
+      <EventConnections>
+        <Connection Source="LoadingWP3.INITO" Destination="PushMag3.INIT" dx1="77.5835">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PushMag3.CNF" Destination="PlantModel3.REQ" dx1="47.58325" dx2="30" dy="-170" />
+        <Connection Source="PlantModel3.CNF" Destination="PushMag3.REQ" />
+        <Connection Source="PlantModel3.CNF" Destination="LoadingWP3.REQ" dx1="191.0205" dx2="70" dy="1020">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.CNF" Destination="cmpTrans.REQ" dx1="271.0208" dx2="180" dy="-320">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.INITO" Destination="cmpTrans.INIT" dx1="181.0208" dx2="90" dy="-180">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="cmpTrans.INITO" Destination="LoadingWP3.INIT" dx1="47.58337" />
+        <Connection Source="cmpTrans.CNF" Destination="PlantModel3.REQ" dx1="70" />
+      </EventConnections>
+      <DataConnections>
+        <Connection Source="PushMag3.retract" Destination="PlantModel3.retract" dx1="70" dx2="110" dy="460">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.pos_e" Destination="PushMag3.pos_e" dx1="251.0205">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.pos_r" Destination="PushMag3.pos_r" dx1="231.0205">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.empty" Destination="LoadingWP3.empty" dx1="151.0208" dx2="130" dy="200">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.at_mgz" Destination="cmpTrans.at_mgz" dx1="91.02075" dx2="150" dy="470">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.at_next" Destination="cmpTrans.at_next" dx1="81.02075" dx2="170" dy="330" />
+        <Connection Source="PlantModel3.vmon" Destination="cmpTrans.vm_on" dx1="111.0208" dx2="240" dy="440">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="PlantModel3.empty" Destination="PushMag3.empty" dx1="151.0208">
+          <AvoidsNodes>false</AvoidsNodes>
+        </Connection>
+        <Connection Source="cmpTrans.to_mgz" Destination="PlantModel3.to_mgz" dx1="90" />
+        <Connection Source="cmpTrans.to_next" Destination="PlantModel3.to_next" dx1="110" />
+        <Connection Source="cmpTrans.vcm_on" Destination="PlantModel3.vcm_on" dx1="130" />
+        <Connection Source="cmpTrans.vcm_off" Destination="PlantModel3.vcm_off" dx1="150" />
+      </DataConnections>
+    </SubAppNetwork>
+  </Application>
+  <Device ID="c5a482a2-a301-4207-8f90-4d2b0a88a0bc" Name="PLC1" Type="Soft_dPAC" x="519.4064" y="5920" Namespace="SE.DPAC">
+    <Resource ID="5C54E6B65001A60E" Name="RES0" Type="EMB_RES_ECO" Namespace="Runtime.Management">
+      <FBNetwork>
+        <FB ID="22A1CF1D5D8A9AB2" Name="cmpTrans" Type="skTransfer" x="820" y="1200" Namespace="Main">
+          <Parameter Name="SkillName" Value="'SkillTransfer'" />
+          <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+          <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4847'" />
+        </FB>
+        <FB ID="777E5746D8C87CB0" Name="PlantModel3" Type="Model" x="2000" y="1140" Namespace="Main" />
+        <FB ID="DE9395A336D7ACEF" Name="PushMag3" Type="skPush" x="3280" y="1140" Namespace="Main">
+          <Parameter Name="SkillName" Value="'SkillMagPush'" />
+          <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+          <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4845'" />
+        </FB>
+      <FB ID="000000000000SWG1" Name="ArmSwing" Type="skSwing" x="2600" y="1800" Namespace="Main">
+        <Parameter Name="SkillName" Value="'SkillSwing'" />
+        <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+        <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4848'" />
+      </FB>
+        <FB ID="690CC620EBB25952" Name="LoadingWP3" Type="skLoad" x="1980" y="2400" Namespace="Main">
+          <Parameter Name="SkillName" Value="'SkillToLoad'" />
+          <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+          <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4846'" />
+        </FB>
+        <EventConnections>
+          <Connection Source="LoadingWP3.INITO" Destination="PushMag3.INIT" dx1="77.58301">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PushMag3.CNF" Destination="PlantModel3.REQ" dx1="47.58325" dx2="30" dy="-170" />
+          <Connection Source="PlantModel3.CNF" Destination="PushMag3.REQ" />
+          <Connection Source="PlantModel3.CNF" Destination="LoadingWP3.REQ" dx1="291.0208" dx2="70" dy="1020">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.CNF" Destination="cmpTrans.REQ" dx1="271.0205" dx2="180" dy="-320">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.INITO" Destination="cmpTrans.INIT" dx1="181.0205" dx2="90" dy="-180">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="cmpTrans.INITO" Destination="LoadingWP3.INIT" dx1="97.58337">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="START.COLD" Destination="PlantModel3.INIT" dx1="1078.604">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="START.WARM" Destination="PlantModel3.INIT" dx1="1078.604">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="cmpTrans.CNF" Destination="PlantModel3.REQ" dx1="237.5834">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="ArmSwing.CNF" Destination="PlantModel3.REQ" dx1="200" />
+        </EventConnections>
+        <DataConnections>
+          <Connection Source="PushMag3.retract" Destination="PlantModel3.retract" dx1="70" dx2="110" dy="580">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.pos_e" Destination="PushMag3.pos_e" dx1="251.02">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.pos_r" Destination="PushMag3.pos_r" dx1="211.0208">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.empty" Destination="LoadingWP3.empty" dx1="131.0208" dx2="130" dy="240">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.at_mgz" Destination="cmpTrans.at_mgz" dx1="171.0208" dx2="220" dy="470">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.at_next" Destination="cmpTrans.at_next" dx1="81.02075" dx2="170" dy="320">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.vmon" Destination="cmpTrans.vm_on" dx1="51.02075" dx2="120" dy="220">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="PlantModel3.empty" Destination="PushMag3.empty" dx1="211.0208">
+            <AvoidsNodes>false</AvoidsNodes>
+          </Connection>
+          <Connection Source="cmpTrans.to_mgz" Destination="PlantModel3.to_mgz" />
+          <Connection Source="cmpTrans.to_next" Destination="PlantModel3.to_next" />
+          <Connection Source="cmpTrans.vcm_on" Destination="PlantModel3.vcm_on" />
+          <Connection Source="cmpTrans.vcm_off" Destination="PlantModel3.vcm_off" />
+          <Connection Source="PlantModel3.at_mgz" Destination="ArmSwing.at_mgz" />
+          <Connection Source="PlantModel3.at_next" Destination="ArmSwing.at_next" />
+          <Connection Source="ArmSwing.to_mgz" Destination="PlantModel3.to_mgz" />
+          <Connection Source="ArmSwing.to_next" Destination="PlantModel3.to_next" />
+        </DataConnections>
+      </FBNetwork>
+    </Resource>
+    <FBNetwork />
+  </Device>
+  <Mapping From="Comp_Skill_App.cmpTrans" To="PLC1.RES0" />
+  <Mapping From="Comp_Skill_App.PlantModel3" To="PLC1.RES0" />
+  <Mapping From="Comp_Skill_App.PushMag3" To="PLC1.RES0" />
+  <Mapping From="Comp_Skill_App.LoadingWP3" To="PLC1.RES0" />
+  <Mapping From="Comp_Skill_App.ArmSwing" To="PLC1.RES0" />
+</System>

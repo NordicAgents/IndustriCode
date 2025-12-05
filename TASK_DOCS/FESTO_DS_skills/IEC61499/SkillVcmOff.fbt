@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="af823fc5-e536-4b3f-a915-14924df2e941" Name="SkillVcmOff" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="vm_on" />
+      </Event>
+      <Event Name="TRIGGER" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="vm_on" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="vcm_on" Type="BOOL" />
+      <VarDeclaration Name="vcm_off" Type="BOOL" />
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,DONE,ERROR,VCM_ON,VCM_OFF" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1824.941" y="345.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1823.53" y="777.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="GoToMAG" x="1836" y="2112">
+        <ECAction Algorithm="VCM_OFF" Output="CNF" />
+      </ECState>
+      <ECState Name="DONE" x="1008" y="1652">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+      <ECState Name="TRIGGER" x="1820" y="1196" />
+      <ECState Name="ERROR" x="2780" y="1436">
+        <ECAction Algorithm="ERROR" Output="DONE" />
+      </ECState>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1828.354" y="563.5939">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="457.8623,126.0953,456.727,156.0849" />
+      </ECTransition>
+      <ECTransition Source="TRIGGER" Destination="GoToMAG" Condition="TRIGGER AND vm_on" x="1831.025" y="1664.707">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="457.6633,382.8707,458.2575,451.2672" />
+      </ECTransition>
+      <ECTransition Source="GoToMAG" Destination="DONE" Condition="REQ AND NOT vm_on" x="1241.96" y="2074.328">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="327.2684,548.5363,276.7596,514.1323" />
+      </ECTransition>
+      <ECTransition Source="DONE" Destination="TRIGGER" Condition="1" x="1416.272" y="1431.349">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="329.597,373.5912,377.9203,343.308" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="TRIGGER" Condition="1" x="1819.013" y="988.2529">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="454.724,234.0993,454.5059,260.3046" />
+      </ECTransition>
+      <ECTransition Source="TRIGGER" Destination="ERROR" Condition="TRIGGER AND NOT vm_on" x="2336.403" y="1239.012">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="556.7856,298.6769,611.6368,312.3897" />
+      </ECTransition>
+      <ECTransition Source="ERROR" Destination="TRIGGER" Condition="1" x="2304.916" y="1400.395">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="605.5734,361.6433,550.7222,347.9306" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[vcm_on :=FALSE;
+vcm_off :=TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="VCM_ON">
+      <ST><![CDATA[vcm_on := TRUE;
+vcm_off := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="VCM_OFF">
+      <ST><![CDATA[vcm_on := FALSE;
+vcm_off := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="DONE">
+      <ST><![CDATA[response:='PLACED WP';]]></ST>
+    </Algorithm>
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response:='ALREADY PLACED IS OFF';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

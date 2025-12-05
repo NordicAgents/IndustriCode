@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="1c12baec-0383-4301-a84b-c32b29cce619" Name="SKILL" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="8" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="1/31/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" />
+      <Event Name="OUTPUT">
+        <With Var="OUT1" />
+      </Event>
+      <Event Name="SC" />
+      <Event Name="START" />
+      <Event Name="HOLD" />
+      <Event Name="UNHOLD" />
+      <Event Name="SUSPEND" />
+      <Event Name="UNSUSPEND" />
+      <Event Name="RESET" />
+      <Event Name="ABORT" />
+      <Event Name="CLEAR" />
+      <Event Name="STOP" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" />
+      <Event Name="INPUT">
+        <With Var="IN1" />
+      </Event>
+      <Event Name="STARTING" />
+      <Event Name="EXECUTE" />
+      <Event Name="HOLDING" />
+      <Event Name="UNHOLDING" />
+      <Event Name="SUSPENDING" />
+      <Event Name="UNSUSPENDING" />
+      <Event Name="COMPLETING" />
+      <Event Name="RESETTING" />
+      <Event Name="STOPPING" />
+      <Event Name="ABORTING" />
+      <Event Name="CLEARING" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="OUT1" Type="INT" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="IN1" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="IThis" Type="SKILL_HMI" x="3580" y="1000" Namespace="Main">
+      <Parameter Name="QI" Value="TRUE" />
+    </FB>
+    <FB ID="2" Name="SKILL_ECC" Type="SKILL_BFB" x="1660" y="580" Namespace="Main" />
+    <FB ID="5" Name="FB1" Type="E_DELAY" x="680" y="640" Namespace="IEC61499.Standard">
+      <Parameter Name="DT" Value="T#5s" />
+    </FB>
+    <Input Name="OUTPUT" x="3060" y="1072" Type="Event" />
+    <Input Name="OUT1" x="2900" y="1392" Type="Data" />
+    <Input Name="INIT" x="3060" y="1012" Type="Event" />
+    <Input Name="SC" x="260" y="652" Type="Event" />
+    <Input Name="START" x="1180" y="712" Type="Event" />
+    <Input Name="HOLD" x="1180" y="772" Type="Event" />
+    <Input Name="UNHOLD" x="1180" y="832" Type="Event" />
+    <Input Name="SUSPEND" x="1180" y="892" Type="Event" />
+    <Input Name="UNSUSPEND" x="1180" y="952" Type="Event" />
+    <Input Name="RESET" x="1180" y="1012" Type="Event" />
+    <Input Name="ABORT" x="1180" y="1072" Type="Event" />
+    <Input Name="CLEAR" x="1180" y="1132" Type="Event" />
+    <Input Name="STOP" x="1177.917" y="1192" Type="Event" />
+    <Output Name="INPUT" x="4460" y="1072" Type="Event" />
+    <Output Name="IN1" x="4500" y="1452" Type="Data" />
+    <Output Name="INITO" x="4460" y="1012" Type="Event" />
+    <Output Name="STARTING" x="2460" y="652" Type="Event" />
+    <Output Name="EXECUTE" x="2460" y="712" Type="Event" />
+    <Output Name="HOLDING" x="2460" y="772" Type="Event" />
+    <Output Name="UNHOLDING" x="2460" y="832" Type="Event" />
+    <Output Name="SUSPENDING" x="2460" y="892" Type="Event" />
+    <Output Name="UNSUSPENDING" x="2460" y="952" Type="Event" />
+    <Output Name="COMPLETING" x="2460" y="1012" Type="Event" />
+    <Output Name="RESETTING" x="2460" y="1072" Type="Event" />
+    <Output Name="STOPPING" x="2460" y="1132" Type="Event" />
+    <Output Name="ABORTING" x="2460" y="1192" Type="Event" />
+    <Output Name="CLEARING" x="2460" y="1252" Type="Event" />
+    <EventConnections>
+      <Connection Source="SKILL_ECC.STARTING" Destination="STARTING" />
+      <Connection Source="SKILL_ECC.EXECUTE" Destination="EXECUTE" />
+      <Connection Source="SKILL_ECC.HOLDING" Destination="HOLDING" />
+      <Connection Source="SKILL_ECC.UNHOLDING" Destination="UNHOLDING" />
+      <Connection Source="SKILL_ECC.SUSPENDING" Destination="SUSPENDING" />
+      <Connection Source="SKILL_ECC.UNSUSPENDING" Destination="UNSUSPENDING" />
+      <Connection Source="SKILL_ECC.COMPLETING" Destination="COMPLETING" />
+      <Connection Source="SKILL_ECC.RESETTING" Destination="RESETTING" />
+      <Connection Source="SKILL_ECC.STOPPING" Destination="STOPPING" />
+      <Connection Source="SKILL_ECC.ABORTING" Destination="ABORTING" />
+      <Connection Source="SKILL_ECC.CLEARING" Destination="CLEARING" />
+      <Connection Source="INIT" Destination="IThis.INIT" />
+      <Connection Source="OUTPUT" Destination="IThis.OUTPUT" />
+      <Connection Source="SKILL_ECC.CNF" Destination="IThis.SKILL_OUTPUT" dx1="552.4792" />
+      <Connection Source="IThis.INITO" Destination="INITO" />
+      <Connection Source="IThis.INPUT" Destination="INPUT" />
+      <Connection Source="IThis.SKILL_INPUT" Destination="SKILL_ECC.REQ" dx1="92.60449" dx2="30" dy="-650" />
+      <Connection Source="SC" Destination="FB1.START" />
+      <Connection Source="FB1.EO" Destination="FB1.STOP" dx1="48.5" dx2="70" dy="-110" />
+      <Connection Source="FB1.EO" Destination="SKILL_ECC.SC" />
+      <Connection Source="START" Destination="SKILL_ECC.START" />
+      <Connection Source="HOLD" Destination="SKILL_ECC.HOLD" />
+      <Connection Source="UNHOLD" Destination="SKILL_ECC.UNHOLD" />
+      <Connection Source="SUSPEND" Destination="SKILL_ECC.SUSPEND" />
+      <Connection Source="UNSUSPEND" Destination="SKILL_ECC.UNSUSPEND" />
+      <Connection Source="RESET" Destination="SKILL_ECC.RESET" />
+      <Connection Source="ABORT" Destination="SKILL_ECC.ABORT" />
+      <Connection Source="CLEAR" Destination="SKILL_ECC.CLEAR" />
+      <Connection Source="STOP" Destination="SKILL_ECC.STOP" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="OUT1" Destination="IThis.OUT1" />
+      <Connection Source="SKILL_ECC.CURRENT_STATE" Destination="IThis.CURRENT_STATE" />
+      <Connection Source="IThis.IN1" Destination="IN1" />
+      <Connection Source="IThis.SKILL_CMD" Destination="SKILL_ECC.SKILL_CMD" dx1="132.6045" dx2="30" dy="90" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>

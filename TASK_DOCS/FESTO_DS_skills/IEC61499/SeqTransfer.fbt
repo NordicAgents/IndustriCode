@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="82b80e53-de1f-438a-ab10-a444fb431656" Name="SeqTransfer" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="STATE1" />
+        <With Var="STATE2" />
+        <With Var="STATE3" />
+        <With Var="STATE4" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="STATE1" />
+        <With Var="STATE2" />
+        <With Var="STATE3" />
+        <With Var="STATE4" />
+      </Event>
+      <Event Name="TRIGGER">
+        <With Var="STATE1" />
+        <With Var="STATE2" />
+        <With Var="STATE3" />
+        <With Var="STATE4" />
+      </Event>
+      <Event Name="CLIQ" />
+      <Event Name="T1out" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm" />
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="response" />
+      </Event>
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+      <Event Name="RES_skGTL" />
+      <Event Name="ARRIVE" />
+      <Event Name="RES_skG" />
+      <Event Name="GRIP" />
+      <Event Name="RES_skGTR" />
+      <Event Name="TRANSFER" />
+      <Event Name="RES_skR" />
+      <Event Name="RELEASE" />
+      <Event Name="T1" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="STATE1" Type="INT" />
+      <VarDeclaration Name="STATE2" Type="INT" />
+      <VarDeclaration Name="STATE3" Type="INT" />
+      <VarDeclaration Name="STATE4" Type="INT" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,GoToMag,DONE,ERROR,STEP1,STEP2,STEP3,STEP4,CLR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="2620.941" y="101.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="2627.53" y="389.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="DONE" x="1014.333" y="2178.334">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+      <ECState Name="WAIT" x="2635.111" y="674.667" />
+      <ECState Name="CALL" x="2640.016" y="2411.873">
+        <ECAction Algorithm="STEP1" Output="ARRIVE" />
+        <ECAction Algorithm="CLR" />
+      </ECState>
+      <ECState Name="GRIP" x="2617.11" y="3407.777">
+        <ECAction Algorithm="STEP2" Output="GRIP" />
+        <ECAction Algorithm="CLR" />
+      </ECState>
+      <ECState Name="WAIT1" x="2647.873" y="2702.587">
+        <ECAction Algorithm="CLR" />
+      </ECState>
+      <ECState Name="TRANS" x="2694.762" y="4877.063">
+        <ECAction Algorithm="CLR" />
+        <ECAction Algorithm="STEP3" Output="TRANSFER" />
+      </ECState>
+      <ECState Name="WAIT2" x="2605.888" y="3882">
+        <ECAction Algorithm="CLR" Output="CNF" />
+      </ECState>
+      <ECState Name="RELEASE" x="1143" y="5181.335">
+        <ECAction Algorithm="CLR" />
+        <ECAction Algorithm="STEP4" Output="RELEASE" />
+      </ECState>
+      <ECState Name="WAIT3" x="2603.556" y="5267.556">
+        <ECAction Algorithm="CLR" Output="CNF" />
+      </ECState>
+      <ECState Name="relWAIT1" x="1064.667" y="4514.996">
+        <ECAction Algorithm="CLR" Output="CNF" />
+      </ECState>
+      <ECState Name="WAIT11" x="2651.873" y="3016.445">
+        <ECAction Algorithm="CLR" Output="CNF" />
+      </ECState>
+      <ECState Name="RES1" x="2625" y="1025">
+        <ECAction Algorithm="CLR" Output="RES_skGTL" />
+      </ECState>
+      <ECState Name="RES2" x="2620" y="1360">
+        <ECAction Algorithm="CLR" Output="RES_skG" />
+      </ECState>
+      <ECState Name="RES3" x="2615" y="1720">
+        <ECAction Algorithm="CLR" Output="RES_skGTR" />
+      </ECState>
+      <ECState Name="RES4" x="2635" y="2110">
+        <ECAction Algorithm="CLR" Output="RES_skR" />
+      </ECState>
+      <ECState Name="TOUT" x="2626.667" y="4548.845">
+        <ECAction Algorithm="CLR" Output="T1" />
+      </ECState>
+      <ECState Name="grWAIT" x="2600" y="4172.223">
+        <ECAction Algorithm="CLR" />
+      </ECState>
+      <ECState Name="trWAIT" x="2391.555" y="5605.667" />
+      <ECState Name="relWAIT2" x="907.2222" y="3290.888">
+        <ECAction Algorithm="CLR" />
+      </ECState>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="2529.551" y="248.8189">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="627.7875,50.65563,630.8553,74.34132" />
+      </ECTransition>
+      <ECTransition Source="DONE" Destination="WAIT" Condition="1" x="1582.191" y="1250.876">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="314.5089,357.0913,443.8061,240.4033" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="WAIT" Condition="1" x="2541.611" y="532.6532">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="632.6949,122.4971,632.0372,143.9514" />
+      </ECTransition>
+      <ECTransition Source="WAIT1" Destination="WAIT11" Condition="REQ[STATE1&gt;3]" x="2503.596" y="2805.726">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="626.8007,683.6496,615.8079,712.2549" />
+      </ECTransition>
+      <ECTransition Source="CALL" Destination="WAIT1" Condition="REQ[STATE1=3]" x="2543.546" y="2550.694">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="631.8291,629.0842,632.1563,645.1735" />
+      </ECTransition>
+      <ECTransition Source="WAIT2" Destination="grWAIT" Condition="REQ[STATE2&gt;3]" x="2492.984" y="4017.934">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="619.7,993.1276,619.2264,1014.31" />
+      </ECTransition>
+      <ECTransition Source="GRIP" Destination="WAIT2" Condition="REQ[STATE2=3]" x="2468.553" y="3586.59">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="607.6623,879.6727,612.8185,903.9059" />
+      </ECTransition>
+      <ECTransition Source="WAIT3" Destination="trWAIT" Condition="REQ[STATE3&gt;3]" x="2501.803" y="5424.294">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="631.9368,1345.225,619.9557,1364.869" />
+      </ECTransition>
+      <ECTransition Source="TRANS" Destination="WAIT3" Condition="REQ[STATE3=3]" x="2541.828" y="5020.504">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="629.9792,1245.265,631.7332,1256.353" />
+      </ECTransition>
+      <ECTransition Source="WAIT" Destination="RES1" Condition="TRIGGER" x="2539.944" y="866.6631">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="631.8747,205.0375,630.7109,231.099" />
+      </ECTransition>
+      <ECTransition Source="relWAIT1" Destination="relWAIT2" Condition="REQ[STATE4&gt;3]" x="970.9086" y="3961.502">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="250.8923,1044.262,232.6369,946.2496" />
+      </ECTransition>
+      <ECTransition Source="RELEASE" Destination="relWAIT1" Condition="REQ[STATE4=3]" x="968.8118" y="4884.304">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="237.7167,1242.575,230.1808,1205.6" />
+      </ECTransition>
+      <ECTransition Source="WAIT11" Destination="GRIP" Condition="REQ[STATE1=5]" x="2637.737" y="3200.428">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="654.6927,790.1188,664.7098,808.1483" />
+      </ECTransition>
+      <ECTransition Source="RES4" Destination="CALL" Condition="REQ[STATE4=1]" x="2537.327" y="2269.791">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="630.4913,557.2374,630.9146,579.1337" />
+      </ECTransition>
+      <ECTransition Source="RES1" Destination="RES2" Condition="REQ[STATE1=1]" x="2526.496" y="1194.074">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="627.9535,286.1931,627.5366,311.1064" />
+      </ECTransition>
+      <ECTransition Source="RES2" Destination="RES3" Condition="REQ[STATE2=1]" x="2520.81" y="1544.223">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="626.2521,372.9966,625.8466,399.8185" />
+      </ECTransition>
+      <ECTransition Source="RES3" Destination="RES4" Condition="REQ[STATE3=1]" x="2528.186" y="1919.092">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="626.7988,465.5692,628.4637,494.6588" />
+      </ECTransition>
+      <ECTransition Source="TOUT" Destination="TRANS" Condition="T1out" x="2429.335" y="4765.676">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="597.4014,1185.637,595.0561,1203.808" />
+      </ECTransition>
+      <ECTransition Source="grWAIT" Destination="TOUT" Condition="REQ[STATE2=5]" x="2554.645" y="4392.946">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="636.1642,1086.774,636.683,1115.101" />
+      </ECTransition>
+      <ECTransition Source="trWAIT" Destination="RELEASE" Condition="REQ[STATE3=5]" x="1734.134" y="5461.954">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="475.3059,1384.513,389.1107,1354.96" />
+      </ECTransition>
+      <ECTransition Source="relWAIT2" Destination="DONE" Condition="REQ[STATE4=5]" x="942.958" y="2790.017">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="230.3901,744.1355,238.4888,660.1073" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToMag">
+      <ST><![CDATA[;]]></ST>
+    </Algorithm>
+    <Algorithm Name="DONE">
+      <ST><![CDATA[response:='WP TRANSFERRED';]]></ST>
+    </Algorithm>
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response:='ALREADY AT LEFT SIDE';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STEP1">
+      <ST><![CDATA[response:='ARM MOVES LEFT';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STEP2">
+      <ST><![CDATA[response:='GRIPPING WP';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STEP3">
+      <ST><![CDATA[response:='ARM MOVES RIGHT';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STEP4">
+      <ST><![CDATA[response:='RELEASING WP';
+TRIGGER:=FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="CLR">
+      <ST><![CDATA[REQ:=FALSE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

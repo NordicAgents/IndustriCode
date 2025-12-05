@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Colors xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://tempuri.org/Colors.xsd">
+  <Normal Name="ButtonInnerBorderColor" R="90" G="90" B="90" A="255" />
+  <Normal Name="LabelTextColor" R="100" G="100" B="100" A="255" />
+  <Normal Name="ButtonTextColor" R="255" G="255" B="255" A="255" />
+  <Normal Name="ButtonTextColorMouseDown" R="255" G="255" B="255" A="255" />
+</Colors>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mapping>
+  <EventInputs>
+    <Event Name="REQ">SkillName;FilePath</Event>
+  </EventInputs>
+  <EventOutputs>
+    <Event Name="CNF">NodeIN1;NodeSkillCMD;NodeOUT1;NodeCurrentState</Event>
+  </EventOutputs>
+  <Inputs>
+    <Input Name="SkillName" Type="STRING" />
+    <Input Name="FilePath" Type="STRING" />
+  </Inputs>
+  <Outputs>
+    <Output Name="NodeIN1" Type="STRING" />
+    <Output Name="NodeSkillCMD" Type="STRING" />
+    <Output Name="NodeOUT1" Type="STRING" />
+    <Output Name="NodeCurrentState" Type="STRING" />
+  </Outputs>
+</Mapping>

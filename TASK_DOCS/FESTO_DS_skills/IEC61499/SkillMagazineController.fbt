@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="c98c3060-2e80-426b-b5db-bdd6c54b59f4" Name="SkillMagazineController" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="pos_e" />
+        <With Var="pos_r" />
+        <With Var="empty" />
+      </Event>
+      <Event Name="PUSH" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="retract" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="retract" />
+      </Event>
+      <Event Name="DONE">
+        <With Var="response" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="pos_e" Type="BOOL" Comment="Input event qualifier" />
+      <VarDeclaration Name="pos_r" Type="BOOL" />
+      <VarDeclaration Name="empty" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="retract" Type="BOOL" Comment="Output event qualifier" />
+      <VarDeclaration Name="response" Type="STRING[255]" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,PushWp,RetractBack,DONE,ERROR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1736.941" y="173.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1747.53" y="769.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="PushWP" x="1752" y="1412">
+        <ECAction Algorithm="PushWp" Output="CNF" />
+      </ECState>
+      <ECState Name="RetractBack" x="1424" y="2320">
+        <ECAction Algorithm="RetractBack" Output="CNF" />
+      </ECState>
+      <ECState Name="TransferWP" x="520.0001" y="1664">
+        <ECAction Algorithm="DONE" Output="DONE" />
+      </ECState>
+      <ECState Name="PUSH" x="1252" y="976" />
+      <ECState Name="ERROR" x="2868" y="1164">
+        <ECAction Algorithm="ERROR" Output="DONE" />
+      </ECState>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1740.453" y="474.5206">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="434.7782,98.41817,435.243,139.3799" />
+      </ECTransition>
+      <ECTransition Source="PUSH" Destination="PushWP" Condition="PUSH AND pos_e AND (NOT empty)&#xD;&#xA;" x="1508.346" y="1184.623">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="362.0665,282.3479,392.0776,308.4005" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="RetractBack" Condition="REQ AND pos_r" x="2063.609" y="1934.564">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="559.2598,455.821,533.1932,522.8881" />
+      </ECTransition>
+      <ECTransition Source="RetractBack" Destination="TransferWP" Condition="REQ AND pos_e " x="883.3953" y="1930.127">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="245.9883,499.835,181.1895,454.9164" />
+      </ECTransition>
+      <ECTransition Source="TransferWP" Destination="PUSH" Condition="1" x="846.1969" y="1263.096">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="185.4329,335.2838,235.884,286.78" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="PUSH" Condition="1" x="1546.349" y="944.8368">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="399.4977,234.988,375.5746,244.9729" />
+      </ECTransition>
+      <ECTransition Source="PUSH" Destination="ERROR" Condition="PUSH AND pos_e AND ( empty)" x="2057.56" y="988.7001">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="458.3785,235.7442,571.846,248.9444" />
+      </ECTransition>
+      <ECTransition Source="ERROR" Destination="PUSH" Condition="1" x="2048.893" y="1149.173">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="568.957,298.7772,455.4896,285.5768" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[retract := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="PushWp">
+      <ST><![CDATA[retract := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="RetractBack">
+      <ST><![CDATA[retract := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="DONE">
+      <ST><![CDATA[response:='WP PUSHED';]]></ST>
+    </Algorithm>
+    <Algorithm Name="ERROR">
+      <ST><![CDATA[response:='MAG IS EMPTY';]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

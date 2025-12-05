@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="e077fefc-3430-4fb9-b9a2-b6d5786d7a81" Name="RotatingArmController" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/16/2024" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request" />
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+        <With Var="vmon" />
+      </Event>
+      <Event Name="PUSHED" />
+      <Event Name="START" />
+      <Event Name="STOP" />
+      <Event Name="RESET" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="TRANSFFERED" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+      <VarDeclaration Name="vmon" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="vcm_on" Type="BOOL" />
+      <VarDeclaration Name="vcm_off" Type="BOOL" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="INIT,GoToMag,GoToNext,TranswerWp" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1664.941" y="153.4117" />
+      <ECState Name="INIT" Comment="Initialization" x="1751.53" y="541.1765">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="GoToMAG" x="2752" y="1612">
+        <ECAction Algorithm="GoToMag" Output="CNF" />
+      </ECState>
+      <ECState Name="PushWP" x="1772" y="1088" />
+      <ECState Name="GoToNext" x="1840" y="2268">
+        <ECAction Algorithm="GoToNext" Output="CNF" />
+      </ECState>
+      <ECState Name="TransferWp" x="908" y="1592">
+        <ECAction Algorithm="TranswerWp" Output="CNF" />
+        <ECAction Output="TRANSFFERED" />
+      </ECState>
+      <ECState Name="RESET" x="4056" y="896" />
+      <ECState Name="STOP" x="3860" y="2268" />
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1479.728" y="473.8752">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="353.5218,112.9539,359.6478,140.3669" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="PushWP" Condition="REQ AND at_next&#xD;&#xA;" x="1766.649" y="805.5272">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="441.1362,183.1154,442.7286,218.138" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="GoToMAG" Condition="PUSHED" x="2241.603" y="1327.727">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="525.0192,312.1811,591.1588,347.9703" />
+      </ECTransition>
+      <ECTransition Source="GoToMAG" Destination="GoToNext" Condition="REQ AND at_mgz AND vmon" x="2290.714" y="1937.334">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="605.114,460.9889,539.7734,507.2341" />
+      </ECTransition>
+      <ECTransition Source="TransferWp" Destination="PushWP" Condition="REQ AND (NOT vmon) " x="1362.174" y="1323.06">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="313.4024,345.2134,371.7314,313.4934" />
+      </ECTransition>
+      <ECTransition Source="GoToNext" Destination="TransferWp" Condition="REQ AND at_next" x="1380.786" y="1933.895">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="377.9331,507.507,313.5293,460.0896" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="RESET" Condition="RESET" x="2985.061" y="1062.699">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="677.0942,278.2111,831.887,301.7935" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="RESET" Condition="RESET" x="2802.061" y="1156.222">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="606.9434,307.1642,774.1949,292.592" />
+      </ECTransition>
+      <ECTransition Source="TransferWp" Destination="RESET" Condition="RESET" x="2282.387" y="687.7928">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="433.7144,156.3694,681.399,103.1384" />
+      </ECTransition>
+      <ECTransition Source="GoToMAG" Destination="RESET" Condition="RESET" x="3704.834" y="1776.615">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="898.7018,514.8138,996.0033,451.8993" />
+      </ECTransition>
+      <ECTransition Source="GoToNext" Destination="RESET" Condition="RESET" x="2996.033" y="857.1946">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="665.1954,212.1251,844.4747,104.3684" />
+      </ECTransition>
+      <ECTransition Source="RESET" Destination="INIT" Condition="START" x="3200.154" y="274.1603">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="908.9075,48.49838,735.4743,21.79456" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="STOP" Condition="STOP" x="2848.659" y="1357.513">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="632.4017,267.7929,797.0851,403.1176" />
+      </ECTransition>
+      <ECTransition Source="PushWP" Destination="STOP" Condition="STOP" x="2710.68" y="1687.916">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="594.2114,379.1192,746.7856,466.4913" />
+      </ECTransition>
+      <ECTransition Source="GoToMAG" Destination="STOP" Condition="STOP" x="3356.719" y="1875.463">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="800.4147,440.5028,878.0585,486.4724" />
+      </ECTransition>
+      <ECTransition Source="GoToNext" Destination="STOP" Condition="STOP" x="2874.459" y="2188.193">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="646.0369,542,791.1929,542" />
+      </ECTransition>
+      <ECTransition Source="TransferWp" Destination="STOP" Condition="STOP" x="2434.081" y="1860.889">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="499.2441,434.6961,720.5867,485.3829" />
+      </ECTransition>
+      <ECTransition Source="STOP" Destination="RESET" Condition="RESET" x="3957.589" y="1507">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="981.9545,423.3181,997.0455,317.6819" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="INIT" Comment="Initialization algorithm">
+      <ST><![CDATA[to_mgz :=FALSE;
+to_next :=TRUE;
+vcm_on := FALSE;
+vcm_off := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToMag">
+      <ST><![CDATA[to_mgz := TRUE;
+to_next := FALSE;
+vcm_on := TRUE;
+vcm_off := FALSE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="GoToNext">
+      <ST><![CDATA[to_mgz := FALSE;
+to_next := TRUE;]]></ST>
+    </Algorithm>
+    <Algorithm Name="TranswerWp">
+      <ST><![CDATA[vcm_on := FALSE;
+vcm_off := TRUE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

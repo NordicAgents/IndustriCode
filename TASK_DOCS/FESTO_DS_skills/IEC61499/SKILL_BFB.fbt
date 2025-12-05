@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="14dfc5f2-e8b2-4878-834b-2848196b9168" Name="SKILL_BFB" Comment="Basic Function Block Type" Namespace="Main">
+  <Identification Standard="61499-2" />
+  <VersionInfo Organization="Schneider Electric" Version="0.0" Author="midxav" Date="20/04/2023" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="REQ">
+        <With Var="SKILL_CMD" />
+      </Event>
+      <Event Name="SC" />
+      <Event Name="START" />
+      <Event Name="HOLD" />
+      <Event Name="UNHOLD" />
+      <Event Name="SUSPEND" />
+      <Event Name="UNSUSPEND" />
+      <Event Name="RESET" />
+      <Event Name="ABORT" />
+      <Event Name="CLEAR" />
+      <Event Name="STOP" />
+      <Event Name="DONE" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="CNF">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="STARTING" />
+      <Event Name="EXECUTE" />
+      <Event Name="HOLDING" />
+      <Event Name="UNHOLDING" />
+      <Event Name="SUSPENDING" />
+      <Event Name="UNSUSPENDING" />
+      <Event Name="COMPLETING" />
+      <Event Name="RESETTING" />
+      <Event Name="STOPPING" />
+      <Event Name="ABORTING" />
+      <Event Name="CLEARING" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SKILL_CMD" Type="INT" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="CURRENT_STATE" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="IDLE_STATE,STARTNG,EXECUTE,HOLDING,HELD,UNHOLDING,SUSPENDING,SUSPENDED,UNSUSPENDING,COMPLETE,RESETTING,ABORTING,ABORTED,CLEARING,STOPPING,STOPPED_STATE,COMPLETING,CLEAR" />
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="604.9412" y="1004.412" />
+      <ECState Name="IDLE_STATE" x="1396" y="1004">
+        <ECAction Algorithm="IDLE_STATE" Output="CNF" />
+      </ECState>
+      <ECState Name="STARTING" x="1876.571" y="1381.143">
+        <ECAction Algorithm="STARTNG" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="STARTING" />
+      </ECState>
+      <ECState Name="EXECUTE" x="3121.143" y="956.5715">
+        <ECAction Algorithm="EXECUTE" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="EXECUTE" />
+      </ECState>
+      <ECState Name="COMPLETING" x="3861.714" y="1246.286">
+        <ECAction Algorithm="COMPLETING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="COMPLETING" />
+      </ECState>
+      <ECState Name="COMPLETE" x="4950.286" y="1000.571">
+        <ECAction Algorithm="COMPLETE" Output="CNF" />
+      </ECState>
+      <ECState Name="HOLDING" x="3804" y="508">
+        <ECAction Algorithm="HOLDING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="HOLDING" />
+      </ECState>
+      <ECState Name="HELD" x="3028" y="152">
+        <ECAction Algorithm="HELD" Output="CNF" />
+      </ECState>
+      <ECState Name="UNHOLDING" x="2260" y="480">
+        <ECAction Algorithm="UNHOLDING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="UNHOLDING" />
+      </ECState>
+      <ECState Name="SUSPENDING" x="3956" y="1816">
+        <ECAction Algorithm="SUSPENDING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="SUSPENDING" />
+      </ECState>
+      <ECState Name="SUSPENDED" x="3136" y="2212">
+        <ECAction Algorithm="SUSPENDED" Output="CNF" />
+      </ECState>
+      <ECState Name="UNSUSPENDING" x="2360" y="1852">
+        <ECAction Algorithm="UNSUSPENDING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="UNSUSPENDING" />
+      </ECState>
+      <ECState Name="ABORTING" x="4629.714" y="2880">
+        <ECAction Algorithm="ABORTING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="ABORTING" />
+      </ECState>
+      <ECState Name="ABORTED" x="3881.713" y="3230.753">
+        <ECAction Algorithm="ABORTED" Output="CNF" />
+      </ECState>
+      <ECState Name="CLEARING" x="2871.429" y="3604">
+        <ECAction Algorithm="CLEARING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="CLEARING" />
+      </ECState>
+      <ECState Name="STOPPING" x="2420.571" y="2781.714">
+        <ECAction Algorithm="STOPPING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="STOPPING" />
+      </ECState>
+      <ECState Name="STOPPED_STATE" x="1398.286" y="3285.714">
+        <ECAction Algorithm="STOPPED_STATE" Output="CNF" />
+      </ECState>
+      <ECState Name="RESETTING" x="1396" y="2236">
+        <ECAction Algorithm="RESETTING" Output="CNF" />
+        <ECAction Algorithm="CLEAR" Output="RESETTING" />
+      </ECState>
+      <ECTransition Source="START" Destination="IDLE_STATE" Condition="1" x="979.6142" y="1001.306">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="227.0326,250.246,265.3423,250.2053" />
+      </ECTransition>
+      <ECTransition Source="IDLE_STATE" Destination="STARTING" Condition="START OR REQ[SKILL_CMD = 1]" x="1642.539" y="1193.912">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="396.5797,287.2401,425.4037,309.9391" />
+      </ECTransition>
+      <ECTransition Source="STARTING" Destination="EXECUTE" Condition="SC" x="2482.691" y="1173.08">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="580.3583,306.9656,658.5421,280.278" />
+      </ECTransition>
+      <ECTransition Source="EXECUTE" Destination="COMPLETING" Condition="SC" x="3492.839" y="1102.829">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="853.5078,268.0694,893.3378,283.5785" />
+      </ECTransition>
+      <ECTransition Source="COMPLETING" Destination="COMPLETE" Condition="DONE" x="4422.652" y="1116.076">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="1076.936,285.3496,1134.697,272.347" />
+      </ECTransition>
+      <ECTransition Source="EXECUTE" Destination="HOLDING" Condition="HOLD OR REQ[SKILL_CMD = 3]" x="3511.553" y="730.7874">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="858.6599,196.931,902.3403,168.2129" />
+      </ECTransition>
+      <ECTransition Source="HOLDING" Destination="HELD" Condition="SC" x="3406.946" y="329.1181">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="874.0303,92.68602,828.4725,71.72603" />
+      </ECTransition>
+      <ECTransition Source="HELD" Destination="UNHOLDING" Condition="UNHOLD OR REQ[SKILL_CMD = 4]" x="2640.72" y="318.2426">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="681.7929,70.41711,637.2004,89.36277" />
+      </ECTransition>
+      <ECTransition Source="UNHOLDING" Destination="EXECUTE" Condition="SC" x="2685.289" y="702.33">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="642.2569,158.7487,698.0757,189.757" />
+      </ECTransition>
+      <ECTransition Source="EXECUTE" Destination="SUSPENDING" Condition="SUSPEND OR REQ[SKILL_CMD = 5]" x="3540.797" y="1376.81">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="854.7642,312.0236,915.5922,374.8022" />
+      </ECTransition>
+      <ECTransition Source="SUSPENDING" Destination="SUSPENDED" Condition="SC" x="3555.408" y="2011.626">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="911.5047,492.0975,867.4657,513.3201" />
+      </ECTransition>
+      <ECTransition Source="SUSPENDED" Destination="UNSUSPENDING" Condition="UNSUSPEND OR REQ[SKILL_CMD = 6]" x="2729.721" y="2028.931">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="701.1387,516.1874,661.5183,497.7668" />
+      </ECTransition>
+      <ECTransition Source="UNSUSPENDING" Destination="EXECUTE" Condition="SC" x="2774.354" y="1357.713">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="668.5222,368.5084,724.4957,302.5862" />
+      </ECTransition>
+      <ECTransition Source="COMPLETE" Destination="RESETTING" Condition="RESET OR REQ[SKILL_CMD = 2]" x="3522.434" y="1539.389">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="1039.608,333.0351,776.489,423.5099" />
+      </ECTransition>
+      <ECTransition Source="ABORTING" Destination="ABORTED" Condition="SC" x="4219.554" y="3068.342">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="1074.726,757.9424,1029.705,778.3898" />
+      </ECTransition>
+      <ECTransition Source="ABORTED" Destination="CLEARING" Condition="CLEAR OR REQ[SKILL_CMD = 7]" x="3364.667" y="3412.612">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="871.3958,841.5641,810.7627,863.9479" />
+      </ECTransition>
+      <ECTransition Source="CLEARING" Destination="STOPPED_STATE" Condition="SC" x="2090.411" y="3432.547">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="558.5366,866.3444,472.9441,846.7613" />
+      </ECTransition>
+      <ECTransition Source="STOPPING" Destination="STOPPED_STATE" Condition="SC" x="1912.644" y="3034.913">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="512.1225,742.1949,444.4124,775.4614" />
+      </ECTransition>
+      <ECTransition Source="STOPPED_STATE" Destination="RESETTING" Condition="RESET OR REQ[SKILL_CMD = 2]" x="1396.082" y="2662.35">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="349.0316,696.7686,348.8614,617.9885" />
+      </ECTransition>
+      <ECTransition Source="RESETTING" Destination="IDLE_STATE" Condition="SC" x="1393.581" y="1632.69">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="348.225,456.2162,348.2254,362.2435" />
+      </ECTransition>
+      <ECTransition Source="EXECUTE" Destination="ABORTING" Condition="ABORT OR REQ[SKILL_CMD = 9]" x="4017.323" y="2149.016">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="955.0775,482.0894,1077.981,630.8736" />
+      </ECTransition>
+      <ECTransition Source="EXECUTE" Destination="STOPPING" Condition="STOP OR REQ[SKILL_CMD = 8]" x="2804.931" y="1876.657">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="731.2051,398.0841,676.2728,541.4966" />
+      </ECTransition>
+      <ECTransition Source="STARTING" Destination="STOPPING" Condition="REQ AND SKILL_CMD = 8" x="2221.389" y="2054.274">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="539.469,457.297,581.4243,565.3142" />
+      </ECTransition>
+      <ECTransition Source="STOPPING" Destination="ABORTING" Condition="ABORT OR REQ[SKILL_CMD = 9]" x="3527.74" y="2750.228">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="805.2098,679.3053,959.2158,686.1571" />
+      </ECTransition>
+      <ECTransition Source="CLEARING" Destination="ABORTING" Condition="ABORT OR REQ[SKILL_CMD = 9]" x="3550.914" y="3023.424">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="814.3893,765.8351,939.7916,714.1989" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="IDLE_STATE">
+      <ST><![CDATA[CURRENT_STATE:= 1;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STARTNG">
+      <ST><![CDATA[CURRENT_STATE:= 2;]]></ST>
+    </Algorithm>
+    <Algorithm Name="EXECUTE">
+      <ST><![CDATA[CURRENT_STATE:= 3;]]></ST>
+    </Algorithm>
+    <Algorithm Name="HOLDING">
+      <ST><![CDATA[CURRENT_STATE:=7;]]></ST>
+    </Algorithm>
+    <Algorithm Name="HELD">
+      <ST><![CDATA[CURRENT_STATE:= 8;]]></ST>
+    </Algorithm>
+    <Algorithm Name="UNHOLDING">
+      <ST><![CDATA[CURRENT_STATE:= 9;]]></ST>
+    </Algorithm>
+    <Algorithm Name="SUSPENDING">
+      <ST><![CDATA[CURRENT_STATE:= 10;]]></ST>
+    </Algorithm>
+    <Algorithm Name="SUSPENDED">
+      <ST><![CDATA[CURRENT_STATE:= 11;]]></ST>
+    </Algorithm>
+    <Algorithm Name="UNSUSPENDING">
+      <ST><![CDATA[CURRENT_STATE:= 12;]]></ST>
+    </Algorithm>
+    <Algorithm Name="COMPLETE">
+      <ST><![CDATA[CURRENT_STATE:= 5;]]></ST>
+    </Algorithm>
+    <Algorithm Name="RESETTING">
+      <ST><![CDATA[CURRENT_STATE:= 6;]]></ST>
+    </Algorithm>
+    <Algorithm Name="ABORTING">
+      <ST><![CDATA[CURRENT_STATE:= 15;]]></ST>
+    </Algorithm>
+    <Algorithm Name="ABORTED">
+      <ST><![CDATA[CURRENT_STATE:= 16;]]></ST>
+    </Algorithm>
+    <Algorithm Name="CLEARING">
+      <ST><![CDATA[CURRENT_STATE:= 17;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STOPPING">
+      <ST><![CDATA[CURRENT_STATE:= 13;]]></ST>
+    </Algorithm>
+    <Algorithm Name="STOPPED_STATE">
+      <ST><![CDATA[CURRENT_STATE:= 14;]]></ST>
+    </Algorithm>
+    <Algorithm Name="COMPLETING">
+      <ST><![CDATA[CURRENT_STATE:= 4;]]></ST>
+    </Algorithm>
+    <Algorithm Name="CLEAR">
+      <ST><![CDATA[SC := FALSE;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

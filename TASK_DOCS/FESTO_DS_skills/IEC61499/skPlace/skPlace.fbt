@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="8e4fbc8d-8c19-4f1e-bec8-5c9d8d0c2e2a" Name="skPlace" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="8" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="codex" Date="11/8/2025" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="vm_on" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="vm_on" />
+      </Event>
+      <Event Name="START">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="vm_on" />
+      </Event>
+      <Event Name="RESET">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="vm_on" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="stUPD">
+        <With Var="CURRENT_STATE" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SkillName" Type="STRING" />
+      <VarDeclaration Name="FilePath" Type="STRING" />
+      <VarDeclaration Name="Endpoint" Type="STRING" />
+      <VarDeclaration Name="vm_on" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="vcm_on" Type="BOOL" />
+      <VarDeclaration Name="vcm_off" Type="BOOL" />
+      <VarDeclaration Name="CURRENT_STATE" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="Skill_Commands" Type="BasicSKILL" x="700" y="280" Namespace="Main" />
+    <FB ID="2" Name="REG" Type="RegisterSkill" x="3420" y="760" Namespace="Main" />
+    <FB ID="3" Name="Logic" Type="SkillVcmOff" x="1700" y="2120" Namespace="Main" />
+    <FB ID="4" Name="FB1" Type="E_MERGE13" x="2360" y="400" Namespace="Main" />
+    <FB ID="7" Name="FB2" Type="E_MERGE" x="4100" y="260" Namespace="IEC61499.Standard" />
+    <FB ID="8" Name="FB3" Type="E_MERGE" x="4860" y="260" Namespace="IEC61499.Standard" />
+    <Input Name="INIT" x="80" y="292" Type="Event" />
+    <Input Name="REQ" x="380" y="2192" Type="Event" />
+    <Input Name="SkillName" x="80" y="1772" Type="Data" />
+    <Input Name="FilePath" x="2840" y="1092" Type="Data" />
+    <Input Name="Endpoint" x="2840" y="1152" Type="Data" />
+    <Input Name="vm_on" x="1140" y="2452" Type="Data" />
+    <Input Name="START" x="66.07291" y="472" Type="Event" />
+    <Input Name="RESET" x="104.875" y="772" Type="Event" />
+    <Output Name="stUPD" x="5190.958" y="1312" Type="Event" />
+    <Output Name="CURRENT_STATE" x="1620" y="1272" Type="Data" />
+    <Output Name="vcm_on" x="2300" y="2452" Type="Data" />
+    <Output Name="vcm_off" x="2300" y="2512" Type="Data" />
+    <Output Name="INITO" x="3900" y="672" Type="Event" />
+    <Output Name="CNF" x="5200" y="272" Type="Event" />
+    <EventConnections>
+      <Connection Source="INIT" Destination="Skill_Commands.INIT" />
+      <Connection Source="Skill_Commands.INITO" Destination="Logic.INIT" dx1="122.4791">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.INITO" Destination="REG.INIT" dx1="240.104" />
+      <Connection Source="REG.INITO" Destination="REG.REQ" dx1="43.4375" dx2="70" dy="-110" />
+      <Connection Source="REQ" Destination="Logic.REQ" />
+      <Connection Source="REG.INITO" Destination="INITO" dx1="43.4375" dx2="30" dy="-110" />
+      <Connection Source="Skill_Commands.STARTING" Destination="FB1.EI1">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.EXECUTE" Destination="Logic.TRIGGER" dx1="62.47913">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.EXECUTE" Destination="FB1.EI2" />
+      <Connection Source="Skill_Commands.HOLDING" Destination="FB1.EI3">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Commands.UNHOLDING" Destination="FB1.EI4" />
+      <Connection Source="Skill_Commands.SUSPENDING" Destination="FB1.EI5" />
+      <Connection Source="Skill_Commands.UNSUSPENDING" Destination="FB1.EI6" />
+      <Connection Source="Skill_Commands.COMPLETING" Destination="FB1.EI7" />
+      <Connection Source="Skill_Commands.RESETTING" Destination="FB1.EI8" />
+      <Connection Source="Skill_Commands.STOPPING" Destination="FB1.EI9" />
+      <Connection Source="Skill_Commands.ABORTING" Destination="FB1.EI10" />
+      <Connection Source="Skill_Commands.CLEARING" Destination="FB1.EI11">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.DONE" Destination="Skill_Commands.OUTPUT" dx1="550.104" dx2="220" dy="-2120">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.CNF" Destination="FB3.EI2" dx1="2200.104" />
+      <Connection Source="Logic.DONE" Destination="Skill_Commands.DONE" dx1="90" dx2="70" dy="-230" />
+      <Connection Source="FB3.EO" Destination="CNF" />
+      <Connection Source="FB1.EO" Destination="Skill_Commands.SC" dx1="40" dx2="30" dy="-230" />
+      <Connection Source="START" Destination="Skill_Commands.START" />
+      <Connection Source="RESET" Destination="Skill_Commands.RESET" />
+      <Connection Source="FB2.EO" Destination="FB3.EI1" />
+      <Connection Source="FB1.EO" Destination="FB2.EI2" dx1="40" />
+      <Connection Source="Skill_Commands.UPD" Destination="stUPD">
+        <Points>
+          <Points>
+            <X>369.380219</X>
+            <Y>275</Y>
+          </Points>
+          <Points>
+            <X>390</X>
+            <Y>275</Y>
+          </Points>
+          <Points>
+            <X>390</X>
+            <Y>347.5</Y>
+          </Points>
+          <Points>
+            <X>677.5</X>
+            <Y>347.5</Y>
+          </Points>
+          <Points>
+            <X>677.5</X>
+            <Y>335</Y>
+          </Points>
+          <Points>
+            <X>1297.7395</X>
+            <Y>335</Y>
+          </Points>
+        </Points>
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SkillName" Destination="REG.SkillName" dx1="2714.833">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FilePath" Destination="REG.FilePath" />
+      <Connection Source="Endpoint" Destination="REG.Endpoint" />
+      <Connection Source="Logic.response" Destination="Skill_Commands.RESPONSE" dx1="610.104" dx2="100" dy="-940">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="vm_on" Destination="Logic.vm_on" />
+      <Connection Source="Logic.vcm_on" Destination="vcm_on" />
+      <Connection Source="Logic.vcm_off" Destination="vcm_off" />
+      <Connection Source="SkillName" Destination="Skill_Commands.NAME" dx1="24.8335" />
+      <Connection Source="Skill_Commands.CURRENT_STATE" Destination="CURRENT_STATE" dx1="112.4791" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>

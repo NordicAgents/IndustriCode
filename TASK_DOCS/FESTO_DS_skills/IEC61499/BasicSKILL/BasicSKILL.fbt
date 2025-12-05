@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="26f2216d-af9b-45f2-a4e7-3d755d19b708" Name="BasicSKILL" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="8" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="1/31/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT">
+        <With Var="NAME" />
+      </Event>
+      <Event Name="OUTPUT">
+        <With Var="OUT1" />
+        <With Var="RESPONSE" />
+      </Event>
+      <Event Name="SC" />
+      <Event Name="START" />
+      <Event Name="HOLD" />
+      <Event Name="UNHOLD" />
+      <Event Name="SUSPEND" />
+      <Event Name="UNSUSPEND" />
+      <Event Name="RESET" />
+      <Event Name="ABORT" />
+      <Event Name="CLEAR" />
+      <Event Name="STOP" />
+      <Event Name="DONE" />
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="INPUT">
+        <With Var="IN1" />
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="STARTING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="EXECUTE">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="HOLDING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="UNHOLDING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="SUSPENDING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="UNSUSPENDING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="COMPLETING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="RESETTING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="STOPPING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="ABORTING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="CLEARING">
+        <With Var="CURRENT_STATE" />
+      </Event>
+      <Event Name="UPD">
+        <With Var="CURRENT_STATE" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="OUT1" Type="INT" />
+      <VarDeclaration Name="RESPONSE" Type="STRING" />
+      <VarDeclaration Name="NAME" Type="STRING" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="IN1" Type="INT" />
+      <VarDeclaration Name="CURRENT_STATE" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="IThis" Type="BasicSKILL_HMI" x="3580" y="1000" Namespace="Main">
+      <Parameter Name="QI" Value="TRUE" />
+    </FB>
+    <FB ID="2" Name="SKILL_ECC" Type="SKILL_BFB" x="1660" y="580" Namespace="Main" />
+    <Input Name="OUTPUT" x="3060" y="1072" Type="Event" />
+    <Input Name="OUT1" x="2900" y="1392" Type="Data" />
+    <Input Name="INIT" x="3060" y="1012" Type="Event" />
+    <Input Name="SC" x="1180" y="652" Type="Event" />
+    <Input Name="START" x="1180" y="712" Type="Event" />
+    <Input Name="HOLD" x="1180" y="772" Type="Event" />
+    <Input Name="UNHOLD" x="1180" y="832" Type="Event" />
+    <Input Name="SUSPEND" x="1180" y="892" Type="Event" />
+    <Input Name="UNSUSPEND" x="1180" y="952" Type="Event" />
+    <Input Name="RESET" x="1180" y="1012" Type="Event" />
+    <Input Name="ABORT" x="1180" y="1072" Type="Event" />
+    <Input Name="CLEAR" x="1180" y="1132" Type="Event" />
+    <Input Name="STOP" x="1177.917" y="1192" Type="Event" />
+    <Input Name="RESPONSE" x="2785.26" y="1452" Type="Data" />
+    <Input Name="NAME" x="1780" y="1692" Type="Data" />
+    <Input Name="DONE" x="1194.365" y="1252" Type="Event" />
+    <Output Name="UPD" x="4612.156" y="592" Type="Event" />
+    <Output Name="CURRENT_STATE" x="4145.229" y="1712" Type="Data" />
+    <Output Name="INPUT" x="4580" y="1072" Type="Event" />
+    <Output Name="IN1" x="4500" y="1452" Type="Data" />
+    <Output Name="INITO" x="4680" y="1012" Type="Event" />
+    <Output Name="STARTING" x="2460" y="652" Type="Event" />
+    <Output Name="EXECUTE" x="2460" y="712" Type="Event" />
+    <Output Name="HOLDING" x="2460" y="772" Type="Event" />
+    <Output Name="UNHOLDING" x="2460" y="832" Type="Event" />
+    <Output Name="SUSPENDING" x="2460" y="892" Type="Event" />
+    <Output Name="UNSUSPENDING" x="2460" y="952" Type="Event" />
+    <Output Name="COMPLETING" x="2460" y="1012" Type="Event" />
+    <Output Name="RESETTING" x="2460" y="1072" Type="Event" />
+    <Output Name="STOPPING" x="2460" y="1132" Type="Event" />
+    <Output Name="ABORTING" x="2460" y="1192" Type="Event" />
+    <Output Name="CLEARING" x="2460" y="1252" Type="Event" />
+    <EventConnections>
+      <Connection Source="SKILL_ECC.STARTING" Destination="STARTING" />
+      <Connection Source="SKILL_ECC.EXECUTE" Destination="EXECUTE" />
+      <Connection Source="SKILL_ECC.HOLDING" Destination="HOLDING" />
+      <Connection Source="SKILL_ECC.UNHOLDING" Destination="UNHOLDING" />
+      <Connection Source="SKILL_ECC.SUSPENDING" Destination="SUSPENDING" />
+      <Connection Source="SKILL_ECC.UNSUSPENDING" Destination="UNSUSPENDING" />
+      <Connection Source="SKILL_ECC.COMPLETING" Destination="COMPLETING" />
+      <Connection Source="SKILL_ECC.RESETTING" Destination="RESETTING" />
+      <Connection Source="SKILL_ECC.STOPPING" Destination="STOPPING" />
+      <Connection Source="SKILL_ECC.ABORTING" Destination="ABORTING" />
+      <Connection Source="SKILL_ECC.CLEARING" Destination="CLEARING" />
+      <Connection Source="START" Destination="SKILL_ECC.START" />
+      <Connection Source="HOLD" Destination="SKILL_ECC.HOLD" />
+      <Connection Source="UNHOLD" Destination="SKILL_ECC.UNHOLD" />
+      <Connection Source="SUSPEND" Destination="SKILL_ECC.SUSPEND" />
+      <Connection Source="UNSUSPEND" Destination="SKILL_ECC.UNSUSPEND" />
+      <Connection Source="RESET" Destination="SKILL_ECC.RESET" />
+      <Connection Source="ABORT" Destination="SKILL_ECC.ABORT" />
+      <Connection Source="CLEAR" Destination="SKILL_ECC.CLEAR" />
+      <Connection Source="STOP" Destination="SKILL_ECC.STOP" />
+      <Connection Source="SC" Destination="SKILL_ECC.SC" />
+      <Connection Source="INIT" Destination="IThis.INIT" />
+      <Connection Source="OUTPUT" Destination="IThis.OUTPUT" />
+      <Connection Source="SKILL_ECC.CNF" Destination="IThis.SKILL_OUTPUT" dx1="552.4792" />
+      <Connection Source="IThis.INITO" Destination="INITO" />
+      <Connection Source="IThis.INPUT" Destination="INPUT" />
+      <Connection Source="IThis.SKILL_INPUT" Destination="SKILL_ECC.REQ" dx1="182.604" dx2="30" dy="-720">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="IThis.INITO" Destination="IThis.SKILL_OUTPUT" dx1="120" dx2="90" dy="-110" />
+      <Connection Source="SKILL_ECC.CNF" Destination="UPD" />
+      <Connection Source="DONE" Destination="SKILL_ECC.DONE" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="OUT1" Destination="IThis.OUT1" />
+      <Connection Source="RESPONSE" Destination="IThis.RESPONSE" />
+      <Connection Source="SKILL_ECC.CURRENT_STATE" Destination="IThis.CURRENT_STATE" dx1="40" />
+      <Connection Source="IThis.IN1" Destination="IN1" />
+      <Connection Source="IThis.SKILL_CMD" Destination="SKILL_ECC.SKILL_CMD" dx1="132.6045" dx2="100" dy="320">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="NAME" Destination="IThis.NAME" dx1="40" />
+      <Connection Source="SKILL_ECC.CURRENT_STATE" Destination="CURRENT_STATE" dx1="40" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>

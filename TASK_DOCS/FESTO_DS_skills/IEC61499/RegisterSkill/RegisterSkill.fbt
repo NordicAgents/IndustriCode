@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="92f75716-30d5-448b-b2fb-149da4ec90ca" Name="RegisterSkill" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="4" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/13/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" />
+      <Event Name="REQ">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" />
+      <Event Name="CNF" />
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SkillName" Type="STRING" />
+      <VarDeclaration Name="FilePath" Type="STRING" />
+      <VarDeclaration Name="Endpoint" Type="STRING" />
+    </InputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="NodeFinder" Type="NodeFinder" x="1540" y="1100" Namespace="Main" />
+    <FB ID="4" Name="IThis" Type="RegisterSkill_HMI" x="2920" y="920" Namespace="Main">
+      <Parameter Name="RepoName" Value="'ZeroSwarm'" />
+      <Parameter Name="QI" Value="TRUE" />
+    </FB>
+    <Input Name="SkillName" x="280" y="712" Type="Data" />
+    <Input Name="INIT" x="300" y="492" Type="Event" />
+    <Input Name="REQ" x="309.7708" y="552" Type="Event" />
+    <Input Name="FilePath" x="345.3021" y="1432" Type="Data" />
+    <Input Name="Endpoint" x="339.4688" y="1812" Type="Data" />
+    <Output Name="INITO" x="3819.115" y="672" Type="Event" />
+    <Output Name="CNF" x="3872.156" y="812" Type="Event" />
+    <EventConnections>
+      <Connection Source="NodeFinder.INITO" Destination="IThis.INIT" dx1="53.3125" />
+      <Connection Source="NodeFinder.CNF" Destination="IThis.REQ" dx1="73.3125" />
+      <Connection Source="INIT" Destination="NodeFinder.INIT" dx1="281.4167" />
+      <Connection Source="REQ" Destination="NodeFinder.REQ" dx1="259.7709" />
+      <Connection Source="IThis.INITO" Destination="INITO" dx1="40" />
+      <Connection Source="IThis.CNF" Destination="CNF" dx1="79.79175" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SkillName" Destination="NodeFinder.SkillName" dx1="44.83337" />
+      <Connection Source="SkillName" Destination="IThis.SkillName" dx1="1424.833" />
+      <Connection Source="NodeFinder.NodeIN1" Destination="IThis.In1" dx1="40" />
+      <Connection Source="NodeFinder.NodeSkillCMD" Destination="IThis.SkillCmd" dx1="40" />
+      <Connection Source="NodeFinder.NodeOUT1" Destination="IThis.Out1" dx1="40" />
+      <Connection Source="NodeFinder.NodeCurrentState" Destination="IThis.CurrentState" dx1="40" />
+      <Connection Source="FilePath" Destination="NodeFinder.FilePath" />
+      <Connection Source="Endpoint" Destination="IThis.Endpoint" dx1="1389.469" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>

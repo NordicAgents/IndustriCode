@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="35ef6ae7-1f30-4ca0-b542-ab679c78beb9" Name="skTransfer" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="31" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="vv263" Date="11/8/2025" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" Comment="Initialization Request">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+        <With Var="vm_on" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+        <With Var="Endpoint" />
+        <With Var="at_mgz" />
+        <With Var="at_next" />
+        <With Var="vm_on" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" Comment="Initialization Confirm">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="CURRENT_STATE" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="to_mgz" />
+        <With Var="to_next" />
+        <With Var="CURRENT_STATE" />
+        <With Var="vcm_on" />
+        <With Var="vcm_off" />
+      </Event>
+      <Event Name="stUPD">
+        <With Var="CURRENT_STATE" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SkillName" Type="STRING" />
+      <VarDeclaration Name="FilePath" Type="STRING" />
+      <VarDeclaration Name="Endpoint" Type="STRING" />
+      <VarDeclaration Name="at_mgz" Type="BOOL" />
+      <VarDeclaration Name="at_next" Type="BOOL" />
+      <VarDeclaration Name="vm_on" Type="BOOL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="to_mgz" Type="BOOL" />
+      <VarDeclaration Name="to_next" Type="BOOL" />
+      <VarDeclaration Name="vcm_on" Type="BOOL" />
+      <VarDeclaration Name="vcm_off" Type="BOOL" />
+      <VarDeclaration Name="CURRENT_STATE" Type="INT" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="Skill_Head" Type="BasicSKILL" x="700" y="1040" Namespace="Main" />
+    <FB ID="2" Name="REG" Type="RegisterSkill" x="8060" y="1340" Namespace="Main" />
+    <FB ID="10" Name="FB1" Type="DataSelector" x="6340" y="1720" Namespace="Main" />
+    <FB ID="11" Name="FB2" Type="DataSelector" x="6400" y="3360" Namespace="Main" />
+    <FB ID="12" Name="GTL2" Type="skGoToLeft" x="5020" y="1160" Namespace="Main">
+      <Parameter Name="SkillName" Value="'SkillGoToLeft'" />
+      <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+      <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4841'" />
+    </FB>
+    <FB ID="13" Name="GTR2" Type="skGoToRight" x="5060" y="2080" Namespace="Main">
+      <Parameter Name="SkillName" Value="'SkillGoToRight'" />
+      <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+      <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4842'" />
+    </FB>
+    <FB ID="14" Name="Pick2" Type="skPick" x="5040" y="3000" Namespace="Main">
+      <Parameter Name="SkillName" Value="'SkillVaccumOn'" />
+      <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+      <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4843'" />
+    </FB>
+    <FB ID="15" Name="Place2" Type="skPlace" x="5060" y="3960" Namespace="Main">
+      <Parameter Name="SkillName" Value="'SkillVaccumOFF'" />
+      <Parameter Name="FilePath" Value="'./IEC61499/bin/Deploy/SE.DPAC#Soft_dPAC/System.PLC.opcua.xml'" />
+      <Parameter Name="Endpoint" Value="'opc.tcp://localhost:4844'" />
+    </FB>
+    <FB ID="16" Name="Logic" Type="SeqTransfer" x="1760" y="2940" Namespace="Main" />
+    <FB ID="17" Name="FB4" Type="E_MERGE" x="7060" y="1040" Namespace="IEC61499.Standard" />
+    <FB ID="20" Name="FB6" Type="E_MERGE13" x="2500" y="1160" Namespace="Main" />
+    <FB ID="30" Name="TO_LOGIC" Type="E_MERGE4" x="6320" y="2380" Namespace="Main" />
+    <FB ID="31" Name="FB3" Type="E_DELAY" x="800" y="3440" Namespace="IEC61499.Standard">
+      <Parameter Name="DT" Value="T#1000ms" />
+    </FB>
+    <Input Name="INIT" x="140" y="1052" Type="Event" />
+    <Input Name="REQ" x="720" y="2652" Type="Event" />
+    <Input Name="SkillName" x="7320" y="1612" Type="Data" />
+    <Input Name="FilePath" x="7360" y="1672" Type="Data" />
+    <Input Name="Endpoint" x="3200" y="1892" Type="Data" />
+    <Input Name="at_mgz" x="3300" y="2392" Type="Data" />
+    <Input Name="at_next" x="3300" y="2472" Type="Data" />
+    <Input Name="vm_on" x="480" y="4192" Type="Data" />
+    <Output Name="stUPD" x="5670.958" y="632" Type="Event" />
+    <Output Name="CURRENT_STATE" x="1760" y="2092" Type="Data" />
+    <Output Name="vcm_on" x="7320" y="3632" Type="Data" />
+    <Output Name="vcm_off" x="7320" y="3692" Type="Data" />
+    <Output Name="INITO" x="8640" y="1352" Type="Event" />
+    <Output Name="CNF" x="7440" y="1052" Type="Event" />
+    <Output Name="to_mgz" x="7300" y="1992" Type="Data" />
+    <Output Name="to_next" x="7300" y="2052" Type="Data" />
+    <EventConnections>
+      <Connection Source="Skill_Head.STARTING" Destination="FB6.EI1">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.EXECUTE" Destination="Logic.TRIGGER" dx1="142.4791">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.HOLDING" Destination="FB6.EI3">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="INIT" Destination="Skill_Head.INIT" />
+      <Connection Source="Skill_Head.INITO" Destination="Logic.INIT" dx1="232.4791" />
+      <Connection Source="Logic.INITO" Destination="GTL2.INIT" dx1="661.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="REG.INITO" Destination="REG.REQ" dx1="43.4375" dx2="70" dy="-110" />
+      <Connection Source="REG.INITO" Destination="INITO" />
+      <Connection Source="FB4.EO" Destination="CNF" />
+      <Connection Source="Skill_Head.UNHOLDING" Destination="FB6.EI4">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.SUSPENDING" Destination="FB6.EI5">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.UNSUSPENDING" Destination="FB6.EI6">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.COMPLETING" Destination="FB6.EI7">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.RESETTING" Destination="FB6.EI8">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.STOPPING" Destination="FB6.EI9">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.ABORTING" Destination="FB6.EI10">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.CLEARING" Destination="FB6.EI11">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.DONE" Destination="Skill_Head.OUTPUT" dx1="141.625" dx2="220" dy="-560">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTL2.INITO" Destination="GTR2.INIT" dx1="127.583" dx2="50" dy="800">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.INITO" Destination="Pick2.INIT" dx1="107.5825" dx2="30" dy="800">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.INITO" Destination="Place2.INIT" dx1="117.5835" dx2="70.00049" dy="760">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTL2.CNF" Destination="FB1.LeftSkill" dx1="417.5825">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.CNF" Destination="FB1.RightSkill" dx1="377.5815">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.CNF" Destination="FB2.LeftSkill" dx1="318.791">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.CNF" Destination="FB2.RightSkill" dx1="308.791">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FB1.CNF" Destination="FB4.EI1" dx1="50" />
+      <Connection Source="FB2.CNF" Destination="FB4.EI2" dx1="50" />
+      <Connection Source="GTL2.stUPD" Destination="TO_LOGIC.EI1" dx1="357.5835">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.INITO" Destination="REG.INIT" dx1="1257.583">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.ARRIVE" Destination="GTL2.START" dx1="795.6875">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="REQ" Destination="GTL2.REQ" dx1="2079.542">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="REQ" Destination="GTR2.REQ" dx1="529.5417" />
+      <Connection Source="REQ" Destination="Pick2.REQ" dx1="1579.542">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="REQ" Destination="Place2.REQ" dx1="1749.542" />
+      <Connection Source="FB6.EO" Destination="Skill_Head.SC" dx1="64.08325" dx2="100" dy="-300">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.DONE" Destination="Skill_Head.DONE" dx1="141.625" dx2="100" dy="-650">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.stUPD" Destination="TO_LOGIC.EI2" dx1="268.7905">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.stUPD" Destination="TO_LOGIC.EI3" dx1="278.791">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.stUPD" Destination="TO_LOGIC.EI4" dx1="357.583">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="TO_LOGIC.EO" Destination="Logic.REQ" dx1="40" dx2="70" dy="2360">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.RES_skGTL" Destination="GTL2.RESET" dx1="581.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.RES_skG" Destination="Pick2.RESET" dx1="1021.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.RES_skGTR" Destination="GTR2.RESET" dx1="901.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.RES_skR" Destination="Place2.RESET" dx1="421.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.UPD" Destination="stUPD" dx1="292.4791" />
+      <Connection Source="Logic.CNF" Destination="Skill_Head.OUTPUT" dx1="71.625" dx2="280" dy="-170">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.GRIP" Destination="Pick2.START" dx1="981.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.TRANSFER" Destination="GTR2.START" dx1="861.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.T1" Destination="FB3.START" dx1="51.625" dx2="50" dy="500">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FB3.EO" Destination="Logic.T1out" dx1="48.5" />
+      <Connection Source="Logic.RELEASE" Destination="Place2.START" dx1="361.625">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.EXECUTE" Destination="FB6.EI2" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SkillName" Destination="REG.SkillName" />
+      <Connection Source="FilePath" Destination="REG.FilePath" />
+      <Connection Source="Endpoint" Destination="REG.Endpoint">
+        <Points>
+          <Points>
+            <X>930.2656</X>
+            <Y>480</Y>
+          </Points>
+          <Points>
+            <X>1442.5</X>
+            <Y>480</Y>
+          </Points>
+          <Points>
+            <X>1442.5</X>
+            <Y>412.5</Y>
+          </Points>
+          <Points>
+            <X>1717.5</X>
+            <Y>412.5</Y>
+          </Points>
+          <Points>
+            <X>1717.5</X>
+            <Y>440</Y>
+          </Points>
+          <Points>
+            <X>2010</X>
+            <Y>440</Y>
+          </Points>
+        </Points>
+      </Connection>
+      <Connection Source="at_mgz" Destination="GTL2.at_mgz" dx1="40.52075" />
+      <Connection Source="at_next" Destination="GTL2.at_next" dx1="90.479">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FB1.out1" Destination="to_mgz">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="FB1.out2" Destination="to_next">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Logic.response" Destination="Skill_Head.RESPONSE" dx1="270" dx2="160" dy="-1340">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="SkillName" Destination="Skill_Head.NAME">
+        <Points>
+          <Points>
+            <X>1966.29163</X>
+            <Y>410</Y>
+          </Points>
+          <Points>
+            <X>1977.5</X>
+            <Y>410</Y>
+          </Points>
+          <Points>
+            <X>1977.5</X>
+            <Y>397.5</Y>
+          </Points>
+          <Points>
+            <X>1572.5</X>
+            <Y>397.5</Y>
+          </Points>
+          <Points>
+            <X>1572.5</X>
+            <Y>477.5</Y>
+          </Points>
+          <Points>
+            <X>1252.5</X>
+            <Y>477.5</Y>
+          </Points>
+          <Points>
+            <X>1252.5</X>
+            <Y>567.5</Y>
+          </Points>
+          <Points>
+            <X>155</X>
+            <Y>567.5</Y>
+          </Points>
+          <Points>
+            <X>155</X>
+            <Y>545</Y>
+          </Points>
+          <Points>
+            <X>170</X>
+            <Y>545</Y>
+          </Points>
+        </Points>
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTL2.to_mgz" Destination="FB1.left_skill_in1" dx1="257.582">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTL2.to_next" Destination="FB1.left_skill_in2" dx1="217.582">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.to_mgz" Destination="FB1.right_skill_in1" dx1="177.5811">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.to_next" Destination="FB1.right_skill_in2" dx1="217.5811">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.vcm_on" Destination="FB2.left_skill_in1" dx1="217.582">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.vcm_off" Destination="FB2.left_skill_in2" dx1="197.582">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.vcm_on" Destination="FB2.right_skill_in1" dx1="197.5811">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.vcm_off" Destination="FB2.right_skill_in2" dx1="237.5811">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="at_mgz" Destination="GTR2.at_mgz" dx1="40.52075" />
+      <Connection Source="at_next" Destination="GTR2.at_next" dx1="90.479">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Skill_Head.CURRENT_STATE" Destination="CURRENT_STATE" />
+      <Connection Source="vm_on" Destination="Pick2.vm_on" dx1="2522.375">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="vm_on" Destination="Place2.vm_on" dx1="40" />
+      <Connection Source="FB2.out1" Destination="vcm_on" />
+      <Connection Source="FB2.out2" Destination="vcm_off" />
+      <Connection Source="GTL2.CURRENT_STATE" Destination="Logic.STATE1">
+        <Points>
+          <Points>
+            <X>1430.60413</X>
+            <Y>425</Y>
+          </Points>
+          <Points>
+            <X>1429.99988</X>
+            <Y>425</Y>
+          </Points>
+          <Points>
+            <X>1429.99988</X>
+            <Y>477</Y>
+          </Points>
+          <Points>
+            <X>1020</X>
+            <Y>477</Y>
+          </Points>
+          <Points>
+            <X>1020</X>
+            <Y>542</Y>
+          </Points>
+          <Points>
+            <X>402.499878</X>
+            <Y>542</Y>
+          </Points>
+          <Points>
+            <X>402.499878</X>
+            <Y>960</Y>
+          </Points>
+          <Points>
+            <X>435</X>
+            <Y>960</Y>
+          </Points>
+        </Points>
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="GTR2.CURRENT_STATE" Destination="Logic.STATE3" dx1="47.58301" dx2="300" dy="210">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Place2.CURRENT_STATE" Destination="Logic.STATE4" dx1="129.9995" dx2="260" dy="380">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+      <Connection Source="Pick2.CURRENT_STATE" Destination="Logic.STATE2" dx1="77.5835" dx2="150" dy="1180">
+        <AvoidsNodes>false</AvoidsNodes>
+      </Connection>
+    </DataConnections>
+  </FBNetwork>
+</FBType>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="9f8f3c85-a7cb-4e70-97e6-5f9a5070e03f" Name="PhysicsRulesWorkPieces" Comment="Basic Function Block Type" Namespace="Main">
+  <Attribute Name="Configuration.FB.IDCounter" Value="0" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Organization="nxtControl GmbH" Version="0.0" Author="Andrei" Date="6/8/2016" Remarks="Template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="C_Cycle" />
+      <Event Name="INIT">
+        <With Var="PosPusher" />
+        <With Var="AngleTransUnit" />
+        <With Var="VcmON" />
+        <With Var="VcmOFF" />
+        <With Var="CycleTime" />
+        <With Var="FallSpeed" />
+      </Event>
+      <Event Name="REQ" Comment="Normal Execution Request">
+        <With Var="PosPusher" />
+        <With Var="AngleTransUnit" />
+        <With Var="VcmON" />
+        <With Var="VcmOFF" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO">
+        <With Var="DataOut" />
+        <With Var="vmon" />
+        <With Var="empty" />
+        <With Var="ResetOut" />
+        <With Var="StopPusher" />
+      </Event>
+      <Event Name="CNF" Comment="Execution Confirmation">
+        <With Var="DataOut" />
+        <With Var="vmon" />
+        <With Var="empty" />
+        <With Var="ResetOut" />
+        <With Var="StopPusher" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="PosPusher" Type="REAL" />
+      <VarDeclaration Name="AngleTransUnit" Type="REAL" />
+      <VarDeclaration Name="VcmON" Type="BOOL" />
+      <VarDeclaration Name="VcmOFF" Type="BOOL" />
+      <VarDeclaration Name="CycleTime" Type="REAL" />
+      <VarDeclaration Name="FallSpeed" Type="REAL" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="DataOut" Type="REAL" ArraySize="12" />
+      <VarDeclaration Name="vmon" Type="BOOL" />
+      <VarDeclaration Name="empty" Type="BOOL" />
+      <VarDeclaration Name="ResetOut" Type="BOOL" ArraySize="6" />
+      <VarDeclaration Name="StopPusher" Type="BOOL" />
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <Attribute Name="FBType.Basic.Algorithm.Order" Value="Rules,INIT,UpdPosY" />
+    <InternalVars>
+      <VarDeclaration Name="b" Type="INT" InitialValue="0" />
+      <VarDeclaration Name="bo" Type="INT" InitialValue="0" />
+      <VarDeclaration Name="bc" Type="INT" />
+      <VarDeclaration Name="bt" Type="INT" InitialValue="4" Comment="Number of balls" />
+      <VarDeclaration Name="Xe" Type="REAL" ArraySize="4" />
+      <VarDeclaration Name="Reset" Type="BOOL" ArraySize="6" />
+      <VarDeclaration Name="Data" Type="REAL" ArraySize="12" />
+      <VarDeclaration Name="Attached" Type="BOOL" ArraySize="6" />
+      <VarDeclaration Name="PusherStopped" Type="BOOL" />
+      <VarDeclaration Name="TUstopLeft" Type="BOOL" />
+      <VarDeclaration Name="TUstopRight" Type="BOOL" />
+      <VarDeclaration Name="MgzEmpty" Type="BOOL" InitialValue="TRUE" />
+    </InternalVars>
+    <ECC>
+      <ECState Name="START" Comment="Initial State" x="1536.941" y="809.4117" />
+      <ECState Name="REQ" Comment="Normal execution" x="2041.647" y="1452.941">
+        <ECAction Algorithm="Rules" />
+      </ECState>
+      <ECState Name="INIT" x="2080" y="240">
+        <ECAction Algorithm="INIT" Output="INITO" />
+      </ECState>
+      <ECState Name="UpdPos" x="952" y="1312">
+        <ECAction Algorithm="UpdPosY" Output="CNF" />
+      </ECState>
+      <ECTransition Source="REQ" Destination="UpdPos" Condition="1" x="1560.821" y="1469.708">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="427.7086,375.4693,360.2779,368.881" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="INIT" Condition="INIT" x="1736.438" y="492.7612">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="415.3379,136.5537,446.0466,104.5028" />
+      </ECTransition>
+      <ECTransition Source="INIT" Destination="START" Condition="1" x="1898.333" y="560.2981">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="495.493,126.2352,462.2755,159.8459" />
+      </ECTransition>
+      <ECTransition Source="START" Destination="REQ" Condition="C_Cycle" x="1897.07" y="1053.276">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="464.9603,237.5262,492.4534,276.1283" />
+      </ECTransition>
+      <ECTransition Source="UpdPos" Destination="START" Condition="1" x="1164.743" y="1002.674">
+        <Attribute Name="Configuration.Transaction.BezierPoints" Value="272.1913,261.4774,305.4412,230.6618" />
+      </ECTransition>
+    </ECC>
+    <Algorithm Name="Rules" Comment="Normally executed algorithm">
+      <ST><![CDATA[// Check for conflicts.
+
+FOR b:=0 TO 11 BY 2 DO
+	// In y axis.
+	// Conditions to enter falling state.
+	// First entering the model. If the piston is retracted.
+	IF (Data[b+1]<236.0) AND (Data[b]<277.0) THEN
+		Reset[b/2] := FALSE;
+	END_IF;
+	
+	//Dropped in incorrect position.
+	IF (Data[b+1]<269.0) AND (Data[b] > 278.0) AND (Data[b]<610) THEN
+		Reset[b/2] := FALSE;
+	END_IF;
+	
+	// Conditions to stop vertical movement.
+	// If another workpiece is under the present workpiece, stop vertical mov, except IF it was incorrectly placed.
+	FOR bc:=0 TO 11 BY 2 DO
+		IF (bc < b) AND (Data[b+1]+30.0 > Data[bc+1]) AND (Data[b]+60>Data[bc]) AND (Data[b]-60.0<Data[bc]) 
+		AND (Data[bc+1]<240.0) THEN
+			Reset[b/2] := TRUE;
+		END_IF;
+	END_FOR;
+	// If pusher is under the workpiece, stop workpiece.
+	IF (Data[b+1]<236.0) AND (Data[b+1]>=205.0)	AND (115.0+PosPusher > 6.0) AND (Data[b]<168.1) THEN
+		Reset[b/2] := TRUE;
+	END_IF;
+	// Stop pusher IF a wp is falling in front OF it.
+	IF (Data[b+1]<235.0) AND (Data[b+1]>208.0) AND (115.0+PosPusher > 6.0) AND (Data[b]<168.1) THEN
+		PusherStopped := TRUE;
+	END_IF;
+	// Reached bottom OF buffer.
+	IF (Data[b+1] > 236.0) AND ((Data[b]<=277.0) OR (Data[b]>=610.0)) THEN
+		Data[b+1] := 236.0;
+		Reset[b/2] := TRUE;
+	END_IF;
+	// Piece dropped Attached wrong position
+	IF (Data[b+1] > 269.0) AND (Data[b]>278.0) AND (Data[b]<610.0) THEN
+		Data[b+1] := 277.0;
+		Reset[b/2] := TRUE;
+	END_IF;
+	
+	// In x axis.
+	// Getting pushed by the piston.
+	IF (Data[b+1] > 235.9) AND (Data[b+1] < 236.1) AND (115.0+PosPusher+162.0 > Data[b]) AND 
+		(b < 2) THEN
+		Data[b] := 115.0+PosPusher+162.0;
+	END_IF;
+	
+	IF ((b-2) > -1) THEN
+		
+		IF (Data[b+1] > 235.9) AND (Data[b+1] < 236.1) AND (115.0+PosPusher+162.0 > Data[b])
+		AND (b>=2) AND NOT(Data[b]>214 AND (Data[b-2]<337) AND (Data[b-2]>276) AND Data[b-1]>205.9 AND Data[b-1]<236.1)  THEN
+			Data[b] := 115.0+PosPusher+162.0;
+		END_IF;
+		
+		// StopPusher cylinder IF two pieces are IN front OF it.
+		IF (b>=2) AND (Data[b]>214 AND (Data[b-2]<337) AND (Data[b-2]>276) AND Data[b-1]>205.9 AND Data[b-1]<236.1) AND (PosPusher>=-57) THEN
+			PusherStopped := TRUE;
+		END_IF;
+		
+		// Getting pushed by previous workpiece in front of the pusher only.
+		IF (b>=2) AND (Data[b+1]>235.9) AND (Data[b+1]<236.1) AND (Data[b]+60>Data[b-2]) AND (Data[b]<277.0) AND (Data[b-1]<236.1)
+		AND NOT(Attached[(b-2)/2]) THEN
+			Data[b-2] := Data[b]+60.0;
+		END_IF;
+	END_IF;
+	
+	
+	// Getting moved BY transfer unit.
+	IF (Data[b]>=260.0) AND (Data[b]<=278) AND (AngleTransUnit>=179.9) AND (VcmON) AND NOT(VcmOFF) THEN
+		Attached[b/2] := TRUE;
+	ELSIF VcmOFF THEN
+		Attached[b/2] := FALSE;
+	END_IF;
+	
+	IF Attached[b/2] THEN
+		Data[b] := 477.0 + (COS(AngleTransUnit*3.14159265/180.0))*170.0 - 30;
+		Data[b+1] := 236.0 - (SIN(AngleTransUnit*3.14159265/180.0))*170.0;
+	END_IF;
+	
+	// Mgz sensor.
+	IF (Data[b] <= 198) AND (Data[b+1]>222) AND (Data[b+1]<237) THEN
+		MgzEmpty := FALSE;
+	END_IF;
+END_FOR;
+
+IF PusherStopped THEN
+	StopPusher := TRUE;
+	PusherStopped := FALSE;
+ELSE
+	StopPusher := FALSE;
+END_IF;
+
+// Sensors
+IF Attached[0] OR Attached[1] OR Attached[2] OR Attached[3] OR Attached[4] OR Attached[5] THEN
+	vmon := TRUE;
+ELSE
+	vmon := FALSE;
+END_IF;
+
+IF (PosPusher>-80) OR NOT(MgzEmpty) THEN
+	empty := FALSE;
+	MgzEmpty := TRUE;
+ELSE
+	empty := TRUE;
+END_IF;]]></ST>
+    </Algorithm>
+    <Algorithm Name="INIT">
+      <ST><![CDATA[Data[0] := 168;
+Data[1] := 206;
+Data[2] := 168;
+Data[3] := 175;
+Data[4] := 168;
+Data[5] := 144;
+Data[6] := 168;
+Data[7] := 113;
+Data[8] := 168;
+Data[9] := 82;
+Data[10] := 168;
+Data[11] := 51;
+DataOut := Data;]]></ST>
+    </Algorithm>
+    <Algorithm Name="UpdPosY">
+      <ST><![CDATA[ResetOut := Reset;
+
+FOR b := 0 TO 5 BY 1 DO
+	IF NOT(Reset[b]) THEN
+		Data[(b*2+1)] := Data[(b*2+1)] + FallSpeed*CycleTime;
+	END_IF;
+	
+	// MOVE TO RIGHT once correct position is reached.
+	IF (Data[b*2]>610) AND (Data[b*2+1]>235.9) AND (Data[b*2]<1000) AND NOT(Attached[b]) THEN
+		Data[b*2] := Data[b*2] + FallSpeed*2*CycleTime;
+	END_IF;
+END_FOR;
+
+DataOut := Data;]]></ST>
+    </Algorithm>
+  </BasicFB>
+</FBType>

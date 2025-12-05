@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FBType SYSTEM "../LibraryElement.dtd">
+<FBType GUID="ef7732f5-9438-42b3-99ba-c480ce544867" Name="NodeFinder" Comment="Composite Function Block Type" Namespace="Main">
+  <Attribute Name="HMI.Alias" Value="" />
+  <Attribute Name="Configuration.FB.IDCounter" Value="1" />
+  <Identification Standard="61499-2" />
+  <VersionInfo Version="0.0" Author="midxav" Date="2/5/2024" Remarks="template" />
+  <InterfaceList>
+    <EventInputs>
+      <Event Name="INIT" />
+      <Event Name="REQ">
+        <With Var="SkillName" />
+        <With Var="FilePath" />
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Name="INITO" />
+      <Event Name="CNF">
+        <With Var="NodeIN1" />
+        <With Var="NodeSkillCMD" />
+        <With Var="NodeOUT1" />
+        <With Var="NodeCurrentState" />
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Name="SkillName" Type="STRING" />
+      <VarDeclaration Name="FilePath" Type="STRING" />
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Name="NodeIN1" Type="STRING" />
+      <VarDeclaration Name="NodeSkillCMD" Type="STRING" />
+      <VarDeclaration Name="NodeOUT1" Type="STRING" />
+      <VarDeclaration Name="NodeCurrentState" Type="STRING" />
+    </OutputVars>
+  </InterfaceList>
+  <FBNetwork>
+    <FB ID="1" Name="IThis" Type="NodeFinder_HMI" x="820" y="680" Namespace="Main">
+      <Parameter Name="QI" Value="TRUE" />
+    </FB>
+    <Input Name="INIT" x="135.7083" y="692" Type="Event" />
+    <Input Name="REQ" x="129.7708" y="752" Type="Event" />
+    <Input Name="SkillName" x="107.4167" y="1012" Type="Data" />
+    <Input Name="FilePath" x="105.3021" y="1072" Type="Data" />
+    <Output Name="INITO" x="1779.115" y="692" Type="Event" />
+    <Output Name="CNF" x="1792.156" y="752" Type="Event" />
+    <Output Name="NodeIN1" x="1800" y="1072" Type="Data" />
+    <Output Name="NodeSkillCMD" x="1800" y="1132" Type="Data" />
+    <Output Name="NodeOUT1" x="1800" y="1192" Type="Data" />
+    <Output Name="NodeCurrentState" x="1800" y="1252" Type="Data" />
+    <EventConnections>
+      <Connection Source="IThis.INITO" Destination="INITO" />
+      <Connection Source="IThis.CNF" Destination="CNF" />
+      <Connection Source="INIT" Destination="IThis.INIT" />
+      <Connection Source="REQ" Destination="IThis.REQ" />
+    </EventConnections>
+    <DataConnections>
+      <Connection Source="SkillName" Destination="IThis.SkillName" />
+      <Connection Source="FilePath" Destination="IThis.FilePath" />
+      <Connection Source="IThis.NodeIN1" Destination="NodeIN1" />
+      <Connection Source="IThis.NodeSkillCMD" Destination="NodeSkillCMD" />
+      <Connection Source="IThis.NodeOUT1" Destination="NodeOUT1" />
+      <Connection Source="IThis.NodeCurrentState" Destination="NodeCurrentState" />
+    </DataConnections>
+  </FBNetwork>
+</FBType>
