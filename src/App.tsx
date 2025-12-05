@@ -28,6 +28,8 @@ import {
   saveOllamaConfig,
   loadWebSearchEnabled,
   saveWebSearchEnabled,
+  loadApplyPatchEnabled,
+  saveApplyPatchEnabled,
 } from './utils/storage';
 import {
   loadMCPServersConfig,
@@ -50,6 +52,7 @@ function AppContent() {
   const [ollamaConfig, setOllamaConfig] = useState<OllamaConfig | null>(null);
   const [chatMode, setChatMode] = useState<ChatMode>('ask');
   const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(false);
+  const [applyPatchEnabled, setApplyPatchEnabled] = useState<boolean>(false);
 
   // MCP state
   const [mcpConfig, setMcpConfig] = useState<MCPServersConfig>({ mcpServers: {} });
@@ -70,11 +73,13 @@ function AppContent() {
     const loadedCloudConfig = loadCloudLLMConfig();
     const loadedOllamaConfig = loadOllamaConfig();
     const loadedMCPConfig = loadMCPServersConfig();
-     const loadedWebSearchEnabled = loadWebSearchEnabled();
+    const loadedWebSearchEnabled = loadWebSearchEnabled();
+    const loadedApplyPatchEnabled = loadApplyPatchEnabled();
 
     setSessions(loadedSessions);
     setChatBackend(loadedChatBackend);
     setWebSearchEnabled(loadedWebSearchEnabled);
+    setApplyPatchEnabled(loadedApplyPatchEnabled);
     if (loadedCloudConfig) {
       setCloudLLMConfig(loadedCloudConfig);
     }
@@ -125,6 +130,10 @@ function AppContent() {
   useEffect(() => {
     saveWebSearchEnabled(webSearchEnabled);
   }, [webSearchEnabled]);
+
+  useEffect(() => {
+    saveApplyPatchEnabled(applyPatchEnabled);
+  }, [applyPatchEnabled]);
 
   // File operations
   const handleFileSelect = async (node: FileNode) => {
@@ -379,12 +388,20 @@ function AppContent() {
       let assistantResponse: { content: string; toolCalls?: any[] } | null = null;
 
       if (chatBackend === 'cloud-llm' && cloudLLMConfig) {
+        const isOpenAIGpt51 =
+          cloudLLMConfig.provider === 'openai' &&
+          cloudLLMConfig.model === 'gpt-5.1';
+
         assistantResponse = await callCloudLLM(allMessages, cloudLLMConfig, chatMode, {
           webSearchEnabled,
+          applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51 && chatMode === 'agent',
+          applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
+          applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
         });
       } else if (chatBackend === 'ollama' && ollamaConfig) {
         assistantResponse = await callOllama(allMessages, ollamaConfig, chatMode, {
           webSearchEnabled,
+          applyPatchEnabled: false,
         });
       } else {
         throw new Error('Chat backend is not configured.');
@@ -568,6 +585,8 @@ function AppContent() {
                 onNewChat={handleNewChat}
                 webSearchEnabled={webSearchEnabled}
                 onWebSearchEnabledChange={setWebSearchEnabled}
+                applyPatchEnabled={applyPatchEnabled}
+                onApplyPatchEnabledChange={setApplyPatchEnabled}
               />
             </div>
           </div>

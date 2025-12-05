@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   CLOUD_LLM_CONFIG: 'cloud_llm_config',
   OLLAMA_CONFIG: 'ollama_config',
   WEB_SEARCH_ENABLED: 'web_search_enabled',
+  APPLY_PATCH_ENABLED: 'apply_patch_enabled',
 } as const;
 
 export const saveSessions = (sessions: ChatSession[]) => {
@@ -125,6 +126,17 @@ export const saveWebSearchEnabled = (enabled: boolean) => {
 
 export const loadWebSearchEnabled = (): boolean => {
   const stored = localStorage.getItem(STORAGE_KEYS.WEB_SEARCH_ENABLED);
+  if (stored === '1') return true;
+  if (stored === '0') return false;
+  return false;
+};
+
+export const saveApplyPatchEnabled = (enabled: boolean) => {
+  localStorage.setItem(STORAGE_KEYS.APPLY_PATCH_ENABLED, enabled ? '1' : '0');
+};
+
+export const loadApplyPatchEnabled = (): boolean => {
+  const stored = localStorage.getItem(STORAGE_KEYS.APPLY_PATCH_ENABLED);
   if (stored === '1') return true;
   if (stored === '0') return false;
   return false;

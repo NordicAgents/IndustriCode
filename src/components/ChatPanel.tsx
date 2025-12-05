@@ -57,6 +57,8 @@ interface ChatPanelProps {
   onNewChat?: () => void;
   webSearchEnabled: boolean;
   onWebSearchEnabledChange: (enabled: boolean) => void;
+  applyPatchEnabled: boolean;
+  onApplyPatchEnabledChange: (enabled: boolean) => void;
 }
 
 function ChatPanelInner(
@@ -77,6 +79,8 @@ function ChatPanelInner(
     onNewChat,
     webSearchEnabled,
     onWebSearchEnabledChange,
+    applyPatchEnabled,
+    onApplyPatchEnabledChange,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -668,7 +672,7 @@ function ChatPanelInner(
             </span>
           )}
 
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-3 ml-auto">
             <label className="inline-flex items-center gap-1 cursor-pointer select-none text-[11px] text-muted-foreground">
               <input
                 type="checkbox"
@@ -692,6 +696,39 @@ function ChatPanelInner(
                   cloudLLMConfig?.provider === 'anthropic' &&
                   ' (N/A)'}
               </span>
+            </label>
+
+            <label className="inline-flex items-center gap-1 cursor-pointer select-none text-[11px] text-muted-foreground">
+              {(() => {
+                const isOpenAIGpt51 =
+                  chatBackend === 'cloud-llm' &&
+                  cloudLLMConfig?.provider === 'openai' &&
+                  cloudLLMConfig?.model === 'gpt-5.1';
+                const isAgentMode = mode === 'agent';
+                const disabled = !isOpenAIGpt51 || !isAgentMode;
+
+                const title = !isOpenAIGpt51
+                  ? 'Apply patch is only available for OpenAI gpt-5.1.'
+                  : !isAgentMode
+                    ? 'Switch to Agent mode to allow apply_patch editing.'
+                    : 'Allow GPT-5.1 to propose and apply code patches inside your workspace.';
+
+                return (
+                  <>
+                    <input
+                      type="checkbox"
+                      checked={applyPatchEnabled && isOpenAIGpt51 && isAgentMode}
+                      onChange={(e) =>
+                        onApplyPatchEnabledChange(e.target.checked)
+                      }
+                      disabled={disabled}
+                      className="h-3 w-3 rounded border-border text-primary focus:ring-0"
+                      title={title}
+                    />
+                    <span>Apply patch (GPT-5.1)</span>
+                  </>
+                );
+              })()}
             </label>
           </div>
         </div>

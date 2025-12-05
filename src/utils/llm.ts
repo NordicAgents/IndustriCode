@@ -336,7 +336,7 @@ const callOpenAIChat = async (
 /**
  * Local tools definition
  */
-const LOCAL_TOOLS: MCPTool[] = [
+const BASE_LOCAL_TOOLS: MCPTool[] = [
   {
     name: 'create_file',
     description: 'Create a new file or overwrite an existing one with the given content.',
@@ -401,6 +401,46 @@ const LOCAL_TOOLS: MCPTool[] = [
   },
 ];
 
+const APPLY_PATCH_TOOL: MCPTool = {
+  name: 'apply_patch',
+  description:
+    'Apply one or more file patches (create, update, or delete files) using V4A-style diffs inside the current workspace.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      operations: {
+        type: 'array',
+        description:
+          'List of patch operations to apply in order. Each operation targets a single file.',
+        items: {
+          type: 'object',
+          properties: {
+            type: {
+              type: 'string',
+              description:
+                'Operation type: "create_file", "update_file", or "delete_file".',
+            },
+            path: {
+              type: 'string',
+              description:
+                'Path of the file to create, update, or delete. Relative paths are resolved against the agent root.',
+            },
+            diff: {
+              type: 'string',
+              description:
+                'Headerless V4A diff. Required for "create_file" and "update_file"; ignored for "delete_file".',
+            },
+          },
+        },
+      },
+    },
+    required: ['operations'],
+  },
+};
+
+// Local tool registry used for execution
+const LOCAL_TOOLS: MCPTool[] = [...BASE_LOCAL_TOOLS, APPLY_PATCH_TOOL];
+
 const executeLocalTool = async (name: string, args: any) => {
   switch (name) {
     case 'create_file':
@@ -458,6 +498,40 @@ const executeLocalTool = async (name: string, args: any) => {
           : new Error(String(error));
       }
     }
+    case 'apply_patch': {
+      const operations = Array.isArray(args?.operations) ? args.operations : [];
+      if (!operations.length) {
+        throw new Error('apply_patch requires a non-empty "operations" array');
+      }
+
+      const response = await fetch('http://localhost:3002/api/files/apply-patch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operations }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `apply_patch backend error (${response.status})`);
+      }
+
+      const data: any = await response.json();
+      const summary =
+        typeof data?.summary === 'string'
+          ? data.summary
+          : JSON.stringify(data, null, 2);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: summary,
+          },
+        ],
+      };
+    }
     default:
       throw new Error(`Unknown local tool: ${name}`);
   }
@@ -466,7 +540,7 @@ const executeLocalTool = async (name: string, args: any) => {
 /**
  * Get all available MCP tools from connected servers
  */
-const getAllMCPTools = (_mode: ChatMode, _options?: AgentRuntimeOptions): MCPTool[] => {
+const getAllMCPTools = (mode: ChatMode, options?: AgentRuntimeOptions): MCPTool[] => {
   const allTools: MCPTool[] = [];
   const servers = mcpClientManager.getServers();
 
@@ -476,8 +550,18 @@ const getAllMCPTools = (_mode: ChatMode, _options?: AgentRuntimeOptions): MCPToo
     }
   }
 
-  // Always expose local tools; AgentConfig controls which can write
-  allTools.push(...LOCAL_TOOLS);
+  // Always expose base local tools; AgentConfig controls which can write
+  allTools.push(...BASE_LOCAL_TOOLS);
+
+  const applyPatchActive =
+    !!options?.applyPatchEnabled &&
+    options.applyPatchProvider === 'openai' &&
+    options.applyPatchModel === 'gpt-5.1' &&
+    mode === 'agent';
+
+  if (applyPatchActive) {
+    allTools.push(APPLY_PATCH_TOOL);
+  }
 
   return allTools;
 };
@@ -821,7 +905,11 @@ const getAgentConfigForMode = (mode: ChatMode): AgentConfig => {
 };
 
 const isLocalMutatingTool = (name: string): boolean => {
-  return name === 'create_file' || name === 'replace_in_file';
+  return (
+    name === 'create_file' ||
+    name === 'replace_in_file' ||
+    name === 'apply_patch'
+  );
 };
 
 const executeToolCall = async (

@@ -66,6 +66,9 @@ export interface LLMCallResult {
 
 export interface AgentRuntimeOptions {
     webSearchEnabled?: boolean;
+    applyPatchEnabled?: boolean;
+    applyPatchProvider?: string;
+    applyPatchModel?: string;
 }
 
 export interface AgentStep {

@@ -5,6 +5,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { MCPWebSocketServer } from './websocket-server.js';
 import { fileService } from './file-service.js';
+import { applyPatchOperations } from './apply-patch-service.js';
 
 const PORT = 3002;
 const WS_PORT = 3003;
@@ -255,6 +256,33 @@ app.post('/api/files/rename', async (req, res) => {
         }
         await fileService.renameFile(oldPath, newPath);
         res.json({ success: true });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/files/apply-patch', async (req, res) => {
+    try {
+        const { operations } = req.body as { operations?: any[] };
+
+        if (!Array.isArray(operations) || operations.length === 0) {
+            return res
+                .status(400)
+                .json({ error: 'operations must be a non-empty array' });
+        }
+
+        const result = await applyPatchOperations(operations as any);
+
+        const summaryLines = result.map((item) => {
+            const prefix = item.status === 'completed' ? '✓' : '✗';
+            const base = `${prefix} ${item.type} ${item.path}`;
+            return item.message ? `${base} — ${item.message}` : base;
+        });
+
+        res.json({
+            summary: summaryLines.join('\n'),
+            items: result,
+        });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
