@@ -55,6 +55,8 @@ interface ChatPanelProps {
   onApplyCodeToFile?: (code: string, path?: string) => void;
   onFileSelect?: (node: FileNode) => void;
   onNewChat?: () => void;
+  webSearchEnabled: boolean;
+  onWebSearchEnabledChange: (enabled: boolean) => void;
 }
 
 function ChatPanelInner(
@@ -73,6 +75,8 @@ function ChatPanelInner(
     onApplyCodeToFile,
     onFileSelect,
     onNewChat,
+    webSearchEnabled,
+    onWebSearchEnabledChange,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -663,6 +667,33 @@ function ChatPanelInner(
               {ollamaError}
             </span>
           )}
+
+          <div className="flex items-center gap-1 ml-auto">
+            <label className="inline-flex items-center gap-1 cursor-pointer select-none text-[11px] text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={webSearchEnabled}
+                onChange={(e) => onWebSearchEnabledChange(e.target.checked)}
+                disabled={
+                  chatBackend === 'cloud-llm' &&
+                  (cloudLLMConfig?.provider === 'anthropic' || !cloudLLMConfig)
+                }
+                className="h-3 w-3 rounded border-border text-primary focus:ring-0"
+                title={
+                  chatBackend === 'cloud-llm' &&
+                  cloudLLMConfig?.provider === 'anthropic'
+                    ? 'Web search is not available for Anthropic models yet.'
+                    : 'Allow the model to search the web when needed.'
+                }
+              />
+              <span>
+                Web search
+                {chatBackend === 'cloud-llm' &&
+                  cloudLLMConfig?.provider === 'anthropic' &&
+                  ' (N/A)'}
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 

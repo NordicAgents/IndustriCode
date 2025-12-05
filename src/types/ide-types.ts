@@ -64,6 +64,10 @@ export interface LLMCallResult {
     toolCalls?: ToolCall[];
 }
 
+export interface AgentRuntimeOptions {
+    webSearchEnabled?: boolean;
+}
+
 export interface AgentStep {
     index: number;
     inputMessages: import('../types').ChatMessage[];

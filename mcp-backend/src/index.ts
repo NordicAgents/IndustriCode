@@ -234,6 +234,48 @@ app.post('/api/files/rename', async (req, res) => {
     }
 });
 
+app.post('/api/web-search', async (req, res) => {
+    try {
+        const { query, maxResults = 5 } = req.body as { query?: string; maxResults?: number };
+        if (!query || typeof query !== 'string') {
+            return res.status(400).json({ error: 'Query is required' });
+        }
+
+        const endpoint = process.env.WEB_SEARCH_ENDPOINT;
+        const apiKey = process.env.WEB_SEARCH_API_KEY;
+
+        if (!endpoint || !apiKey) {
+            return res.status(500).json({
+                error: 'Web search is not configured. Set WEB_SEARCH_ENDPOINT and WEB_SEARCH_API_KEY in the mcp-backend environment.',
+            });
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                query,
+                maxResults,
+            }),
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            return res
+                .status(502)
+                .json({ error: text || `Upstream web search error (${response.status})` });
+        }
+
+        const data = await response.json();
+        res.json({ results: data });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`[HTTP] Server running on http://localhost:${PORT}`);
 });

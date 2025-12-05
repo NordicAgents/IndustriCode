@@ -7,6 +7,7 @@ import type {
   AgentConfig,
   LLMCallResult,
   ToolCall,
+  AgentRuntimeOptions,
 } from '../types/ide-types';
 
 const buildPromptFromMessages = (messages: ChatMessage[]): string => {
@@ -136,6 +137,7 @@ const callOpenAIChat = async (
   config: CloudLLMConfig,
   mcpTools: MCPTool[] = [],
   mode: ChatMode,
+  options?: AgentRuntimeOptions,
 ): Promise<LLMCallResult> => {
   const baseUrl = (config.baseUrl || 'https://api.openai.com/v1').replace(
     /\/$/,
@@ -184,8 +186,18 @@ const callOpenAIChat = async (
     input: openaiMessages,
   };
 
+  const tools: any[] = [];
+
   if (mcpTools.length > 0) {
-    requestBody.tools = convertMCPToolsToOpenAI(mcpTools);
+    tools.push(...convertMCPToolsToOpenAI(mcpTools));
+  }
+
+  if (options?.webSearchEnabled) {
+    tools.push({ type: 'web_search' });
+  }
+
+  if (tools.length > 0) {
+    requestBody.tools = tools;
     requestBody.tool_choice = 'auto';
   }
 
@@ -346,6 +358,21 @@ const LOCAL_TOOLS: MCPTool[] = [
       required: ['path', 'search', 'replace'],
     },
   },
+  {
+    name: 'web_search',
+    description: 'Search the web for up-to-date information and return relevant snippets and URLs.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'The search query' },
+        max_results: {
+          type: 'integer',
+          description: 'Maximum number of results to return',
+        },
+      },
+      required: ['query'],
+    },
+  },
 ];
 
 const executeLocalTool = async (name: string, args: any) => {
@@ -367,6 +394,44 @@ const executeLocalTool = async (name: string, args: any) => {
       const newContent = originalContent.replace(args.search, args.replace);
       await FileSystemAPI.writeFile(args.path, newContent);
       return { content: [{ type: 'text', text: `Successfully replaced content in ${args.path}` }] };
+    case 'web_search': {
+      const query = args.query;
+      const maxResults = typeof args.max_results === 'number' ? args.max_results : 5;
+      if (!query || typeof query !== 'string') {
+        throw new Error('web_search requires a "query" string argument');
+      }
+      try {
+        const response = await fetch('http://localhost:3002/api/web-search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query,
+            maxResults,
+          }),
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `Web search backend error (${response.status})`);
+        }
+
+        const data: any = await response.json();
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        throw error instanceof Error
+          ? error
+          : new Error(String(error));
+      }
+    }
     default:
       throw new Error(`Unknown local tool: ${name}`);
   }
@@ -375,7 +440,7 @@ const executeLocalTool = async (name: string, args: any) => {
 /**
  * Get all available MCP tools from connected servers
  */
-const getAllMCPTools = (mode: ChatMode): MCPTool[] => {
+const getAllMCPTools = (mode: ChatMode, _options?: AgentRuntimeOptions): MCPTool[] => {
   const allTools: MCPTool[] = [];
   const servers = mcpClientManager.getServers();
 
@@ -398,6 +463,7 @@ const callGemini = async (
   config: CloudLLMConfig,
   mcpTools: MCPTool[] = [],
   mode: ChatMode,
+  options?: AgentRuntimeOptions,
 ): Promise<LLMCallResult> => {
   const apiKey = getCloudApiKey(config);
 
@@ -443,8 +509,18 @@ const callGemini = async (
     ],
   };
 
+  const tools: any[] = [];
+
   if (mcpTools.length > 0) {
-    requestBody.tools = convertMCPToolsToGemini(mcpTools);
+    tools.push(...convertMCPToolsToGemini(mcpTools));
+  }
+
+  if (options?.webSearchEnabled) {
+    tools.push({ googleSearch: {} });
+  }
+
+  if (tools.length > 0) {
+    requestBody.tools = tools;
   }
 
   const response = await fetch(url, {
@@ -891,15 +967,16 @@ export const callCloudLLM = async (
   messages: ChatMessage[],
   config: CloudLLMConfig,
   mode: ChatMode,
+  options?: AgentRuntimeOptions,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const mcpTools = getAllMCPTools(mode);
+  const mcpTools = getAllMCPTools(mode, options);
 
   const callLLM = (history: ChatMessage[]): Promise<LLMCallResult> => {
     switch (config.provider) {
       case 'openai':
-        return callOpenAIChat(history, config, mcpTools, mode);
+        return callOpenAIChat(history, config, mcpTools, mode, options);
       case 'gemini':
-        return callGemini(history, config, mcpTools, mode);
+        return callGemini(history, config, mcpTools, mode, options);
       case 'anthropic':
         return callAnthropic(history, config, mode);
       default:
@@ -914,8 +991,9 @@ export const callOllama = async (
   messages: ChatMessage[],
   config: OllamaConfig,
   mode: ChatMode,
+  options?: AgentRuntimeOptions,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const mcpTools = getAllMCPTools(mode);
+  const mcpTools = getAllMCPTools(mode, options);
 
   const callLLM = (history: ChatMessage[]): Promise<LLMCallResult> =>
     callOllamaOnce(history, config, mcpTools, mode);

@@ -26,6 +26,8 @@ import {
   saveCloudLLMConfig,
   loadOllamaConfig,
   saveOllamaConfig,
+  loadWebSearchEnabled,
+  saveWebSearchEnabled,
 } from './utils/storage';
 import {
   loadMCPServersConfig,
@@ -47,6 +49,7 @@ function AppContent() {
   const [cloudLLMConfig, setCloudLLMConfig] = useState<CloudLLMConfig | null>(null);
   const [ollamaConfig, setOllamaConfig] = useState<OllamaConfig | null>(null);
   const [chatMode, setChatMode] = useState<ChatMode>('ask');
+  const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(false);
 
   // MCP state
   const [mcpConfig, setMcpConfig] = useState<MCPServersConfig>({ mcpServers: {} });
@@ -67,9 +70,11 @@ function AppContent() {
     const loadedCloudConfig = loadCloudLLMConfig();
     const loadedOllamaConfig = loadOllamaConfig();
     const loadedMCPConfig = loadMCPServersConfig();
+     const loadedWebSearchEnabled = loadWebSearchEnabled();
 
     setSessions(loadedSessions);
     setChatBackend(loadedChatBackend);
+    setWebSearchEnabled(loadedWebSearchEnabled);
     if (loadedCloudConfig) {
       setCloudLLMConfig(loadedCloudConfig);
     }
@@ -116,6 +121,10 @@ function AppContent() {
   useEffect(() => {
     saveOllamaConfig(ollamaConfig);
   }, [ollamaConfig]);
+
+  useEffect(() => {
+    saveWebSearchEnabled(webSearchEnabled);
+  }, [webSearchEnabled]);
 
   // File operations
   const handleFileSelect = async (node: FileNode) => {
@@ -370,9 +379,13 @@ function AppContent() {
       let assistantResponse: { content: string; toolCalls?: any[] } | null = null;
 
       if (chatBackend === 'cloud-llm' && cloudLLMConfig) {
-        assistantResponse = await callCloudLLM(allMessages, cloudLLMConfig, chatMode);
+        assistantResponse = await callCloudLLM(allMessages, cloudLLMConfig, chatMode, {
+          webSearchEnabled,
+        });
       } else if (chatBackend === 'ollama' && ollamaConfig) {
-        assistantResponse = await callOllama(allMessages, ollamaConfig, chatMode);
+        assistantResponse = await callOllama(allMessages, ollamaConfig, chatMode, {
+          webSearchEnabled,
+        });
       } else {
         throw new Error('Chat backend is not configured.');
       }
@@ -553,6 +566,8 @@ function AppContent() {
                 onApplyCodeToFile={handleApplyCode}
                 onFileSelect={handleFileSelect}
                 onNewChat={handleNewChat}
+                webSearchEnabled={webSearchEnabled}
+                onWebSearchEnabledChange={setWebSearchEnabled}
               />
             </div>
           </div>
