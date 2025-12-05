@@ -8,6 +8,7 @@ import {
 } from '../utils/monaco-config';
 import { Save, X, FileText, Circle } from 'lucide-react';
 import { EditorTab } from '../types/ide-types';
+import FbtBasicFbView from './fbt/FbtBasicFbView';
 
 interface CodeEditorProps {
     tabs: EditorTab[];
@@ -34,6 +35,8 @@ export default function CodeEditor({
     const [languagesRegistered, setLanguagesRegistered] = useState(false);
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
+    const isFbtFile =
+        activeTab && activeTab.name.toLowerCase().endsWith('.fbt');
 
     // Register PLC languages once
     useEffect(() => {
@@ -137,15 +140,25 @@ export default function CodeEditor({
                     </div>
                 ) : (
                     <>
-                        <Editor
-                            height="100%"
-                            language={activeTab.language || 'plaintext'}
-                            value={activeTab.content}
-                            onChange={handleContentChange}
-                            onMount={handleEditorMount}
-                            options={defaultEditorOptions}
-                            theme="plc-theme"
-                        />
+                        {isFbtFile ? (
+                            <FbtBasicFbView
+                                content={activeTab.content}
+                                path={activeTab.path}
+                                language={activeTab.language || 'xml'}
+                                onContentChange={(value) => handleContentChange(value)}
+                                onEditorMount={handleEditorMount}
+                            />
+                        ) : (
+                            <Editor
+                                height="100%"
+                                language={activeTab.language || 'plaintext'}
+                                value={activeTab.content}
+                                onChange={handleContentChange}
+                                onMount={handleEditorMount}
+                                options={defaultEditorOptions}
+                                theme="plc-theme"
+                            />
+                        )}
 
                         {/* Save Indicator */}
                         {activeTab.modified && (

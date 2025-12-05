@@ -247,6 +247,7 @@ export class FileSystemAPI {
             'il': 'instruction-list',
             'ld': 'ladder-logic',
             'fbd': 'function-block',
+            'fbt': 'xml',
             'js': 'javascript',
             'ts': 'typescript',
             'py': 'python',
