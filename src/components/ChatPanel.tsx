@@ -209,11 +209,6 @@ function ChatPanelInner(
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleExamplePrompt = (prompt: string) => {
-    setInput(prompt);
-    inputRef.current?.focus();
-  };
-
   useImperativeHandle(
     ref,
     () => ({
@@ -436,21 +431,14 @@ function ChatPanelInner(
     anthropic: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-haiku'],
   };
 
-  const examplePrompts = [
-    'Can we produce Product X with current factory configuration?',
-    'Analyze this PLC code and suggest safety improvements',
-    'Simulate production of 100 units and identify bottlenecks',
-    'Check knowledge graph for required components and suggest patches',
-  ];
-
   const inputPlaceholder =
     chatBackend === 'cloud-llm'
       ? isCloudConfigured
-        ? 'Ask the cloud model anything... (Enter to send, Shift+Enter for new line)'
+        ? 'Type your message...'
         : envCloudApiKey
-          ? 'Select provider and model above to start chatting...'
-          : 'Select provider, model and API key above to start chatting...'
-      : 'Ask the local Ollama model anything... (Enter to send, Shift+Enter for new line)';
+          ? 'Select provider and model above...'
+          : 'Select provider, model and API key above...'
+      : 'Type your message...';
 
   const handleNewChatClick = () => {
     if (isLoading) return;
@@ -491,7 +479,9 @@ function ChatPanelInner(
             </div>
             <div>
               <h2 className="text-base font-semibold tracking-tight">
-                Chat
+                {mode === 'ask' && 'Ask'}
+                {mode === 'plan' && 'Plan'}
+                {mode === 'agent' && 'Agent'}
               </h2>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {mode === 'ask' &&
@@ -725,7 +715,7 @@ function ChatPanelInner(
                       className="h-3 w-3 rounded border-border text-primary focus:ring-0"
                       title={title}
                     />
-                    <span>Apply patch (GPT-5.1)</span>
+                    <span>plc code patch</span>
                   </>
                 );
               })()}
@@ -744,28 +734,8 @@ function ChatPanelInner(
               </div>
               <h3 className="text-lg font-semibold mb-2">Start a conversation</h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Ask questions, brainstorm ideas, or get help from cloud and local language models.
+                Analyze PLC code, design automation systems, or get assistance with industrial control logic and factory configurations.
               </p>
-
-              <div className="space-y-3">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Try these examples:
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {examplePrompts.map((prompt, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleExamplePrompt(prompt)}
-                      className="btn btn-outline text-left px-4 py-3 text-sm hover:border-primary/50 group flex items-start gap-2"
-                    >
-                      <Zap className="icon-md text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                        {prompt}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         ) : (
