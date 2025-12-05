@@ -429,10 +429,10 @@ function ChatPanelInner(
   };
 
   const examplePrompts = [
-    'Explain this piece of code',
-    'Summarize the key points from a document',
-    'Help me debug a configuration issue',
-    'Suggest test cases for this feature',
+    'Can we produce Product X with current factory configuration?',
+    'Analyze this PLC code and suggest safety improvements',
+    'Simulate production of 100 units and identify bottlenecks',
+    'Check knowledge graph for required components and suggest patches',
   ];
 
   const inputPlaceholder =
