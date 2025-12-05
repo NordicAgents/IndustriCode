@@ -41,6 +41,13 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
             setRootPath(path);
             // Save to localStorage
             localStorage.setItem('plc-ide-root-path', path);
+            try {
+                // Keep backend agent root directory in sync with the explorer root (backend mode)
+                await FileSystemAPI.setAgentRootDir(path);
+                console.log('[FileExplorer] Synced agent root directory to backend:', path);
+            } catch (syncError) {
+                console.error('[FileExplorer] Failed to sync agent root directory:', syncError);
+            }
             console.log('[FileExplorer] Successfully loaded directory');
         } catch (err: any) {
             const errorMsg = err.message || 'Failed to load directory';
@@ -183,13 +190,27 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
             return;
         }
 
-        const lastPath = localStorage.getItem('plc-ide-root-path');
-        const testPath = '/Users/mx/Documents/task_phd/mcp-manager-ui/test-plc-project';
+        const initBackendRoot = async () => {
+            try {
+                const agentRoot = await FileSystemAPI.getAgentRootDir();
+                const lastPath = localStorage.getItem('plc-ide-root-path');
 
-        // Load last opened path if exists, otherwise load test project (backend mode)
-        const pathToLoad = lastPath || testPath;
-        console.log('[FileExplorer] useEffect - Loading path via backend:', pathToLoad);
-        loadDirectory(pathToLoad);
+                // Prefer backend-configured agent root, then last opened path.
+                const pathToLoad = agentRoot || lastPath;
+
+                if (!pathToLoad) {
+                    console.log('[FileExplorer] No agent root or last path; waiting for user to open a folder');
+                    return;
+                }
+
+                console.log('[FileExplorer] useEffect - Loading path via backend:', pathToLoad);
+                loadDirectory(pathToLoad);
+            } catch (err) {
+                console.error('[FileExplorer] Failed to initialize from backend agent root:', err);
+            }
+        };
+
+        void initBackendRoot();
     }, []);
 
     // Auto-refresh when trigger changes

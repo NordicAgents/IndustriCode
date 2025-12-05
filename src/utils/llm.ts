@@ -81,6 +81,23 @@ const getCloudApiKey = (config: CloudLLMConfig): string => {
   return envKey;
 };
 
+const getAgentRootPrompt = async (): Promise<string | null> => {
+  try {
+    const root = await FileSystemAPI.getAgentRootDir();
+    if (!root) {
+      return null;
+    }
+    return [
+      `You are working inside the project root directory: ${root}.`,
+      'When using filesystem tools (read_file, list_directory, create_file, replace_in_file), interpret relative paths as rooted at this directory unless the user explicitly provides an absolute path.',
+      'Do not attempt to read or write files outside this project root.',
+    ].join(' ');
+  } catch (error) {
+    console.error('[LLM] Failed to load agent root directory:', error);
+    return null;
+  }
+};
+
 /**
  * Convert MCP tools to OpenAI function format
  */
@@ -147,6 +164,7 @@ const callOpenAIChat = async (
   const apiKey = getCloudApiKey(config);
 
   const modeSystemContent = getModeSystemPrompt(mode);
+  const agentRootPrompt = await getAgentRootPrompt();
 
   // Convert chat messages to OpenAI format
   const toolSystemMessage =
@@ -172,8 +190,16 @@ const callOpenAIChat = async (
     }
     : null;
 
+  const agentRootSystemMessage = agentRootPrompt
+    ? {
+      role: 'system' as const,
+      content: agentRootPrompt,
+    }
+    : null;
+
   const openaiMessages = [
     ...(modeSystemMessage ? [modeSystemMessage] : []),
+    ...(agentRootSystemMessage ? [agentRootSystemMessage] : []),
     ...(toolSystemMessage ? [toolSystemMessage] : []),
     ...messages.map((msg) => ({
       role: msg.role,
@@ -440,7 +466,7 @@ const executeLocalTool = async (name: string, args: any) => {
 /**
  * Get all available MCP tools from connected servers
  */
-const getAllMCPTools = (mode: ChatMode, _options?: AgentRuntimeOptions): MCPTool[] => {
+const getAllMCPTools = (_mode: ChatMode, _options?: AgentRuntimeOptions): MCPTool[] => {
   const allTools: MCPTool[] = [];
   const servers = mcpClientManager.getServers();
 
@@ -450,10 +476,8 @@ const getAllMCPTools = (mode: ChatMode, _options?: AgentRuntimeOptions): MCPTool
     }
   }
 
-  // Add local tools if in Agent mode
-  if (mode === 'agent') {
-    allTools.push(...LOCAL_TOOLS);
-  }
+  // Always expose local tools; AgentConfig controls which can write
+  allTools.push(...LOCAL_TOOLS);
 
   return allTools;
 };
@@ -469,6 +493,7 @@ const callGemini = async (
 
   const basePrompt = buildPromptFromMessages(messages);
   const modePrompt = getModeSystemPrompt(mode);
+  const agentRootPrompt = await getAgentRootPrompt();
 
   const promptSections: string[] = [];
 
@@ -476,13 +501,12 @@ const callGemini = async (
     promptSections.push(modePrompt);
   }
 
+  if (agentRootPrompt) {
+    promptSections.push(agentRootPrompt);
+  }
+
   if (mcpTools.length > 0) {
     const toolDescription = [
-      'You have access to external MCP tools for industrial protocols (MQTT, OPC UA, etc.).',
-      'Use these tools whenever the user asks you to read, write, browse, or call methods on field devices, PLCs, or other industrial systems, instead of guessing.',
-      'OPC UA NodeId reminder: numeric ids use the form ns=<namespace>;i=<integer> (for example, ns=2;i=2).',
-      'String ids must use ns=<namespace>;s=<string> (for example, ns=2;s=TEMP_NODE_ID).',
-      'Never put non-numeric values after i=.',
       'Available tools:',
       ...mcpTools.map(
         (tool) =>
@@ -680,17 +704,17 @@ const callOllamaOnce = async (
   );
 
   const modeSystemContent = getModeSystemPrompt(mode);
+  const agentRootPrompt = await getAgentRootPrompt();
 
   const ollamaMessages = [...messages.map((message) => ({
     role: message.role,
     content: message.content,
   }))];
 
-  if (mcpTools.length > 0 || modeSystemContent) {
+  if (mcpTools.length > 0 || modeSystemContent || agentRootPrompt) {
     const toolPart =
       mcpTools.length > 0
-        ? 'You have access to external MCP tools for GraphDB and other systems. ' +
-        'Use these tools when the user asks questions that require querying data, executing SPARQL queries, or interacting with knowledge graphs. ' +
+        ? 
         'Available tools:\n' +
         mcpTools
           .map(
@@ -701,7 +725,7 @@ const callOllamaOnce = async (
           .join('\n')
         : '';
 
-    const combinedContent = [modeSystemContent, toolPart]
+    const combinedContent = [modeSystemContent, agentRootPrompt, toolPart]
       .filter(Boolean)
       .join('\n\n');
 
@@ -784,7 +808,7 @@ const getAgentConfigForMode = (mode: ChatMode): AgentConfig => {
       maxIterations: 3,
       maxToolCallsPerIteration: 4,
       allowWrites: false,
-      allowLocalTools: false,
+      allowLocalTools: true,
     };
   }
 
@@ -792,7 +816,7 @@ const getAgentConfigForMode = (mode: ChatMode): AgentConfig => {
     maxIterations: 3,
     maxToolCallsPerIteration: 4,
     allowWrites: false,
-    allowLocalTools: false,
+    allowLocalTools: true,
   };
 };
 

@@ -13,54 +13,80 @@ const AGENT_ROOT_ENV_KEY = 'AGENT_ROOT_DIR';
 // Load environment variables from .env in the mcp-backend directory
 dotenv.config();
 
+const CONFIG_PATH = path.resolve(process.cwd(), '..', 'config.json');
+
+function loadAppConfig(): any {
+    try {
+        if (!fs.existsSync(CONFIG_PATH)) {
+            return {};
+        }
+        const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
+        if (!raw.trim()) {
+            return {};
+        }
+        return JSON.parse(raw);
+    } catch (error) {
+        console.error('[CONFIG] Failed to load config.json:', error);
+        return {};
+    }
+}
+
+function saveAppConfig(config: any) {
+    try {
+        const content = JSON.stringify(config ?? {}, null, 4);
+        fs.writeFileSync(CONFIG_PATH, content + '\n', 'utf-8');
+    } catch (error) {
+        console.error('[CONFIG] Failed to save config.json:', error);
+    }
+}
+
 /**
- * Persist the agent root directory to a local .env file and process.env
+ * Persist the agent root directory to config.json and process.env
  */
 function persistAgentRootDir(rootDir: string) {
     try {
-        const envPath = path.join(process.cwd(), '.env');
-        let content = '';
-
-        if (fs.existsSync(envPath)) {
-            content = fs.readFileSync(envPath, 'utf-8');
-        }
-
-        const lines = content
-            .split(/\r?\n/)
-            .filter((line) => line.trim().length > 0);
-
-        let found = false;
-        const updatedLines = lines.map((line) => {
-            if (line.startsWith(`${AGENT_ROOT_ENV_KEY}=`)) {
-                found = true;
-                return `${AGENT_ROOT_ENV_KEY}=${rootDir}`;
-            }
-            return line;
-        });
-
-        if (!found) {
-            updatedLines.push(`${AGENT_ROOT_ENV_KEY}=${rootDir}`);
-        }
-
-        fs.writeFileSync(envPath, updatedLines.join('\n') + '\n', 'utf-8');
+        const resolved = path.resolve(rootDir);
+        const config = loadAppConfig();
+        config[AGENT_ROOT_ENV_KEY] = resolved;
+        saveAppConfig(config);
 
         // Also update the in‑process environment so new requests see it immediately
-        process.env[AGENT_ROOT_ENV_KEY] = rootDir;
-        console.log(`[CONFIG] Agent root directory set to: ${rootDir}`);
+        process.env[AGENT_ROOT_ENV_KEY] = resolved;
+        console.log(`[CONFIG] Agent root directory set to: ${resolved}`);
     } catch (error) {
         console.error('[CONFIG] Failed to persist agent root directory:', error);
     }
 }
 
 /**
- * Initialize agent root directory from environment if available
+ * Initialize agent root directory from environment/config if available
  */
 function initializeAgentRootDir() {
-    const root = process.env[AGENT_ROOT_ENV_KEY];
-    if (root) {
-        const resolved = path.resolve(root);
+    const config = loadAppConfig();
+    const configRoot = typeof config[AGENT_ROOT_ENV_KEY] === 'string'
+        ? config[AGENT_ROOT_ENV_KEY]
+        : undefined;
+
+    // If env is set, prefer it and optionally sync back into config
+    const envRoot = process.env[AGENT_ROOT_ENV_KEY];
+    let effectiveRoot = envRoot || configRoot;
+
+    if (envRoot && envRoot !== configRoot) {
+        try {
+            const resolvedEnvRoot = path.resolve(envRoot);
+            const nextConfig = { ...config, [AGENT_ROOT_ENV_KEY]: resolvedEnvRoot };
+            saveAppConfig(nextConfig);
+            effectiveRoot = resolvedEnvRoot;
+        } catch (error) {
+            console.error('[CONFIG] Failed to sync env AGENT_ROOT_DIR into config.json:', error);
+        }
+    }
+
+    if (effectiveRoot) {
+        const resolved = path.resolve(effectiveRoot);
         fileService.registerDirectory(resolved);
-        console.log(`[CONFIG] Loaded agent root directory from env: ${resolved}`);
+        process.env[AGENT_ROOT_ENV_KEY] = resolved;
+        console.log(`[CONFIG] Agent root directory initialized: ${resolved}`);
     } else {
         console.log('[CONFIG] No agent root directory configured yet');
     }

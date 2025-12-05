@@ -23,7 +23,7 @@ export class FileSystemAPI {
     /**
      * Fetch and cache the agent root directory from the backend.
      */
-    private static async getAgentRootDir(): Promise<string | null> {
+    static async getAgentRootDir(): Promise<string | null> {
         if (this.agentRootDir) {
             return this.agentRootDir;
         }
@@ -44,6 +44,37 @@ export class FileSystemAPI {
         }
 
         return null;
+    }
+
+    /**
+     * Explicitly set the agent root directory on the backend and update the cache.
+     */
+    static async setAgentRootDir(path: string): Promise<void> {
+        const response = await fetch(`${API_BASE}/api/config/root-dir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path }),
+        });
+
+        if (!response.ok) {
+            let message = 'Failed to set agent root directory';
+            try {
+                const error = await response.json();
+                message = error.error || message;
+            } catch {
+                // ignore JSON parse errors, fall back to default message
+            }
+            throw new Error(message);
+        }
+
+        try {
+            const data = await response.json();
+            if (data && typeof data.rootDir === 'string') {
+                this.agentRootDir = data.rootDir;
+            }
+        } catch {
+            // If response body is not JSON, ignore; cache will refresh on next read
+        }
     }
 
     /**
