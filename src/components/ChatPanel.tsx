@@ -59,6 +59,8 @@ interface ChatPanelProps {
   onWebSearchEnabledChange: (enabled: boolean) => void;
   applyPatchEnabled: boolean;
   onApplyPatchEnabledChange: (enabled: boolean) => void;
+   onInitializeProjectDocs?: () => void;
+   isInitializingProjectDocs?: boolean;
 }
 
 function ChatPanelInner(
@@ -81,6 +83,8 @@ function ChatPanelInner(
     onWebSearchEnabledChange,
     applyPatchEnabled,
     onApplyPatchEnabledChange,
+    onInitializeProjectDocs,
+    isInitializingProjectDocs = false,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -504,6 +508,20 @@ function ChatPanelInner(
               >
                 <Plus className="icon-xs" />
                 <span className="hidden sm:inline">New chat</span>
+              </button>
+            )}
+            {onInitializeProjectDocs && (
+              <button
+                type="button"
+                onClick={onInitializeProjectDocs}
+                disabled={isLoading || !canSend || isInitializingProjectDocs}
+                className="btn btn-xs btn-primary"
+                title="Initialize project docs (creates docs/*.md using tools)"
+              >
+                <Sparkles className="icon-xs" />
+                <span className="hidden sm:inline">
+                  {isInitializingProjectDocs ? 'Initializing docs...' : 'Init project docs'}
+                </span>
               </button>
             )}
             <button
