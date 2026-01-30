@@ -37,32 +37,32 @@
   }
 
   .dark {
-    /* Color Palette - Dark Mode (Claude/Anthropic inspired) */
-    --background: 240 5% 10%; /* #18181b */
-    --foreground: 240 5% 96%; /* #f4f4f5 */
-    --border: 240 4% 16%; /* #27272a */
-    --input: 240 4% 16%;
-    --ring: 262 83% 58%; /* Vivid Purple */
+    /* Color Palette - Dark Mode (Strict Black & White) */
+    --background: 240 10% 3.9%; /* #09090b - Zinc 950 */
+    --foreground: 0 0% 98%; /* #fafafa - Zinc 50 */
+    --border: 240 3.7% 15.9%; /* #27272a - Zinc 800 */
+    --input: 240 3.7% 15.9%;
+    --ring: 0 0% 98%; /* White */
     
-    /* Primary - Vivid Purple (Cursor-like cool accent) */
-    --primary: 262 83% 58%; /* #7c3aed */
-    --primary-foreground: 0 0% 100%;
+    /* Primary - White (Monochrome) */
+    --primary: 0 0% 98%; /* #fafafa */
+    --primary-foreground: 240 5.9% 10%; /* #18181b */
     
-    /* Secondary - Slightly lighter charcoal */
-    --secondary: 240 4% 16%; /* #27272a */
-    --secondary-foreground: 240 5% 96%;
+    /* Secondary - Dark Gray */
+    --secondary: 240 3.7% 15.9%; /* #27272a */
+    --secondary-foreground: 0 0% 98%;
     
     /* Muted - For subtle backgrounds */
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 65%; /* #a1a1aa */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%; /* #a1a1aa */
     
     /* Accent - For highlights */
-    --accent: 240 4% 20%; /* #3f3f46 */
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     
-    /* Status Colors */
+    /* Status Colors (kept but muted where possible) */
     --success: 142 71% 45%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 62.8% 30.6%;
     --warning: 38 92% 50%;
     --info: 217 91% 60%;
   }

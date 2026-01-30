@@ -34,7 +34,7 @@ export default function ActivityBar({ activeView, onViewChange, onSettingsClick 
               title={item.label}
             >
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[24px] bg-primary rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[24px] bg-foreground rounded-r-full" />
               )}
               <Icon
                 className={`
