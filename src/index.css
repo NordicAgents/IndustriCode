@@ -37,32 +37,32 @@
   }
 
   .dark {
-    /* Color Palette - Dark Mode */
-    --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 217 91% 60%;
+    /* Color Palette - Dark Mode (Strict Black & White) */
+    --background: 240 10% 3.9%; /* #09090b - Zinc 950 */
+    --foreground: 0 0% 98%; /* #fafafa - Zinc 50 */
+    --border: 240 3.7% 15.9%; /* #27272a - Zinc 800 */
+    --input: 240 3.7% 15.9%;
+    --ring: 0 0% 98%; /* White */
     
-    /* Primary - Vibrant Blue */
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - White (Monochrome) */
+    --primary: 0 0% 98%; /* #fafafa */
+    --primary-foreground: 240 5.9% 10%; /* #18181b */
     
     /* Secondary - Dark Gray */
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 240 3.7% 15.9%; /* #27272a */
+    --secondary-foreground: 0 0% 98%;
     
-    /* Muted - For cards, hover states */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted - For subtle backgrounds */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%; /* #a1a1aa */
     
-    /* Accent - Subtle highlights */
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 95%;
+    /* Accent - For highlights */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     
-    /* Status Colors */
+    /* Status Colors (kept but muted where possible) */
     --success: 142 71% 45%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 62.8% 30.6%;
     --warning: 38 92% 50%;
     --info: 217 91% 60%;
   }

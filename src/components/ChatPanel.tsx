@@ -455,7 +455,7 @@ function ChatPanelInner(
 
   return (
     <div
-      className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background relative"
+      className="flex-1 flex flex-col h-full bg-background relative"
       onDrop={handleFilesDropped}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -476,25 +476,10 @@ function ChatPanelInner(
       <div className="border-b border-border px-6 py-3.5 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="icon-md text-primary" />
-              </div>
-            </div>
             <div>
-              <h2 className="text-base font-semibold tracking-tight">
-                {mode === 'ask' && 'Ask'}
-                {mode === 'plan' && 'Plan'}
-                {mode === 'agent' && 'Agent'}
+              <h2 className="text-sm font-semibold tracking-tight">
+                Industri Code
               </h2>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {mode === 'ask' &&
-                  'Ask mode · Read-only exploration for learning and questions.'}
-                {mode === 'plan' &&
-                  'Plan mode · Propose a multi-step plan before making changes.'}
-                {mode === 'agent' &&
-                  'Agent mode · Autonomously run tools and fix errors.'}
-              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -746,14 +731,8 @@ function ChatPanelInner(
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center max-w-2xl">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Sparkles className="icon-xl text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Start a conversation</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Analyze PLC code, design automation systems, or get assistance with industrial control logic and factory configurations.
-              </p>
+            <div className="text-center max-w-sm">
+              <h3 className="text-sm font-medium mb-1 text-foreground/80">How can I help you today?</h3>
             </div>
           </div>
         ) : (
@@ -794,7 +773,7 @@ function ChatPanelInner(
                               ? 'bg-muted/30 text-muted-foreground text-sm border border-border/50'
                               : message.error
                                 ? 'bg-destructive/10 text-destructive border border-destructive/20'
-                                : 'bg-accent/50 border border-border/50 shadow-sm'
+                                : 'bg-secondary border border-border/50 shadow-sm'
                             }`}
                         >
                           <div className="whitespace-pre-wrap text-sm leading-relaxed break-words">
@@ -880,10 +859,10 @@ function ChatPanelInner(
             {/* Typing Indicator */}
             {isLoading && (
               <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-accent text-accent-foreground border border-border flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-secondary text-secondary-foreground border border-border flex items-center justify-center flex-shrink-0">
                   <Sparkle className="icon-md" />
                 </div>
-                <div className="bg-accent/50 border border-border/50 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="bg-secondary border border-border/50 rounded-2xl px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />

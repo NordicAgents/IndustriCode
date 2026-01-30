@@ -6,6 +6,7 @@ import CodeEditor from './components/CodeEditor';
 import ChatPanel, { ChatPanelHandle } from './components/ChatPanel';
 import MCPServerConfigPanel from './components/MCPServerConfig';
 import Sidebar from './components/Sidebar';
+import ActivityBar, { ActivityView } from './components/ActivityBar';
 import {
   ChatMessage,
   ChatSession,
@@ -71,6 +72,7 @@ function AppContent() {
   const [fileSystemVersion, setFileSystemVersion] = useState(0);
   const chatPanelRef = useRef<ChatPanelHandle | null>(null);
   const [isInitializingProjectDocs, setIsInitializingProjectDocs] = useState(false);
+  const [activeActivityView, setActiveActivityView] = useState<ActivityView>('explorer');
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -678,29 +680,45 @@ function AppContent() {
   const currentThemeIsDark = theme === 'dark';
 
   return (
-    <div className="h-screen w-screen overflow-hidden">
-      <IDELayout
-        fileExplorer={
-          <div className="h-full flex flex-col border-r border-border bg-background">
-            <div className="flex-1 min-h-0">
-              <FileExplorer
-                onFileSelect={handleFileSelect}
-                selectedPath={editorTabs.find((t) => t.id === activeTabId)?.path}
-                onSendToChat={handleSendNodeToChat}
-                refreshTrigger={fileSystemVersion}
-              />
+    <div className="h-screen w-screen overflow-hidden flex bg-background">
+      <ActivityBar
+        activeView={activeActivityView}
+        onViewChange={setActiveActivityView}
+        onSettingsClick={() => setShowMCPConfig(true)}
+      />
+      <div className="flex-1 min-w-0">
+        <IDELayout
+          fileExplorer={
+            <div className="h-full flex flex-col border-r border-border bg-background">
+              {activeActivityView === 'explorer' && (
+                <div className="flex-1 min-h-0">
+                  <FileExplorer
+                    onFileSelect={handleFileSelect}
+                    selectedPath={editorTabs.find((t) => t.id === activeTabId)?.path}
+                    onSendToChat={handleSendNodeToChat}
+                    refreshTrigger={fileSystemVersion}
+                  />
+                </div>
+              )}
+              {activeActivityView === 'mcp' && (
+                <div className="h-full overflow-y-auto">
+                  <Sidebar
+                    mcpServers={mcpServers}
+                    onMCPConnect={handleMCPConnect}
+                    onMCPDisconnect={handleMCPDisconnect}
+                    onMCPConfigOpen={() => setShowMCPConfig(true)}
+                  />
+                </div>
+              )}
+              {activeActivityView !== 'explorer' && activeActivityView !== 'mcp' && (
+                <div className="p-8 text-center text-muted-foreground text-sm">
+                  <div className="mb-2">This view is not yet implemented.</div>
+                  <div className="text-xs opacity-70">Select Explorer or MCP Servers to continue.</div>
+                </div>
+              )}
             </div>
-            <div className="h-64 min-h-[180px] border-t border-border overflow-y-auto">
-              <Sidebar
-                mcpServers={mcpServers}
-                onMCPConnect={handleMCPConnect}
-                onMCPDisconnect={handleMCPDisconnect}
-                onMCPConfigOpen={() => setShowMCPConfig(true)}
-              />
-            </div>
-          </div>
-        }
-        codeEditor={
+          }
+          codeEditor={
           <CodeEditor
             tabs={editorTabs}
             activeTabId={activeTabId}
@@ -711,11 +729,11 @@ function AppContent() {
             isDark={currentThemeIsDark}
           />
         }
-        chatPanel={
-          <div className="h-full flex flex-col">
-            <div className="flex-1 overflow-hidden">
-              <ChatPanel
-                ref={chatPanelRef}
+          chatPanel={
+            <div className="h-full flex flex-col">
+              <div className="flex-1 overflow-hidden">
+                <ChatPanel
+                  ref={chatPanelRef}
                 messages={messages}
                 onSendMessage={handleSendMessage}
                 isLoading={isLoading}
@@ -735,12 +753,13 @@ function AppContent() {
                 applyPatchEnabled={applyPatchEnabled}
                 onApplyPatchEnabledChange={setApplyPatchEnabled}
                 onInitializeProjectDocs={handleInitializeProjectDocs}
-                isInitializingProjectDocs={isInitializingProjectDocs}
-              />
+                  isInitializingProjectDocs={isInitializingProjectDocs}
+                />
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
+      </div>
 
       {/* MCP Config Panel */}
       {showMCPConfig && (
