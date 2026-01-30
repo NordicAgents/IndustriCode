@@ -455,7 +455,7 @@ function ChatPanelInner(
 
   return (
     <div
-      className="flex-1 flex flex-col h-full bg-gradient-to-b from-background to-background relative"
+      className="flex-1 flex flex-col h-full bg-background relative"
       onDrop={handleFilesDropped}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -794,7 +794,7 @@ function ChatPanelInner(
                               ? 'bg-muted/30 text-muted-foreground text-sm border border-border/50'
                               : message.error
                                 ? 'bg-destructive/10 text-destructive border border-destructive/20'
-                                : 'bg-accent/50 border border-border/50 shadow-sm'
+                                : 'bg-secondary border border-border/50 shadow-sm'
                             }`}
                         >
                           <div className="whitespace-pre-wrap text-sm leading-relaxed break-words">
@@ -880,10 +880,10 @@ function ChatPanelInner(
             {/* Typing Indicator */}
             {isLoading && (
               <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-accent text-accent-foreground border border-border flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-secondary text-secondary-foreground border border-border flex items-center justify-center flex-shrink-0">
                   <Sparkle className="icon-md" />
                 </div>
-                <div className="bg-accent/50 border border-border/50 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="bg-secondary border border-border/50 rounded-2xl px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />

@@ -37,28 +37,28 @@
   }
 
   .dark {
-    /* Color Palette - Dark Mode */
-    --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 217 91% 60%;
+    /* Color Palette - Dark Mode (Claude/Anthropic inspired) */
+    --background: 240 5% 10%; /* #18181b */
+    --foreground: 240 5% 96%; /* #f4f4f5 */
+    --border: 240 4% 16%; /* #27272a */
+    --input: 240 4% 16%;
+    --ring: 262 83% 58%; /* Vivid Purple */
     
-    /* Primary - Vibrant Blue */
-    --primary: 217 91% 60%;
+    /* Primary - Vivid Purple (Cursor-like cool accent) */
+    --primary: 262 83% 58%; /* #7c3aed */
     --primary-foreground: 0 0% 100%;
     
-    /* Secondary - Dark Gray */
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
+    /* Secondary - Slightly lighter charcoal */
+    --secondary: 240 4% 16%; /* #27272a */
+    --secondary-foreground: 240 5% 96%;
     
-    /* Muted - For cards, hover states */
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    /* Muted - For subtle backgrounds */
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%; /* #a1a1aa */
     
-    /* Accent - Subtle highlights */
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 95%;
+    /* Accent - For highlights */
+    --accent: 240 4% 20%; /* #3f3f46 */
+    --accent-foreground: 0 0% 100%;
     
     /* Status Colors */
     --success: 142 71% 45%;
