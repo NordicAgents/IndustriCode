@@ -276,10 +276,10 @@ The goal is to:
 
 **4.2. Tool‑calling with MCP**
 - Pre‑conditions:
-  - At least one MCP server is configured and connected (e.g., GraphDB or file tools).
+  - At least one MCP server is configured and connected (e.g., file tools).
   - The server exposes tools (visible in the UI).
 - Steps:
-  1. In the chat, ask the model to call a known MCP tool (e.g., “List files in X” or a GraphDB query).
+  1. In the chat, ask the model to call a known MCP tool (e.g., “List files in X”).
   2. Confirm that:
      - GPT‑5 uses tools appropriately.
      - Tool executions appear in the UI as `toolCalls` entries (same visual style as today).
@@ -324,4 +324,3 @@ When you’re ready to implement, this is a practical execution order:
    - Fix any issues discovered during manual testing.
 
 Once all of the above is done, the app will be fully migrated to GPT‑5 models via the OpenAI Responses API, with GPT‑4‑series models removed from the UI and configuration.
-

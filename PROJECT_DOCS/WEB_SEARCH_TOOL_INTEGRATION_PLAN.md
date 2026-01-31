@@ -329,7 +329,7 @@ The goal is to keep the design:
 - Adjust the `toolDescription` block in `callGemini` to mention web search when enabled:
   - E.g. “You can also use Google Search to retrieve up‑to‑date information from the internet when needed.”
   - Clarify that:
-    - The model should favor MCP tools for **internal systems** (MQTT, OPC UA, GraphDB, etc.).
+    - The model should favor MCP tools for **internal systems** (MQTT, OPC UA, file tools, etc.).
     - Use web search only when external information is necessary.
 
 ### 5.4. Response parsing
@@ -573,4 +573,3 @@ This gives Ollama a web search capability that fits naturally into the existing 
    - Add basic error handling and logging for the new search path.
 5. **Iterate based on usage**
    - Tune web search defaults (on/off per provider, max results) based on performance and cost.
-

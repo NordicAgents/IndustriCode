@@ -1,12 +1,5 @@
 {
   "mcpServers": {
-    "GraphDB": {
-      "command": "mcphub-gateway",
-      "args": [],
-      "env": {
-        "MCPHUB_SERVER_URL": "http://localhost:7200/mcp"
-      }
-    },
     "MQTT MCP (Python)": {
       "command": "uv",
       "args": [
