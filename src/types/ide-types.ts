@@ -49,6 +49,7 @@ export interface AgentTask {
 export interface AgentConfig {
     maxIterations: number;
     maxToolCallsPerIteration: number;
+    allowTools: boolean;
     allowWrites: boolean;
     allowLocalTools: boolean;
 }
@@ -69,6 +70,8 @@ export interface AgentRuntimeOptions {
     applyPatchEnabled?: boolean;
     applyPatchProvider?: string;
     applyPatchModel?: string;
+    allowAskTools?: boolean;
+    planApproved?: boolean;
 }
 
 export interface AgentStep {

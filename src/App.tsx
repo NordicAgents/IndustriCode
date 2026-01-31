@@ -57,6 +57,7 @@ function AppContent() {
   const [chatMode, setChatMode] = useState<ChatMode>('ask');
   const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(false);
   const [applyPatchEnabled, setApplyPatchEnabled] = useState<boolean>(false);
+  const [planApproved, setPlanApproved] = useState<boolean>(false);
 
   // MCP state
   const [mcpConfig, setMcpConfig] = useState<MCPServersConfig>({ mcpServers: {} });
@@ -462,6 +463,8 @@ function AppContent() {
 
   const handleSendMessage = async (content: string) => {
     const now = Date.now();
+    const shouldAllowAskTools =
+      chatMode === 'ask' ? isExplicitToolRequest(content) : true;
     const userMessage: ChatMessage = {
       id: `msg-${now}`,
       role: 'user',
@@ -494,11 +497,15 @@ function AppContent() {
           applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51 && chatMode === 'agent',
           applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
           applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
+          allowAskTools: shouldAllowAskTools,
+          planApproved,
         });
       } else if (chatBackend === 'ollama' && ollamaConfig) {
         assistantResponse = await callOllama(allMessages, ollamaConfig, chatMode, {
           webSearchEnabled,
           applyPatchEnabled: false,
+          allowAskTools: shouldAllowAskTools,
+          planApproved,
         });
       } else {
         throw new Error('Chat backend is not configured.');
@@ -552,6 +559,25 @@ function AppContent() {
     if (isLoading) return;
     setMessages([]);
     setSelectedSessionId(null);
+    setPlanApproved(false);
+  };
+
+  const handleModeChange = (mode: ChatMode) => {
+    setChatMode(mode);
+    setPlanApproved(false);
+  };
+
+  const isExplicitToolRequest = (content: string): boolean => {
+    const normalized = content.toLowerCase();
+    return (
+      /\b(use|run|call)\b.*\b(tool|tools|mcp|function|functions)\b/.test(
+        normalized,
+      ) ||
+      /\b(search|web search|browse|look up|lookup)\b/.test(normalized) ||
+      /\b(read|open|list)\b.*\b(file|files|directory|directories|folder|folders)\b/.test(
+        normalized,
+      )
+    );
   };
 
 
@@ -691,7 +717,7 @@ function AppContent() {
                   onSendMessage={handleSendMessage}
                   isLoading={isLoading}
                   mode={chatMode}
-                  onModeChange={setChatMode}
+                  onModeChange={handleModeChange}
                   chatBackend={chatBackend}
                   onChatBackendChange={setChatBackend}
                   cloudLLMConfig={cloudLLMConfig}
@@ -705,6 +731,8 @@ function AppContent() {
                   onWebSearchEnabledChange={setWebSearchEnabled}
                   applyPatchEnabled={applyPatchEnabled}
                   onApplyPatchEnabledChange={setApplyPatchEnabled}
+                  planApproved={planApproved}
+                  onPlanApprove={() => setPlanApproved(true)}
                 />
               </div>
             </div>

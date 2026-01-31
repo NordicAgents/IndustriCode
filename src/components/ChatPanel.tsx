@@ -58,6 +58,8 @@ interface ChatPanelProps {
   onWebSearchEnabledChange: (enabled: boolean) => void;
   applyPatchEnabled: boolean;
   onApplyPatchEnabledChange: (enabled: boolean) => void;
+  planApproved: boolean;
+  onPlanApprove: () => void;
 }
 
 function ChatPanelInner(
@@ -80,6 +82,8 @@ function ChatPanelInner(
     onWebSearchEnabledChange,
     applyPatchEnabled,
     onApplyPatchEnabledChange,
+    planApproved,
+    onPlanApprove,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -513,6 +517,27 @@ function ChatPanelInner(
               <option value="agent">Agent</option>
             </select>
           </div>
+          {mode === 'plan' && (
+            <button
+              type="button"
+              onClick={onPlanApprove}
+              disabled={planApproved || isLoading}
+              className="btn btn-xs btn-outline"
+              title={
+                planApproved
+                  ? 'Plan already confirmed.'
+                  : 'Confirm the plan to allow tool use and execution.'
+              }
+            >
+              <CheckCheck className="icon-xs" />
+              <span className="hidden sm:inline">
+                {planApproved ? 'Plan confirmed' : 'Confirm plan'}
+              </span>
+              <span className="sm:hidden">
+                {planApproved ? 'Confirmed' : 'Confirm'}
+              </span>
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <select
               value={chatBackend}
