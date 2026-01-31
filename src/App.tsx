@@ -20,6 +20,7 @@ import { MCPServer, MCPServersConfig } from './types/mcp-types';
 import { FileNode, FileSystemAPI } from './utils/file-api';
 import { PlcopenProject } from './types/plcopen-types';
 import { parsePlcopenProject } from './utils/plcopen-parser';
+import { serializePlcopenProject } from './utils/plcopen-export';
 import {
   loadSessions,
   saveSessions,
@@ -286,6 +287,43 @@ function AppContent() {
     } catch (error) {
       console.error('Failed to save file:', error);
       alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleExportPlcopen = async (tabId: string, target: string) => {
+    const tab = editorTabs.find((t) => t.id === tabId);
+    if (!tab) return;
+
+    const project = plcopenProjects[tabId] || parsePlcopenProject(tab.content);
+    if (!project) {
+      alert('Unable to export: the current PLCopen XML could not be parsed.');
+      return;
+    }
+
+    if (target !== 'plcopen-xml') {
+      alert(`Export target "${target}" is not supported yet.`);
+      return;
+    }
+
+    const xml = serializePlcopenProject(project);
+    const baseName = tab.name.replace(/\.[^.]+$/, '') || 'plcopen-project';
+    const suggestedFileName = `${baseName}-export.xml`;
+    const suggestedPath = tab.path.includes('/')
+      ? tab.path.replace(tab.name, suggestedFileName)
+      : suggestedFileName;
+
+    const targetPath = window.prompt('Export PLCopen XML to path:', suggestedPath);
+    if (!targetPath) return;
+
+    try {
+      await FileSystemAPI.writeFile(targetPath, xml);
+      setFileSystemVersion((v) => v + 1);
+      alert(`Exported PLCopen XML to ${targetPath}`);
+    } catch (error) {
+      console.error('Failed to export PLCopen XML:', error);
+      alert(
+        `Failed to export PLCopen XML: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -641,6 +679,7 @@ function AppContent() {
             isDark={currentThemeIsDark}
             plcopenProjects={plcopenProjects}
             onPlcopenParsed={handlePlcopenParsed}
+            onExportPlcopen={handleExportPlcopen}
           />
         }
           chatPanel={
