@@ -3,8 +3,12 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import { PlcopenProject } from '../../types/plcopen-types';
 import { parsePlcopenProject } from '../../utils/plcopen-parser';
 import { defaultEditorOptions } from '../../utils/monaco-config';
+import FbdView from '../iec61131/FbdView';
+import LadderView from '../iec61131/LadderView';
+import SfcView from '../iec61131/SfcView';
+import StView from '../iec61131/StView';
 
-type PlcopenViewTab = 'overview' | 'pous' | 'resources' | 'raw';
+type PlcopenViewTab = 'overview' | 'pous' | 'resources' | 'ld' | 'fbd' | 'sfc' | 'st' | 'raw';
 
 interface PlcopenProjectViewProps {
     content: string;
@@ -27,6 +31,7 @@ export default function PlcopenProjectView({
 }: PlcopenProjectViewProps) {
     const [activeTab, setActiveTab] = useState<PlcopenViewTab>('overview');
     const [parseFailed, setParseFailed] = useState(false);
+    const [hasUserSelectedTab, setHasUserSelectedTab] = useState(false);
 
     const parsedProject = useMemo(() => {
         if (project) {
@@ -45,13 +50,61 @@ export default function PlcopenProjectView({
     useEffect(() => {
         if (parseFailed) {
             setActiveTab('raw');
+            setHasUserSelectedTab(false);
         }
     }, [parseFailed]);
 
     const fileName = path.split(/[\\/]/).pop() || path;
     const canShowStructured = !!parsedProject;
 
+    const ldNetworksByPou = useMemo(() => {
+        if (!parsedProject) return [];
+        return parsedProject.pous
+            .filter((pou) => pou.body.ldNetworks.length > 0)
+            .map((pou) => ({ pouName: pou.name, networks: pou.body.ldNetworks }));
+    }, [parsedProject]);
+
+    const fbdNetworksByPou = useMemo(() => {
+        if (!parsedProject) return [];
+        return parsedProject.pous
+            .filter((pou) => pou.body.fbdNetworks.length > 0)
+            .map((pou) => ({ pouName: pou.name, networks: pou.body.fbdNetworks }));
+    }, [parsedProject]);
+
+    const sfcNetworksByPou = useMemo(() => {
+        if (!parsedProject) return [];
+        return parsedProject.pous
+            .filter((pou) => pou.body.sfc)
+            .map((pou) => ({ pouName: pou.name, network: pou.body.sfc! }));
+    }, [parsedProject]);
+
+    const stBodies = useMemo(() => {
+        if (!parsedProject) return [];
+        return parsedProject.pous
+            .filter((pou) => pou.body.st?.code)
+            .map((pou) => ({ pouName: pou.name, code: pou.body.st!.code }));
+    }, [parsedProject]);
+
+    const defaultVisualTab = useMemo<PlcopenViewTab>(() => {
+        if (!parsedProject) return 'overview';
+        if (stBodies.length > 0) return 'st';
+        if (ldNetworksByPou.length > 0) return 'ld';
+        if (fbdNetworksByPou.length > 0) return 'fbd';
+        if (sfcNetworksByPou.length > 0) return 'sfc';
+        return 'overview';
+    }, [parsedProject, stBodies.length, ldNetworksByPou.length, fbdNetworksByPou.length, sfcNetworksByPou.length]);
+
+    useEffect(() => {
+        if (parsedProject && !hasUserSelectedTab) {
+            setActiveTab(defaultVisualTab);
+        }
+    }, [parsedProject, defaultVisualTab, hasUserSelectedTab]);
+
     const tabs: { id: PlcopenViewTab; label: string }[] = [
+        { id: 'st', label: 'Structured Text' },
+        { id: 'ld', label: 'Ladder (LD)' },
+        { id: 'fbd', label: 'Function Block (FBD)' },
+        { id: 'sfc', label: 'Sequential Function (SFC)' },
         { id: 'overview', label: 'Overview' },
         { id: 'pous', label: 'POUs' },
         { id: 'resources', label: 'Resources' },
@@ -109,7 +162,10 @@ export default function PlcopenProjectView({
                             key={tab.id}
                             type="button"
                             onClick={() => {
-                                if (!disabled) setActiveTab(tab.id);
+                                if (!disabled) {
+                                    setActiveTab(tab.id);
+                                    setHasUserSelectedTab(true);
+                                }
                             }}
                             className={`px-2 py-1 rounded border text-xs ${
                                 isActive
@@ -247,6 +303,22 @@ export default function PlcopenProjectView({
                             </div>
                         )}
                     </div>
+                )}
+
+                {canShowStructured && parsedProject && activeTab === 'ld' && (
+                    <LadderView networksByPou={ldNetworksByPou} />
+                )}
+
+                {canShowStructured && parsedProject && activeTab === 'fbd' && (
+                    <FbdView networksByPou={fbdNetworksByPou} />
+                )}
+
+                {canShowStructured && parsedProject && activeTab === 'sfc' && (
+                    <SfcView networks={sfcNetworksByPou} />
+                )}
+
+                {canShowStructured && parsedProject && activeTab === 'st' && (
+                    <StView items={stBodies} onEditorMount={onEditorMount} />
                 )}
 
                 {activeTab === 'raw' && (
