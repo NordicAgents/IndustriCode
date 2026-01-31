@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { FileSystemAPI, FileNode } from '../utils/file-api';
 import FileTree from './FileTree';
-import { FolderOpen, Search, X, RefreshCw, Home } from 'lucide-react';
+import { FolderOpen, Search, X, RefreshCw, Home, Upload } from 'lucide-react';
 import {
     supportsFileSystemAccess,
     pickDirectoryAndBuildTree,
@@ -13,9 +13,16 @@ interface FileExplorerProps {
     selectedPath?: string;
     onSendToChat?: (node: FileNode) => void;
     refreshTrigger?: number;
+    onImportPlcopen?: (file: File) => void;
 }
 
-export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat, refreshTrigger = 0 }: FileExplorerProps) {
+export default function FileExplorer({
+    onFileSelect,
+    selectedPath,
+    onSendToChat,
+    refreshTrigger = 0,
+    onImportPlcopen,
+}: FileExplorerProps) {
     const [rootPath, setRootPath] = useState<string>('');
     const [files, setFiles] = useState<FileNode[]>([]);
     const [loading, setLoading] = useState(false);
@@ -24,6 +31,7 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
     const [searchResults, setSearchResults] = useState<FileNode[]>([]);
     const [useNativeFS, setUseNativeFS] = useState(false);
     const [rootHandle, setRootHandle] = useState<any | null>(null);
+    const importInputRef = useRef<HTMLInputElement | null>(null);
 
     const loadDirectory = async (path: string) => {
         console.log('[FileExplorer] Starting to load directory:', path);
@@ -136,6 +144,19 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
         }
     };
 
+    const handleImportClick = () => {
+        if (!onImportPlcopen) return;
+        importInputRef.current?.click();
+    };
+
+    const handleImportFile = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && onImportPlcopen) {
+            onImportPlcopen(file);
+        }
+        event.target.value = '';
+    };
+
     const handleSearch = async () => {
         if (!rootPath || !searchQuery.trim()) return;
 
@@ -230,6 +251,14 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
                     <h3 className="text-sm font-semibold">Explorer</h3>
                     <div className="flex gap-1">
                         <button
+                            onClick={handleImportClick}
+                            disabled={!onImportPlcopen}
+                            className="btn-icon-sm"
+                            title="Import PLCopen XML"
+                        >
+                            <Upload className="icon-xs" />
+                        </button>
+                        <button
                             onClick={handleRefresh}
                             disabled={!rootPath || loading}
                             className="btn-icon-sm"
@@ -246,6 +275,13 @@ export default function FileExplorer({ onFileSelect, selectedPath, onSendToChat,
                         </button>
                     </div>
                 </div>
+                <input
+                    ref={importInputRef}
+                    type="file"
+                    accept=".xml"
+                    className="hidden"
+                    onChange={handleImportFile}
+                />
 
                 {/* Search */}
                 <div className="relative">
