@@ -3,8 +3,12 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import { PlcopenProject } from '../../types/plcopen-types';
 import { parsePlcopenProject } from '../../utils/plcopen-parser';
 import { defaultEditorOptions } from '../../utils/monaco-config';
+import LadderView from '../iec61131/LadderView';
+import SfcView from '../iec61131/SfcView';
+import FbdView from '../iec61131/FbdView';
+import StView from '../iec61131/StView';
 
-type PlcopenViewTab = 'overview' | 'pous' | 'resources' | 'raw';
+type PlcopenViewTab = 'overview' | 'visual' | 'pous' | 'resources' | 'raw';
 
 interface PlcopenProjectViewProps {
     content: string;
@@ -14,6 +18,7 @@ interface PlcopenProjectViewProps {
     onContentChange: (value: string) => void;
     onEditorMount?: OnMount;
     onParsed?: (project: PlcopenProject | null) => void;
+    defaultTab?: PlcopenViewTab;
 }
 
 export default function PlcopenProjectView({
@@ -24,9 +29,11 @@ export default function PlcopenProjectView({
     onContentChange,
     onEditorMount,
     onParsed,
+    defaultTab = 'visual',
 }: PlcopenProjectViewProps) {
-    const [activeTab, setActiveTab] = useState<PlcopenViewTab>('overview');
+    const [activeTab, setActiveTab] = useState<PlcopenViewTab>(defaultTab);
     const [parseFailed, setParseFailed] = useState(false);
+    const [selectedPouName, setSelectedPouName] = useState<string | null>(null);
 
     const parsedProject = useMemo(() => {
         if (project) {
@@ -48,11 +55,25 @@ export default function PlcopenProjectView({
         }
     }, [parseFailed]);
 
+    useEffect(() => {
+        if (!parsedProject) {
+            setSelectedPouName(null);
+            return;
+        }
+        setSelectedPouName((current) => {
+            if (current && parsedProject.pous.some((pou) => pou.name === current)) {
+                return current;
+            }
+            return parsedProject.pous[0]?.name ?? null;
+        });
+    }, [parsedProject]);
+
     const fileName = path.split(/[\\/]/).pop() || path;
     const canShowStructured = !!parsedProject;
 
     const tabs: { id: PlcopenViewTab; label: string }[] = [
         { id: 'overview', label: 'Overview' },
+        { id: 'visual', label: 'Visual' },
         { id: 'pous', label: 'POUs' },
         { id: 'resources', label: 'Resources' },
         { id: 'raw', label: 'Raw XML' },
@@ -72,6 +93,11 @@ export default function PlcopenProjectView({
         const functions = parsedProject.pous.filter((pou) => pou.pouType === 'function').length;
         return { programs, functionBlocks, functions };
     }, [parsedProject]);
+
+    const selectedPou = useMemo(() => {
+        if (!parsedProject || !selectedPouName) return null;
+        return parsedProject.pous.find((pou) => pou.name === selectedPouName) || null;
+    }, [parsedProject, selectedPouName]);
 
     return (
         <div className="h-full flex flex-col">
@@ -182,6 +208,81 @@ export default function PlcopenProjectView({
                                 </div>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {canShowStructured && parsedProject && activeTab === 'visual' && (
+                    <div className="space-y-4 text-xs">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <label className="text-muted-foreground text-[11px]" htmlFor="plcopen-pou">
+                                POU
+                            </label>
+                            <select
+                                id="plcopen-pou"
+                                className="text-xs border border-border rounded bg-background px-2 py-1"
+                                value={selectedPou?.name ?? ''}
+                                onChange={(event) => setSelectedPouName(event.target.value)}
+                            >
+                                {parsedProject.pous.map((pou) => (
+                                    <option key={pou.name} value={pou.name}>
+                                        {pou.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {selectedPou && (
+                                <span className="text-[10px] uppercase text-muted-foreground">
+                                    {selectedPou.pouType}
+                                </span>
+                            )}
+                        </div>
+
+                        {!selectedPou && (
+                            <div className="text-muted-foreground">No POUs available.</div>
+                        )}
+
+                        {selectedPou && (
+                            <div className="space-y-4">
+                                {selectedPou.body.st && (
+                                    <div className="space-y-2">
+                                        <div className="text-sm font-semibold">Structured Text</div>
+                                        <StView
+                                            code={selectedPou.body.st.code}
+                                            onEditorMount={onEditorMount}
+                                        />
+                                    </div>
+                                )}
+
+                                {selectedPou.body.sfc && (
+                                    <div className="space-y-2">
+                                        <div className="text-sm font-semibold">Sequential Function Chart</div>
+                                        <SfcView network={selectedPou.body.sfc} />
+                                    </div>
+                                )}
+
+                                {selectedPou.body.ldNetworks.length > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="text-sm font-semibold">Ladder Diagram</div>
+                                        <LadderView networks={selectedPou.body.ldNetworks} />
+                                    </div>
+                                )}
+
+                                {selectedPou.body.fbdNetworks.length > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="text-sm font-semibold">Function Block Diagram</div>
+                                        <FbdView networks={selectedPou.body.fbdNetworks} />
+                                    </div>
+                                )}
+
+                                {!selectedPou.body.st &&
+                                    !selectedPou.body.sfc &&
+                                    selectedPou.body.ldNetworks.length === 0 &&
+                                    selectedPou.body.fbdNetworks.length === 0 && (
+                                        <div className="text-muted-foreground">
+                                            No visualizable bodies were found for this POU.
+                                        </div>
+                                    )}
+                            </div>
+                        )}
                     </div>
                 )}
 
