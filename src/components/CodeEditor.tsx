@@ -167,6 +167,7 @@ export default function CodeEditor({
                                 path={activeTab.path}
                                 language={activeTab.language || 'xml'}
                                 project={cachedPlcopenProject}
+                                defaultTab="visual"
                                 onContentChange={(value) => handleContentChange(value)}
                                 onEditorMount={handleEditorMount}
                                 onParsed={(project) => {
