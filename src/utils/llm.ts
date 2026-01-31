@@ -22,7 +22,9 @@ const buildPromptFromMessages = (messages: ChatMessage[]): string => {
           ? 'User'
           : message.role === 'assistant'
             ? 'Assistant'
-            : 'System';
+            : message.role === 'tool'
+              ? 'Tool'
+              : 'System';
       return `${label}: ${message.content}`;
     })
     .join('\n\n');
@@ -210,6 +212,10 @@ const callOpenAIChat = async (
     ...messages.map((msg) => ({
       role: msg.role,
       content: msg.content,
+      ...(msg.role === 'tool' && msg.name ? { name: msg.name } : {}),
+      ...(msg.role === 'tool' && msg.toolCallId
+        ? { tool_call_id: msg.toolCallId }
+        : {}),
     })),
   ];
 
@@ -794,6 +800,37 @@ const convertMCPToolsToOllama = (mcpTools: MCPTool[]) => {
   }));
 };
 
+const parseToolArguments = (rawArgs: unknown): Record<string, unknown> => {
+  if (rawArgs && typeof rawArgs === 'object' && !Array.isArray(rawArgs)) {
+    return rawArgs as Record<string, unknown>;
+  }
+
+  if (typeof rawArgs === 'string') {
+    try {
+      const parsed = JSON.parse(rawArgs);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>;
+      }
+      if (parsed === null || parsed === undefined) {
+        return {};
+      }
+      return { value: parsed };
+    } catch (error) {
+      console.warn('[LLM] Failed to parse tool arguments:', error);
+      return {};
+    }
+  }
+
+  return {};
+};
+
+const normalizeToolCallId = (toolCallId: unknown, fallback: string): string => {
+  if (typeof toolCallId === 'string' && toolCallId.trim().length > 0) {
+    return toolCallId;
+  }
+  return fallback;
+};
+
 const callOllamaOnce = async (
   messages: ChatMessage[],
   config: OllamaConfig,
@@ -808,10 +845,16 @@ const callOllamaOnce = async (
   const modeSystemContent = getModeSystemPrompt(mode);
   const agentRootPrompt = await getAgentRootPrompt();
 
-  const ollamaMessages = [...messages.map((message) => ({
-    role: message.role,
-    content: message.content,
-  }))];
+  const ollamaMessages = [
+    ...messages.map((message) => ({
+      role: message.role,
+      content: message.content,
+      ...(message.role === 'tool' && message.name ? { name: message.name } : {}),
+      ...(message.role === 'tool' && message.toolCallId
+        ? { tool_call_id: message.toolCallId }
+        : {}),
+    })),
+  ];
 
   if (mcpTools.length > 0 || modeSystemContent || agentRootPrompt) {
     const toolPart =
@@ -869,13 +912,21 @@ const callOllamaOnce = async (
 
   if (message.tool_calls && message.tool_calls.length > 0) {
     const toolCalls: ToolCall[] = [];
+    const fallbackBase = `ollama-tool-${Date.now()}`;
 
-    for (const toolCall of message.tool_calls) {
-      const functionName = toolCall.function.name;
-      const functionArgs = toolCall.function.arguments;
+    for (const [index, toolCall] of message.tool_calls.entries()) {
+      const functionName = toolCall.function?.name;
+      if (!functionName) {
+        continue;
+      }
+      const functionArgs = parseToolArguments(toolCall.function?.arguments);
+      const toolCallId = normalizeToolCallId(
+        toolCall.id,
+        `${fallbackBase}-${index}`,
+      );
 
       toolCalls.push({
-        id: toolCall.id || `tool-${Date.now()}`,
+        id: toolCallId,
         name: functionName,
         arguments: functionArgs,
       });
@@ -1075,20 +1126,20 @@ const runAgentLoop = async (
       if (executedCalls.length > 0) {
         allToolCalls.push(...executedCalls);
 
-        const toolResultsText = executedCalls
-          .map(tc => {
-            const resultText =
-              tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
-            return `Tool ${tc.toolName} result: ${resultText}`;
-          })
-          .join('\n\n');
-
-        history.push({
-          id: `agent-tool-${Date.now()}-${iteration}`,
-          role: 'assistant',
-          content: toolResultsText || 'Tools executed',
-          timestamp: new Date(),
+        const toolMessages: ChatMessage[] = executedCalls.map((tc) => {
+          const resultText =
+            tc.result?.content?.[0]?.text || JSON.stringify(tc.result);
+          return {
+            id: `agent-tool-${tc.id}-${Date.now()}`,
+            role: 'tool',
+            name: tc.toolName,
+            toolCallId: tc.id,
+            content: resultText || 'Tool executed',
+            timestamp: new Date(),
+          };
         });
+
+        history.push(...toolMessages);
 
         continue;
       }
