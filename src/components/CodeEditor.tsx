@@ -6,7 +6,7 @@ import {
     getEditorTheme,
     defaultEditorOptions,
 } from '../utils/monaco-config';
-import { Save, X, FileText, Circle } from 'lucide-react';
+import { Save, X, FileText, Circle, Download } from 'lucide-react';
 import { EditorTab } from '../types/ide-types';
 import FbtBasicFbView from './fbt/FbtBasicFbView';
 import PlcopenProjectView from './plcopen/PlcopenProjectView';
@@ -22,6 +22,7 @@ interface CodeEditorProps {
     isDark?: boolean;
     plcopenProjects?: Record<string, PlcopenProject>;
     onPlcopenParsed?: (tabId: string, project: PlcopenProject | null) => void;
+    onExportPlcopen?: (tabId: string, target: string) => void;
 }
 
 export default function CodeEditor({
@@ -34,6 +35,7 @@ export default function CodeEditor({
     isDark = false,
     plcopenProjects,
     onPlcopenParsed,
+    onExportPlcopen,
 }: CodeEditorProps) {
     const [editorInstance, setEditorInstance] = useState<editor.IStandaloneCodeEditor | null>(
         null
@@ -50,6 +52,7 @@ export default function CodeEditor({
     const cachedPlcopenProject = activeTabId
         ? plcopenProjects?.[activeTabId]
         : undefined;
+    const [exportTarget, setExportTarget] = useState('plcopen-xml');
 
     // Register PLC languages once
     useEffect(() => {
@@ -106,38 +109,62 @@ export default function CodeEditor({
     return (
         <div className="h-full flex flex-col bg-background">
             {/* Tabs Bar */}
-            <div className="flex items-center gap-1 px-2 py-1 bg-muted/30 border-b border-border overflow-x-auto">
-                {tabs.length === 0 ? (
-                    <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
-                        <FileText className="icon-xs" />
-                        <span>No file open</span>
-                    </div>
-                ) : (
-                    tabs.map((tab) => (
-                        <div
-                            key={tab.id}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer group text-xs ${tab.id === activeTabId
-                                    ? 'bg-background border-t border-l border-r border-border'
-                                    : 'bg-muted/50 hover:bg-muted'
-                                }`}
-                            onClick={() => onTabChange(tab.id)}
-                        >
-                            <FileText className="icon-xs flex-shrink-0" />
-                            <span className="max-w-[120px] truncate">{tab.name}</span>
-                            {tab.modified && (
-                                <Circle className="icon-xs fill-primary text-primary flex-shrink-0" />
-                            )}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onTabClose(tab.id);
-                                }}
-                                className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-accent rounded p-0.5"
-                            >
-                                <X className="icon-xs" />
-                            </button>
+            <div className="flex items-center gap-2 px-2 py-1 bg-muted/30 border-b border-border">
+                <div className="flex items-center gap-1 overflow-x-auto flex-1">
+                    {tabs.length === 0 ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
+                            <FileText className="icon-xs" />
+                            <span>No file open</span>
                         </div>
-                    ))
+                    ) : (
+                        tabs.map((tab) => (
+                            <div
+                                key={tab.id}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-t cursor-pointer group text-xs ${
+                                    tab.id === activeTabId
+                                        ? 'bg-background border-t border-l border-r border-border'
+                                        : 'bg-muted/50 hover:bg-muted'
+                                }`}
+                                onClick={() => onTabChange(tab.id)}
+                            >
+                                <FileText className="icon-xs flex-shrink-0" />
+                                <span className="max-w-[120px] truncate">{tab.name}</span>
+                                {tab.modified && (
+                                    <Circle className="icon-xs fill-primary text-primary flex-shrink-0" />
+                                )}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onTabClose(tab.id);
+                                    }}
+                                    className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-accent rounded p-0.5"
+                                >
+                                    <X className="icon-xs" />
+                                </button>
+                            </div>
+                        ))
+                    )}
+                </div>
+                {activeTabId && isPlcopenFile && cachedPlcopenProject && (
+                    <div className="flex items-center gap-2">
+                        <select
+                            value={exportTarget}
+                            onChange={(event) => setExportTarget(event.target.value)}
+                            className="text-xs border border-border rounded bg-background px-2 py-1"
+                            aria-label="Export target"
+                        >
+                            <option value="plcopen-xml">PLCopen XML</option>
+                        </select>
+                        <button
+                            type="button"
+                            className="btn btn-sm btn-secondary"
+                            onClick={() => onExportPlcopen?.(activeTabId, exportTarget)}
+                            title="Export PLCopen project"
+                        >
+                            <Download className="icon-xs mr-1" />
+                            Export
+                        </button>
+                    </div>
                 )}
             </div>
 
