@@ -9,6 +9,8 @@ import {
 import { Save, X, FileText, Circle } from 'lucide-react';
 import { EditorTab } from '../types/ide-types';
 import FbtBasicFbView from './fbt/FbtBasicFbView';
+import PlcopenProjectView from './plcopen/PlcopenProjectView';
+import { PlcopenProject } from '../types/plcopen-types';
 
 interface CodeEditorProps {
     tabs: EditorTab[];
@@ -18,6 +20,8 @@ interface CodeEditorProps {
     onContentChange: (tabId: string, content: string) => void;
     onSave: (tabId: string) => void;
     isDark?: boolean;
+    plcopenProjects?: Record<string, PlcopenProject>;
+    onPlcopenParsed?: (tabId: string, project: PlcopenProject | null) => void;
 }
 
 export default function CodeEditor({
@@ -28,6 +32,8 @@ export default function CodeEditor({
     onContentChange,
     onSave,
     isDark = false,
+    plcopenProjects,
+    onPlcopenParsed,
 }: CodeEditorProps) {
     const [editorInstance, setEditorInstance] = useState<editor.IStandaloneCodeEditor | null>(
         null
@@ -37,6 +43,13 @@ export default function CodeEditor({
     const activeTab = tabs.find((t) => t.id === activeTabId);
     const isFbtFile =
         activeTab && activeTab.name.toLowerCase().endsWith('.fbt');
+    const isPlcopenFile =
+        activeTab &&
+        activeTab.name.toLowerCase().endsWith('.xml') &&
+        !isFbtFile;
+    const cachedPlcopenProject = activeTabId
+        ? plcopenProjects?.[activeTabId]
+        : undefined;
 
     // Register PLC languages once
     useEffect(() => {
@@ -147,6 +160,20 @@ export default function CodeEditor({
                                 language={activeTab.language || 'xml'}
                                 onContentChange={(value) => handleContentChange(value)}
                                 onEditorMount={handleEditorMount}
+                            />
+                        ) : isPlcopenFile ? (
+                            <PlcopenProjectView
+                                content={activeTab.content}
+                                path={activeTab.path}
+                                language={activeTab.language || 'xml'}
+                                project={cachedPlcopenProject}
+                                onContentChange={(value) => handleContentChange(value)}
+                                onEditorMount={handleEditorMount}
+                                onParsed={(project) => {
+                                    if (activeTabId) {
+                                        onPlcopenParsed?.(activeTabId, project);
+                                    }
+                                }}
                             />
                         ) : (
                             <Editor

@@ -18,6 +18,8 @@ import { EditorTab } from './types/ide-types';
 import type { ChatMode } from './types/ide-types';
 import { MCPServer, MCPServersConfig } from './types/mcp-types';
 import { FileNode, FileSystemAPI } from './utils/file-api';
+import { PlcopenProject } from './types/plcopen-types';
+import { parsePlcopenProject } from './utils/plcopen-parser';
 import {
   loadSessions,
   saveSessions,
@@ -65,6 +67,7 @@ function AppContent() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [fileSystemVersion, setFileSystemVersion] = useState(0);
+  const [plcopenProjects, setPlcopenProjects] = useState<Record<string, PlcopenProject>>({});
   const chatPanelRef = useRef<ChatPanelHandle | null>(null);
   const [activeActivityView, setActiveActivityView] = useState<ActivityView>('explorer');
 
@@ -174,6 +177,13 @@ function AppContent() {
 
         setEditorTabs((prev) => [...prev, newTab]);
         setActiveTabId(newTab.id);
+
+        if (node.name.toLowerCase().endsWith('.xml')) {
+          const parsed = parsePlcopenProject(content);
+          if (parsed) {
+            setPlcopenProjects((prev) => ({ ...prev, [newTab.id]: parsed }));
+          }
+        }
       } catch (error) {
         console.error('Failed to open file:', error);
       }
@@ -192,6 +202,12 @@ function AppContent() {
     }
 
     setEditorTabs((prev) => prev.filter((t) => t.id !== tabId));
+    setPlcopenProjects((prev) => {
+      if (!prev[tabId]) return prev;
+      const next = { ...prev };
+      delete next[tabId];
+      return next;
+    });
     if (activeTabId === tabId) {
       const remaining = editorTabs.filter((t) => t.id !== tabId);
       setActiveTabId(remaining.length > 0 ? remaining[0].id : null);
@@ -204,6 +220,47 @@ function AppContent() {
         tab.id === tabId ? { ...tab, content, modified: true } : tab
       )
     );
+  };
+
+  const handlePlcopenParsed = (tabId: string, project: PlcopenProject | null) => {
+    setPlcopenProjects((prev) => {
+      if (!project) {
+        if (!prev[tabId]) return prev;
+        const next = { ...prev };
+        delete next[tabId];
+        return next;
+      }
+      return { ...prev, [tabId]: project };
+    });
+  };
+
+  const handleImportPlcopen = async (file: File) => {
+    try {
+      const content = await file.text();
+      const parsed = parsePlcopenProject(content);
+      const tabId = `plcopen-${Date.now()}`;
+
+      const newTab: EditorTab = {
+        id: tabId,
+        path: `plcopen-import/${file.name}`,
+        name: file.name,
+        content,
+        modified: false,
+        language: 'xml',
+      };
+
+      setEditorTabs((prev) => [...prev, newTab]);
+      setActiveTabId(tabId);
+
+      if (parsed) {
+        setPlcopenProjects((prev) => ({ ...prev, [tabId]: parsed }));
+      }
+    } catch (error) {
+      console.error('Failed to import PLCopen XML:', error);
+      alert(
+        `Failed to import PLCopen XML: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   };
 
   const handleSave = async (tabId: string) => {
@@ -551,6 +608,7 @@ function AppContent() {
                     selectedPath={editorTabs.find((t) => t.id === activeTabId)?.path}
                     onSendToChat={handleSendNodeToChat}
                     refreshTrigger={fileSystemVersion}
+                    onImportPlcopen={handleImportPlcopen}
                   />
                 </div>
               )}
@@ -581,6 +639,8 @@ function AppContent() {
             onContentChange={handleContentChange}
             onSave={handleSave}
             isDark={currentThemeIsDark}
+            plcopenProjects={plcopenProjects}
+            onPlcopenParsed={handlePlcopenParsed}
           />
         }
           chatPanel={
