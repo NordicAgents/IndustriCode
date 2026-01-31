@@ -219,12 +219,16 @@ const callOpenAIChat = async (
   };
 
   const tools: any[] = [];
+  const allowTools =
+    mode === 'agent' ||
+    (mode === 'plan' && options?.planApproved) ||
+    (mode === 'ask' && options?.allowAskTools);
 
-  if (mcpTools.length > 0) {
+  if (allowTools && mcpTools.length > 0) {
     tools.push(...convertMCPToolsToOpenAI(mcpTools));
   }
 
-  if (options?.webSearchEnabled) {
+  if (allowTools && options?.webSearchEnabled) {
     tools.push({ type: 'web_search' });
   }
 
@@ -547,6 +551,14 @@ const executeLocalTool = async (name: string, args: any) => {
  * Get all available MCP tools from connected servers
  */
 const getAllMCPTools = (mode: ChatMode, options?: AgentRuntimeOptions): MCPTool[] => {
+  if (mode === 'plan' && !options?.planApproved) {
+    return [];
+  }
+
+  if (mode === 'ask' && !options?.allowAskTools) {
+    return [];
+  }
+
   const allTools: MCPTool[] = [];
   const servers = mcpClientManager.getServers();
 
@@ -883,30 +895,38 @@ const callOllamaOnce = async (
   return { finalText: content };
 };
 
-const getAgentConfigForMode = (mode: ChatMode): AgentConfig => {
+const getAgentConfigForMode = (
+  mode: ChatMode,
+  options?: AgentRuntimeOptions,
+): AgentConfig => {
   if (mode === 'agent') {
     return {
       maxIterations: 8,
       maxToolCallsPerIteration: 8,
+      allowTools: true,
       allowWrites: true,
       allowLocalTools: true,
     };
   }
 
   if (mode === 'plan') {
+    const allowTools = !!options?.planApproved;
     return {
       maxIterations: 3,
       maxToolCallsPerIteration: 4,
+      allowTools,
       allowWrites: false,
-      allowLocalTools: true,
+      allowLocalTools: allowTools,
     };
   }
 
+  const allowTools = !!options?.allowAskTools;
   return {
     maxIterations: 3,
     maxToolCallsPerIteration: 4,
+    allowTools,
     allowWrites: false,
-    allowLocalTools: true,
+    allowLocalTools: allowTools,
   };
 };
 
@@ -922,6 +942,10 @@ const executeToolCall = async (
   toolCall: ToolCall,
   agentConfig: AgentConfig,
 ): Promise<MCPToolCall | null> => {
+  if (!agentConfig.allowTools) {
+    return null;
+  }
+
   const servers = mcpClientManager.getServers();
   let serverId: string | undefined;
   let serverName: string | undefined;
@@ -999,15 +1023,40 @@ const runAgentLoop = async (
   mcpTools: MCPTool[],
   mode: ChatMode,
   callLLM: (history: ChatMessage[]) => Promise<LLMCallResult>,
+  options?: AgentRuntimeOptions,
 ): Promise<{ content: string; toolCalls?: MCPToolCall[] }> => {
-  const agentConfig = getAgentConfigForMode(mode);
+  const agentConfig = getAgentConfigForMode(mode, options);
   const history: ChatMessage[] = [...initialHistory];
   const allToolCalls: MCPToolCall[] = [];
   let finalText: string | undefined;
 
+  if (mode === 'plan' && !options?.planApproved) {
+    const result = await callLLM(history);
+    const planText = result.finalText?.trim();
+
+    return {
+      content:
+        planText ||
+        'No plan text was returned. Please ask again or refine the request.',
+    };
+  }
+
   for (let iteration = 0; iteration < agentConfig.maxIterations; iteration += 1) {
     const result = await callLLM(history);
     const toolCalls = result.toolCalls || [];
+
+    if (!agentConfig.allowTools) {
+      if (result.finalText) {
+        finalText = result.finalText.trim();
+        break;
+      }
+
+      if (toolCalls.length > 0) {
+        finalText =
+          'Tool use is disabled in the current mode. Please explicitly request tool usage if needed.';
+        break;
+      }
+    }
 
     if (toolCalls.length > 0 && mcpTools.length > 0) {
       const limitedToolCalls = toolCalls.slice(
@@ -1102,7 +1151,7 @@ export const callCloudLLM = async (
     }
   };
 
-  return runAgentLoop(messages, mcpTools, mode, callLLM);
+  return runAgentLoop(messages, mcpTools, mode, callLLM, options);
 };
 
 export const callOllama = async (
@@ -1116,5 +1165,5 @@ export const callOllama = async (
   const callLLM = (history: ChatMessage[]): Promise<LLMCallResult> =>
     callOllamaOnce(history, config, mcpTools, mode);
 
-  return runAgentLoop(messages, mcpTools, mode, callLLM);
+  return runAgentLoop(messages, mcpTools, mode, callLLM, options);
 };
