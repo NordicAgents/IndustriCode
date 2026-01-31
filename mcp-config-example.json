@@ -26,21 +26,6 @@
       "env": {
         "OPCUA_SERVER_URL": "opc.tcp://localhost:4840"
       }
-    },
-    "GraphDB": {
-      "command": "mcphub-gateway",
-      "args": [],
-      "env": {
-        "MCPHUB_SERVER_URL": "http://localhost:7200/mcp"
-      }
-    },
-    "GraphDB (Secured)": {
-      "command": "mcphub-gateway",
-      "args": [],
-      "env": {
-        "MCPHUB_SERVER_URL": "https://your-graphdb-instance.com/mcp",
-        "MCPHUB_AUTHORIZATION_HEADER": "Bearer YOUR_TOKEN_HERE"
-      }
     }
   }
 }
