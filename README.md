@@ -6,7 +6,7 @@ A modern, intuitive chat interface for working with local and third‑party lang
 
 - 🎨 **Beautiful UI** – Modern interface inspired by Claude Code with clean design  
 - 🌓 **Dark/Light Mode** – Seamless theme switching with system preference detection  
-- 🔌 **MCP Server Integration** – Connect and manage Model Context Protocol servers (MQTT, OPC UA, GraphDB, etc.)
+- 🔌 **MCP Server Integration** – Connect and manage Model Context Protocol servers (MQTT, OPC UA, etc.)
 - ☁️ **Cloud LLM Support** – Talk to OpenAI GPT-5 models, Google Gemini, and Anthropic Claude  
 - 💻 **Local LLM Support (Ollama)** – Chat with local models running via Ollama  
 - 💬 **Interactive Chat** – Streaming‑style conversational UI with copy‑to‑clipboard  
@@ -20,7 +20,6 @@ A modern, intuitive chat interface for working with local and third‑party lang
 - npm or yarn
 - Python (for running MCP servers like MQTT/OPC UA)
 - `uv` (Python package manager)
-- `graphdb-mcphub-gateway` (optional, for GraphDB integration - install with `npm install -g graphdb-mcphub-gateway`)
 
 ### Installation
 
@@ -55,7 +54,7 @@ This will start:
 ## Features
 
 - **Chat Interface**: Interact with Cloud LLMs (OpenAI GPT-5, Gemini, Anthropic) or local Ollama models.
-- **MCP Server Integration**: Configure and connect to real MCP servers (MQTT, OPC UA, GraphDB, etc.).
+- **MCP Server Integration**: Configure and connect to real MCP servers (MQTT, OPC UA, etc.).
 - **Tool Calling**: LLMs can automatically discover and use tools provided by connected MCP servers.
 - **Real-time Updates**: WebSocket connection ensures live status updates from MCP servers.
 
@@ -67,7 +66,6 @@ This will start:
    - Option 2: Import a Cursor-style JSON configuration file
    - Option 3: Use JSON editor mode to paste configuration directly
    - Example configuration available in `mcp-config-example.json`
-   - For GraphDB setup, see [GRAPHDB_SETUP.md](GRAPHDB_SETUP.md)
 
 2. **Connect to MCP Servers**
    - Start your MCP server processes externally (e.g., run the MQTT or OPC UA servers)

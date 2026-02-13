@@ -18,6 +18,9 @@ import { EditorTab } from './types/ide-types';
 import type { ChatMode } from './types/ide-types';
 import { MCPServer, MCPServersConfig } from './types/mcp-types';
 import { FileNode, FileSystemAPI } from './utils/file-api';
+import { PlcopenProject } from './types/plcopen-types';
+import { parsePlcopenProject } from './utils/plcopen-parser';
+import { serializePlcopenProject } from './utils/plcopen-export';
 import {
   loadSessions,
   saveSessions,
@@ -41,11 +44,6 @@ import { mcpClientManager } from './utils/mcp-client';
 import { getTheme, setTheme as setAppTheme } from './utils/theme';
 import { format } from 'date-fns';
 import { callCloudLLM, callOllama } from './utils/llm';
-import {
-  buildProjectInitPrompt,
-  PROJECT_DOC_ORDER,
-  PROJECT_DOC_FILES,
-} from './utils/project-init';
 
 function AppContent() {
   // Chat state
@@ -59,6 +57,7 @@ function AppContent() {
   const [chatMode, setChatMode] = useState<ChatMode>('ask');
   const [webSearchEnabled, setWebSearchEnabled] = useState<boolean>(false);
   const [applyPatchEnabled, setApplyPatchEnabled] = useState<boolean>(false);
+  const [planApproved, setPlanApproved] = useState<boolean>(false);
 
   // MCP state
   const [mcpConfig, setMcpConfig] = useState<MCPServersConfig>({ mcpServers: {} });
@@ -70,8 +69,8 @@ function AppContent() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [fileSystemVersion, setFileSystemVersion] = useState(0);
+  const [plcopenProjects, setPlcopenProjects] = useState<Record<string, PlcopenProject>>({});
   const chatPanelRef = useRef<ChatPanelHandle | null>(null);
-  const [isInitializingProjectDocs, setIsInitializingProjectDocs] = useState(false);
   const [activeActivityView, setActiveActivityView] = useState<ActivityView>('explorer');
 
   // Load data from localStorage on mount
@@ -180,6 +179,13 @@ function AppContent() {
 
         setEditorTabs((prev) => [...prev, newTab]);
         setActiveTabId(newTab.id);
+
+        if (node.name.toLowerCase().endsWith('.xml')) {
+          const parsed = parsePlcopenProject(content);
+          if (parsed) {
+            setPlcopenProjects((prev) => ({ ...prev, [newTab.id]: parsed }));
+          }
+        }
       } catch (error) {
         console.error('Failed to open file:', error);
       }
@@ -198,6 +204,12 @@ function AppContent() {
     }
 
     setEditorTabs((prev) => prev.filter((t) => t.id !== tabId));
+    setPlcopenProjects((prev) => {
+      if (!prev[tabId]) return prev;
+      const next = { ...prev };
+      delete next[tabId];
+      return next;
+    });
     if (activeTabId === tabId) {
       const remaining = editorTabs.filter((t) => t.id !== tabId);
       setActiveTabId(remaining.length > 0 ? remaining[0].id : null);
@@ -210,6 +222,47 @@ function AppContent() {
         tab.id === tabId ? { ...tab, content, modified: true } : tab
       )
     );
+  };
+
+  const handlePlcopenParsed = (tabId: string, project: PlcopenProject | null) => {
+    setPlcopenProjects((prev) => {
+      if (!project) {
+        if (!prev[tabId]) return prev;
+        const next = { ...prev };
+        delete next[tabId];
+        return next;
+      }
+      return { ...prev, [tabId]: project };
+    });
+  };
+
+  const handleImportPlcopen = async (file: File) => {
+    try {
+      const content = await file.text();
+      const parsed = parsePlcopenProject(content);
+      const tabId = `plcopen-${Date.now()}`;
+
+      const newTab: EditorTab = {
+        id: tabId,
+        path: `plcopen-import/${file.name}`,
+        name: file.name,
+        content,
+        modified: false,
+        language: 'xml',
+      };
+
+      setEditorTabs((prev) => [...prev, newTab]);
+      setActiveTabId(tabId);
+
+      if (parsed) {
+        setPlcopenProjects((prev) => ({ ...prev, [tabId]: parsed }));
+      }
+    } catch (error) {
+      console.error('Failed to import PLCopen XML:', error);
+      alert(
+        `Failed to import PLCopen XML: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   };
 
   const handleSave = async (tabId: string) => {
@@ -235,6 +288,43 @@ function AppContent() {
     } catch (error) {
       console.error('Failed to save file:', error);
       alert(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleExportPlcopen = async (tabId: string, target: string) => {
+    const tab = editorTabs.find((t) => t.id === tabId);
+    if (!tab) return;
+
+    const project = plcopenProjects[tabId] || parsePlcopenProject(tab.content);
+    if (!project) {
+      alert('Unable to export: the current PLCopen XML could not be parsed.');
+      return;
+    }
+
+    if (target !== 'plcopen-xml') {
+      alert(`Export target "${target}" is not supported yet.`);
+      return;
+    }
+
+    const xml = serializePlcopenProject(project);
+    const baseName = tab.name.replace(/\.[^.]+$/, '') || 'plcopen-project';
+    const suggestedFileName = `${baseName}-export.xml`;
+    const suggestedPath = tab.path.includes('/')
+      ? tab.path.replace(tab.name, suggestedFileName)
+      : suggestedFileName;
+
+    const targetPath = window.prompt('Export PLCopen XML to path:', suggestedPath);
+    if (!targetPath) return;
+
+    try {
+      await FileSystemAPI.writeFile(targetPath, xml);
+      setFileSystemVersion((v) => v + 1);
+      alert(`Exported PLCopen XML to ${targetPath}`);
+    } catch (error) {
+      console.error('Failed to export PLCopen XML:', error);
+      alert(
+        `Failed to export PLCopen XML: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -373,6 +463,8 @@ function AppContent() {
 
   const handleSendMessage = async (content: string) => {
     const now = Date.now();
+    const shouldAllowAskTools =
+      chatMode === 'ask' ? isExplicitToolRequest(content) : true;
     const userMessage: ChatMessage = {
       id: `msg-${now}`,
       role: 'user',
@@ -405,11 +497,15 @@ function AppContent() {
           applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51 && chatMode === 'agent',
           applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
           applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
+          allowAskTools: shouldAllowAskTools,
+          planApproved,
         });
       } else if (chatBackend === 'ollama' && ollamaConfig) {
         assistantResponse = await callOllama(allMessages, ollamaConfig, chatMode, {
           webSearchEnabled,
           applyPatchEnabled: false,
+          allowAskTools: shouldAllowAskTools,
+          planApproved,
         });
       } else {
         throw new Error('Chat backend is not configured.');
@@ -463,148 +559,27 @@ function AppContent() {
     if (isLoading) return;
     setMessages([]);
     setSelectedSessionId(null);
+    setPlanApproved(false);
   };
 
-  const handleInitializeProjectDocs = async () => {
-    if (isLoading || isInitializingProjectDocs) return;
-
-    try {
-      setIsInitializingProjectDocs(true);
-      setIsLoading(true);
-
-      const rootDir = await FileSystemAPI.getAgentRootDir();
-      if (!rootDir) {
-        alert(
-          'Agent root directory is not configured. Open a folder in the Explorer or set AGENT_ROOT_DIR in config.json before initializing docs.',
-        );
-        return;
-      }
-
-      if (
-        (chatBackend === 'cloud-llm' && !cloudLLMConfig) ||
-        (chatBackend === 'ollama' && !ollamaConfig)
-      ) {
-        throw new Error('Chat backend is not configured.');
-      }
-
-      // Ensure there is a session to attach messages to
-      let sessionId = selectedSessionId;
-      if (!sessionId) {
-        const now = Date.now();
-        const newSession: ChatSession = {
-          id: `session-${now}`,
-          name: `Chat ${format(new Date(), 'MMM d, HH:mm')}`,
-          createdAt: new Date(),
-          lastActivity: new Date(),
-        };
-        setSessions((prev) => [newSession, ...prev]);
-        sessionId = newSession.id;
-        setSelectedSessionId(newSession.id);
-      }
-
-      // Sequentially initialize each doc via its own agent run
-      for (const kind of PROJECT_DOC_ORDER) {
-        const now = Date.now();
-        const initPrompt = buildProjectInitPrompt(rootDir, kind);
-        const fileName = PROJECT_DOC_FILES[kind];
-
-        const userMessage: ChatMessage = {
-          id: `init-${kind}-msg-${now}`,
-          role: 'user',
-          content: initPrompt,
-          timestamp: new Date(),
-        };
-
-        // Synthetic history for this specific file
-        const history: ChatMessage[] = [userMessage];
-
-        // Surface request in visible chat
-        setMessages((prev) => [...prev, userMessage]);
-
-        setSessions((prev) =>
-          prev.map((s) =>
-            s.id === sessionId
-              ? { ...s, lastActivity: new Date() }
-              : s,
-          ),
-        );
-
-        try {
-          let assistantResponse: { content: string; toolCalls?: any[] } | null = null;
-
-          if (chatBackend === 'cloud-llm' && cloudLLMConfig) {
-            const isOpenAIGpt51 =
-              cloudLLMConfig.provider === 'openai' &&
-              cloudLLMConfig.model === 'gpt-5.1';
-
-            assistantResponse = await callCloudLLM(history, cloudLLMConfig, 'agent', {
-              webSearchEnabled,
-              applyPatchEnabled: applyPatchEnabled && isOpenAIGpt51,
-              applyPatchProvider: isOpenAIGpt51 ? 'openai' : undefined,
-              applyPatchModel: isOpenAIGpt51 ? 'gpt-5.1' : undefined,
-            });
-          } else if (chatBackend === 'ollama' && ollamaConfig) {
-            assistantResponse = await callOllama(history, ollamaConfig, 'agent', {
-              webSearchEnabled,
-              applyPatchEnabled: false,
-            });
-          }
-
-          if (!assistantResponse || !assistantResponse.content) {
-            throw new Error(`Model returned an empty response while initializing ${fileName}`);
-          }
-
-          const response: ChatMessage = {
-            id: `init-${kind}-msg-${now + 1}`,
-            role: 'assistant',
-            content: assistantResponse.content,
-            timestamp: new Date(),
-            toolCalls: assistantResponse.toolCalls,
-          };
-
-          setMessages((prev) => [...prev, response]);
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : `Unknown error while initializing ${fileName}`;
-
-          const errorMsg: ChatMessage = {
-            id: `init-${kind}-error-${Date.now()}`,
-            role: 'assistant',
-            content: `Error during initialization of ${fileName}: ${errorMessage}`,
-            timestamp: new Date(),
-            error: true,
-          };
-
-          setMessages((prev) => [...prev, errorMsg]);
-          // Continue with next doc instead of aborting the whole sequence
-        }
-      }
-
-      // Ensure docs/ shows up in the file explorer after all runs
-      setFileSystemVersion((v) => v + 1);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Unknown error while initializing project docs';
-
-      const now = Date.now();
-      const response: ChatMessage = {
-        id: `init-msg-${now}`,
-        role: 'assistant',
-        content: `Error during project docs initialization: ${errorMessage}`,
-        timestamp: new Date(),
-        error: true,
-      };
-
-      setMessages((prev) => [...prev, response]);
-    } finally {
-      setIsInitializingProjectDocs(false);
-      setIsLoading(false);
-    }
+  const handleModeChange = (mode: ChatMode) => {
+    setChatMode(mode);
+    setPlanApproved(false);
   };
+
+  const isExplicitToolRequest = (content: string): boolean => {
+    const normalized = content.toLowerCase();
+    return (
+      /\b(use|run|call)\b.*\b(tool|tools|mcp|function|functions)\b/.test(
+        normalized,
+      ) ||
+      /\b(search|web search|browse|look up|lookup)\b/.test(normalized) ||
+      /\b(read|open|list)\b.*\b(file|files|directory|directories|folder|folders)\b/.test(
+        normalized,
+      )
+    );
+  };
+
 
   const handleApplyCode = async (code: string, targetPath?: string) => {
     // Case 1: Target path provided (Create/Update specific file)
@@ -697,6 +672,7 @@ function AppContent() {
                     selectedPath={editorTabs.find((t) => t.id === activeTabId)?.path}
                     onSendToChat={handleSendNodeToChat}
                     refreshTrigger={fileSystemVersion}
+                    onImportPlcopen={handleImportPlcopen}
                   />
                 </div>
               )}
@@ -727,6 +703,9 @@ function AppContent() {
             onContentChange={handleContentChange}
             onSave={handleSave}
             isDark={currentThemeIsDark}
+            plcopenProjects={plcopenProjects}
+            onPlcopenParsed={handlePlcopenParsed}
+            onExportPlcopen={handleExportPlcopen}
           />
         }
           chatPanel={
@@ -734,26 +713,26 @@ function AppContent() {
               <div className="flex-1 overflow-hidden">
                 <ChatPanel
                   ref={chatPanelRef}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                isLoading={isLoading}
-                mode={chatMode}
-                onModeChange={setChatMode}
-                chatBackend={chatBackend}
-                onChatBackendChange={setChatBackend}
-                cloudLLMConfig={cloudLLMConfig}
-                onCloudLLMConfigChange={setCloudLLMConfig}
-                ollamaConfig={ollamaConfig}
-                onOllamaConfigChange={setOllamaConfig}
-                onApplyCodeToFile={handleApplyCode}
-                onFileSelect={handleFileSelect}
-                onNewChat={handleNewChat}
-                webSearchEnabled={webSearchEnabled}
-                onWebSearchEnabledChange={setWebSearchEnabled}
-                applyPatchEnabled={applyPatchEnabled}
-                onApplyPatchEnabledChange={setApplyPatchEnabled}
-                onInitializeProjectDocs={handleInitializeProjectDocs}
-                  isInitializingProjectDocs={isInitializingProjectDocs}
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  isLoading={isLoading}
+                  mode={chatMode}
+                  onModeChange={handleModeChange}
+                  chatBackend={chatBackend}
+                  onChatBackendChange={setChatBackend}
+                  cloudLLMConfig={cloudLLMConfig}
+                  onCloudLLMConfigChange={setCloudLLMConfig}
+                  ollamaConfig={ollamaConfig}
+                  onOllamaConfigChange={setOllamaConfig}
+                  onApplyCodeToFile={handleApplyCode}
+                  onFileSelect={handleFileSelect}
+                  onNewChat={handleNewChat}
+                  webSearchEnabled={webSearchEnabled}
+                  onWebSearchEnabledChange={setWebSearchEnabled}
+                  applyPatchEnabled={applyPatchEnabled}
+                  onApplyPatchEnabledChange={setApplyPatchEnabled}
+                  planApproved={planApproved}
+                  onPlanApprove={() => setPlanApproved(true)}
                 />
               </div>
             </div>

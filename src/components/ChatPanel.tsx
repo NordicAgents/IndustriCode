@@ -12,7 +12,6 @@ import {
   Sparkle,
   Copy,
   CheckCheck,
-  Sparkles,
   Zap,
   Moon,
   Sun,
@@ -59,8 +58,8 @@ interface ChatPanelProps {
   onWebSearchEnabledChange: (enabled: boolean) => void;
   applyPatchEnabled: boolean;
   onApplyPatchEnabledChange: (enabled: boolean) => void;
-   onInitializeProjectDocs?: () => void;
-   isInitializingProjectDocs?: boolean;
+  planApproved: boolean;
+  onPlanApprove: () => void;
 }
 
 function ChatPanelInner(
@@ -83,8 +82,8 @@ function ChatPanelInner(
     onWebSearchEnabledChange,
     applyPatchEnabled,
     onApplyPatchEnabledChange,
-    onInitializeProjectDocs,
-    isInitializingProjectDocs = false,
+    planApproved,
+    onPlanApprove,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -495,20 +494,6 @@ function ChatPanelInner(
                 <span className="hidden sm:inline">New chat</span>
               </button>
             )}
-            {onInitializeProjectDocs && (
-              <button
-                type="button"
-                onClick={onInitializeProjectDocs}
-                disabled={isLoading || !canSend || isInitializingProjectDocs}
-                className="btn btn-xs btn-primary"
-                title="Initialize project docs (creates docs/*.md using tools)"
-              >
-                <Sparkles className="icon-xs" />
-                <span className="hidden sm:inline">
-                  {isInitializingProjectDocs ? 'Initializing docs...' : 'Init project docs'}
-                </span>
-              </button>
-            )}
             <button
               onClick={toggleTheme}
               className="btn-icon"
@@ -532,6 +517,27 @@ function ChatPanelInner(
               <option value="agent">Agent</option>
             </select>
           </div>
+          {mode === 'plan' && (
+            <button
+              type="button"
+              onClick={onPlanApprove}
+              disabled={planApproved || isLoading}
+              className="btn btn-xs btn-outline"
+              title={
+                planApproved
+                  ? 'Plan already confirmed.'
+                  : 'Confirm the plan to allow tool use and execution.'
+              }
+            >
+              <CheckCheck className="icon-xs" />
+              <span className="hidden sm:inline">
+                {planApproved ? 'Plan confirmed' : 'Confirm plan'}
+              </span>
+              <span className="sm:hidden">
+                {planApproved ? 'Confirmed' : 'Confirm'}
+              </span>
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <select
               value={chatBackend}
