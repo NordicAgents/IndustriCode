@@ -116,7 +116,7 @@ function parseInterface(pouEl: Element): PlcopenPouInterface {
         const vars = Array.from(sectionEl.getElementsByTagName('variable'))
             .map(parseVarDeclaration)
             .filter(Boolean) as PlcopenVarDeclaration[];
-        empty[section.key] = vars;
+        (empty as any)[section.key] = vars;
     }
 
     const returnTypeEl = interfaceEl.getElementsByTagName('returnType')[0];
@@ -253,19 +253,19 @@ function parseFbdNetwork(fbdEl?: Element | null): PlcopenFbdNetwork[] {
             formalParameter: connectionEl.getAttribute('formalParameter') || undefined,
         }));
 
-        const variables: PlcopenFbdVariable[] = Array.from(
+        const variables: PlcopenFbdVariable[] = (Array.from(
             networkEl.getElementsByTagName('inVariable')
         )
             .map((varEl) => ({
                 localId: varEl.getAttribute('localId') || undefined,
                 name: varEl.getAttribute('expression') || undefined,
-                role: 'in',
-            }))
+                role: 'in' as const,
+            })) as PlcopenFbdVariable[])
             .concat(
                 Array.from(networkEl.getElementsByTagName('outVariable')).map((varEl) => ({
                     localId: varEl.getAttribute('localId') || undefined,
                     name: varEl.getAttribute('expression') || undefined,
-                    role: 'out',
+                    role: 'out' as const,
                 }))
             );
 

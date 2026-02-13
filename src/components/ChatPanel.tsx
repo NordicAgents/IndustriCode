@@ -22,6 +22,7 @@ import {
   FileCode,
   FileJson,
   FileText,
+  Settings,
 } from 'lucide-react';
 import {
   ChatMessage,
@@ -60,6 +61,7 @@ interface ChatPanelProps {
   onApplyPatchEnabledChange: (enabled: boolean) => void;
   planApproved: boolean;
   onPlanApprove: () => void;
+  onOpenSettings?: () => void;
 }
 
 function ChatPanelInner(
@@ -84,6 +86,7 @@ function ChatPanelInner(
     onApplyPatchEnabledChange,
     planApproved,
     onPlanApprove,
+    onOpenSettings,
   }: ChatPanelProps,
   ref: React.Ref<ChatPanelHandle>,
 ) {
@@ -602,20 +605,14 @@ function ChatPanelInner(
                 );
               })()}
               {!envCloudApiKey && (
-                <input
-                  type="text"
-                  value={cloudLLMConfig?.apiKey || ''}
-                  onChange={(e) =>
-                    onCloudLLMConfigChange({
-                      provider: cloudLLMConfig?.provider || 'openai',
-                      apiKey: e.target.value,
-                      model: cloudLLMConfig?.model || '',
-                      baseUrl: cloudLLMConfig?.baseUrl,
-                    })
-                  }
-                  placeholder="API key"
-                  className="px-2 py-1 border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring text-xs min-w-[180px]"
-                />
+                <button
+                  onClick={onOpenSettings}
+                  className="px-3 py-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                  title="Configure API Key"
+                >
+                  <Settings className="w-3 h-3" />
+                  {cloudLLMConfig?.apiKey ? 'Configured' : 'Set API Key'}
+                </button>
               )}
             </>
           )}
