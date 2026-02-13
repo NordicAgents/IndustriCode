@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { glob } from 'glob';
-import chokidar from 'chokidar';
+import chokidar, { FSWatcher } from 'chokidar';
 
 export interface FileNode {
   name: string;
@@ -20,7 +20,7 @@ export interface FileSearchResult {
 
 export class FileService {
   private allowedDirectories: Set<string> = new Set();
-  private watchers: Map<string, chokidar.FSWatcher> = new Map();
+  private watchers: Map<string, FSWatcher> = new Map();
 
   /**
    * Register a directory as allowed for file operations

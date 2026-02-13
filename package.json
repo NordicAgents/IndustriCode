@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
     "dev:frontend": "vite",
     "dev:backend": "cd mcp-backend && npm run dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "build:electron": "npm run build && cd mcp-backend && npm install && npm run build && cd .. && electron-builder"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -26,12 +28,33 @@
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
     "concurrently": "^9.2.1",
+    "electron": "^40.4.1",
+    "electron-builder": "^26.7.0",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "wait-on": "^9.0.4"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.example.llm-chat-ui",
+    "productName": "LLM Chat UI",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "mcp-backend/dist/**/*",
+      "package.json",
+      "mcp-backend/node_modules/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    }
   }
 }

@@ -4,7 +4,7 @@ import IDELayout from './components/IDELayout';
 import FileExplorer from './components/FileExplorer';
 import CodeEditor from './components/CodeEditor';
 import ChatPanel, { ChatPanelHandle } from './components/ChatPanel';
-import MCPServerConfigPanel from './components/MCPServerConfig';
+import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
 import ActivityBar, { ActivityView } from './components/ActivityBar';
 import {
@@ -733,6 +733,7 @@ function AppContent() {
                   onApplyPatchEnabledChange={setApplyPatchEnabled}
                   planApproved={planApproved}
                   onPlanApprove={() => setPlanApproved(true)}
+                  onOpenSettings={() => setShowMCPConfig(true)}
                 />
               </div>
             </div>
@@ -742,10 +743,20 @@ function AppContent() {
 
       {/* MCP Config Panel */}
       {showMCPConfig && (
-        <MCPServerConfigPanel
-          config={mcpConfig}
-          onConfigChange={handleMCPConfigChange}
+        <SettingsModal
           onClose={() => setShowMCPConfig(false)}
+          mcpConfig={mcpConfig}
+          onMCPConfigChange={handleMCPConfigChange}
+          chatBackend={chatBackend}
+          onChatBackendChange={setChatBackend}
+          cloudLLMConfig={cloudLLMConfig}
+          onCloudLLMConfigChange={setCloudLLMConfig}
+          ollamaConfig={ollamaConfig}
+          onOllamaConfigChange={setOllamaConfig}
+          webSearchEnabled={webSearchEnabled}
+          onWebSearchEnabledChange={setWebSearchEnabled}
+          applyPatchEnabled={applyPatchEnabled}
+          onApplyPatchEnabledChange={setApplyPatchEnabled}
         />
       )}
     </div>
